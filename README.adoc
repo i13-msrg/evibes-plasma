@@ -1,0 +1,20 @@
+= Plasma Simulator
+
+Plasma Simulator aims to simulate a scalable autonomous smart contract - Plasma on an Ethereum-like Blockchain.
+
+== Building
+
+To package the simulator:
+```
+./gradlew clean assemble
+```
+
+To run the plasma simulator:
+```
+./gradlew clean run
+```
+
+To launch tests:
+```
+./gradlew clean test
+```
