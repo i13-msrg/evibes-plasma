@@ -40,7 +40,7 @@ version = '1.0.0-SNAPSHOT'
 sourceCompatibility = '1.8'
 mainClassName = 'io.vertx.core.Launcher'
 
-def mainVerticleName = 'io.plasmasimulator.plasmasimulator.SimulationManager'
+def mainVerticleName = 'io.plasmasimulator.plasmasimulator.SimulationManagerVerticle'
 def watchForChange = 'src/**/*'
 def doOnChange = './gradlew classes'
 
@@ -50,6 +50,7 @@ dependencies {
   implementation "io.vertx:vertx-core:$vertxVersion"
   //slf4j/logback logging
   compile "ch.qos.logback:logback-classic:1.2.3"
+  compile 'io.vertx:vertx-config:3.5.4'
 
   testImplementation "io.vertx:vertx-junit5:$vertxVersion"
   testRuntime("org.junit.jupiter:junit-jupiter-engine:$junitJupiterEngineVersion")
