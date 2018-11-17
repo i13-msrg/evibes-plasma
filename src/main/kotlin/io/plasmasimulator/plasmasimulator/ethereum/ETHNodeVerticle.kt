@@ -20,13 +20,22 @@ class ETHNodeVerticle : AbstractVerticle() {
 
 
   private companion object {
-    private val LOGGER = LoggerFactory.getLogger(SimulationManagerVerticle::class.java)
+    private val LOG = LoggerFactory.getLogger(SimulationManagerVerticle::class.java)
   }
 
   override fun start(startFuture: Future<Void>) {
     vertx.eventBus().consumer<Any>(Address.ETH_NODES_BROADCAST.name) { msg ->
       val jsonObject= msg.body() as JsonObject
-      LOGGER.info("RECEIVED MESSAGE")
+      LOG.info("RECEIVED MESSAGE")
+
+      when(jsonObject.getString("type")) {
+        Message.ISSUE_TRANSACTION.name -> issue_transaction()
+      }
+    }
+
+    vertx.eventBus().consumer<Any>(Address.APPLY_BLOCK.name) { msg ->
+      val jsonObject= msg.body() as JsonObject
+      LOG.info("RECEIVED MESSAGE")
 
       when(jsonObject.getString("type")) {
         Message.ISSUE_TRANSACTION.name -> issue_transaction()

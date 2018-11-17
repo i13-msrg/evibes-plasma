@@ -1,5 +1,6 @@
 package io.plasmasimulator.plasmasimulator.conf
 
 enum class Address {
-  ETH_NODES_BROADCAST
+  ETH_NODES_BROADCAST,
+  APPLY_BLOCK
 }
