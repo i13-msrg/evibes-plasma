@@ -1,14 +1,11 @@
-package io.plasmasimulator.ethereum
+package io.plasmasimulator.ethereum.verticles
 
-import io.plasmasimulator.SimulationManagerVerticle
 import io.plasmasimulator.conf.Address
-import io.plasmasimulator.conf.Message
 import io.plasmasimulator.ethereum.models.Account
 import io.plasmasimulator.ethereum.models.ETHChain
 import io.plasmasimulator.ethereum.models.ETHTransaction
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
-import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
 import java.util.*

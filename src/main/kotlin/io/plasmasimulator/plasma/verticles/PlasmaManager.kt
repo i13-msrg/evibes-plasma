@@ -1,9 +1,6 @@
 package io.plasmasimulator.plasma.verticles
 
-import io.plasmasimulator.SimulationManagerVerticle
 import io.plasmasimulator.conf.Address
-import io.plasmasimulator.conf.Message
-import io.plasmasimulator.ethereum.ETHNodeVerticle
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Future

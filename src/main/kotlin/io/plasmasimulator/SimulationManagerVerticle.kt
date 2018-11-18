@@ -26,7 +26,7 @@ class SimulationManagerVerticle : AbstractVerticle() {
       var conf = ar.result()
       var opt = DeploymentOptions().setWorker(true).setInstances(conf.getInteger("instances", 1))
 
-      vertx.deployVerticle("io.plasmasimulator.ethereum.ETHNodeVerticle", opt)
+      vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.ETHNodeVerticle", opt)
       vertx.deployVerticle("io.plasmasimulator.plasma.verticles.PlasmaManager", opt)
 
       vertx

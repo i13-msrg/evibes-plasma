@@ -1,4 +1,4 @@
-package io.plasmasimulator.ethereum
+package io.plasmasimulator.ethereum.verticles
 
 import io.plasmasimulator.SimulationManagerVerticle
 
