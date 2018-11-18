@@ -3,9 +3,13 @@ package io.plasmasimulator.plasma.verticles
 import io.plasmasimulator.SimulationManagerVerticle
 import io.plasmasimulator.conf.Address
 import io.plasmasimulator.plasma.models.PlasmaChain
+import io.plasmasimulator.plasma.models.PlasmaBlock
+import io.plasmasimulator.utils.HashUtils
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
+import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
+import io.vertx.core.parsetools.JsonParser
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -32,5 +36,11 @@ open class PlasmaParticipant: AbstractVerticle() {
 //      plasmaContractAddress = jsonObj.getString("plasmaContractAddress")
 //      balance = jsonObj.getInteger("balance")
 //    }
+    vertx.eventBus().consumer<Any>(Address.GENESIS_PLASMA_BLOCK.name) { msg ->
+      println(msg.body().toString())
+      val block: PlasmaBlock = Json.decodeValue(msg.body().toString(), PlasmaBlock::class.java)
+      chain.addBlock(block)
+      println(HashUtils.transform(block.blockHash().toByteArray()))
+    }
   }
 }

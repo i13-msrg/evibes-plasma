@@ -51,6 +51,7 @@ dependencies {
   //slf4j/logback logging
   compile "ch.qos.logback:logback-classic:1.2.3"
   compile 'io.vertx:vertx-config:3.5.4'
+  compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.2"
 
   testImplementation "io.vertx:vertx-junit5:$vertxVersion"
   testRuntime("org.junit.jupiter:junit-jupiter-engine:$junitJupiterEngineVersion")

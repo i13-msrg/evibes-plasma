@@ -1,5 +1,6 @@
 package io.plasmasimulator
 
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.plasmasimulator.conf.Address
 import io.plasmasimulator.conf.Configuration
 import io.plasmasimulator.conf.Message
@@ -7,6 +8,7 @@ import io.vertx.config.ConfigRetriever
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Future
+import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -17,6 +19,8 @@ class SimulationManagerVerticle : AbstractVerticle() {
   }
 
   override fun start(startFuture: Future<Void>) {
+    // module for parsing json to objects
+    Json.mapper.registerModule(KotlinModule())
     var options = DeploymentOptions().setWorker(true).setInstances(10)
 
     val confOptions = Configuration.getConfigRetrieverOptions()
