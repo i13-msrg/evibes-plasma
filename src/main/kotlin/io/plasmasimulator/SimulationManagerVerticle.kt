@@ -1,14 +1,15 @@
-package io.plasmasimulator.plasmasimulator
+package io.plasmasimulator
 
-import io.plasmasimulator.plasmasimulator.conf.Address
-import io.plasmasimulator.plasmasimulator.conf.Configuration
-import io.plasmasimulator.plasmasimulator.conf.Message
+import io.plasmasimulator.conf.Address
+import io.plasmasimulator.conf.Configuration
+import io.plasmasimulator.conf.Message
 import io.vertx.config.ConfigRetriever
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Future
 import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class SimulationManagerVerticle : AbstractVerticle() {
   private companion object {
@@ -25,7 +26,8 @@ class SimulationManagerVerticle : AbstractVerticle() {
       var conf = ar.result()
       var opt = DeploymentOptions().setWorker(true).setInstances(conf.getInteger("instances", 1))
 
-      vertx.deployVerticle("io.plasmasimulator.plasmasimulator.ethereum.ETHNodeVerticle", opt)
+      vertx.deployVerticle("io.plasmasimulator.ethereum.ETHNodeVerticle", opt)
+      vertx.deployVerticle("io.plasmasimulator.plasma.verticles.PlasmaManager", opt)
 
       vertx
         .createHttpServer()
@@ -34,6 +36,11 @@ class SimulationManagerVerticle : AbstractVerticle() {
           println(req.absoluteURI())
           vertx.eventBus().publish(Address.ETH_NODES_BROADCAST.name,
             JsonObject().put("type", Message.ISSUE_TRANSACTION.name))
+
+          vertx.eventBus().send(Address.RUN_PLASMA_CHAIN.name,
+            JsonObject().put("numberOfPlasmaClients", 3)
+              .put("plasmaContractAddress", UUID.randomUUID().toString())
+              .put("amount", 10))
 
           req.response()
             .putHeader("content-type", "text/plain")

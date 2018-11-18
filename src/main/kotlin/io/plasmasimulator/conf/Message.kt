@@ -1,4 +1,4 @@
-package io.plasmasimulator.plasmasimulator.conf
+package io.plasmasimulator.conf
 
 enum class Message {
   ISSUE_TRANSACTION, CREATE_BLOCK, APPLY_BLOCK

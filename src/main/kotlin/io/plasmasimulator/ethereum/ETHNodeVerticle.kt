@@ -1,11 +1,11 @@
-package io.plasmasimulator.plasmasimulator.ethereum
+package io.plasmasimulator.ethereum
 
-import io.plasmasimulator.plasmasimulator.SimulationManagerVerticle
-import io.plasmasimulator.plasmasimulator.conf.Address
-import io.plasmasimulator.plasmasimulator.conf.Message
-import io.plasmasimulator.plasmasimulator.ethereum.models.Account
-import io.plasmasimulator.plasmasimulator.ethereum.models.ETHChain
-import io.plasmasimulator.plasmasimulator.ethereum.models.ETHTransaction
+import io.plasmasimulator.SimulationManagerVerticle
+import io.plasmasimulator.conf.Address
+import io.plasmasimulator.conf.Message
+import io.plasmasimulator.ethereum.models.Account
+import io.plasmasimulator.ethereum.models.ETHChain
+import io.plasmasimulator.ethereum.models.ETHTransaction
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.json.Json
@@ -20,7 +20,7 @@ class ETHNodeVerticle : AbstractVerticle() {
 
 
   private companion object {
-    private val LOG = LoggerFactory.getLogger(SimulationManagerVerticle::class.java)
+    private val LOG = LoggerFactory.getLogger(ETHNodeVerticle::class.java)
   }
 
   override fun start(startFuture: Future<Void>) {
@@ -28,19 +28,20 @@ class ETHNodeVerticle : AbstractVerticle() {
       val jsonObject= msg.body() as JsonObject
       LOG.info("RECEIVED MESSAGE")
 
-      when(jsonObject.getString("type")) {
-        Message.ISSUE_TRANSACTION.name -> issue_transaction()
-      }
+//      when(jsonObject.getString("type")) {
+//        Message.ISSUE_TRANSACTION.name -> issue_transaction()
+//      }
     }
 
     vertx.eventBus().consumer<Any>(Address.APPLY_BLOCK.name) { msg ->
       val jsonObject= msg.body() as JsonObject
       LOG.info("RECEIVED MESSAGE")
 
-      when(jsonObject.getString("type")) {
-        Message.ISSUE_TRANSACTION.name -> issue_transaction()
-      }
+//      when(jsonObject.getString("type")) {
+//        Message.ISSUE_TRANSACTION.name -> issue_transaction()
+//      }
     }
+
     println("Hello from ETHNodeVerticle")
     startFuture.complete()
   }
@@ -56,7 +57,7 @@ class ETHNodeVerticle : AbstractVerticle() {
 
   }
 
-  fun getDestinationAccount(sourceIndex: Int, accountsList: List<Account>) : Account{
+  fun getDestinationAccount(sourceIndex: Int, accountsList: List<Account>) : Account {
     var destIndex: Int
     do {
       destIndex = Random().nextInt(accountsList.size)

@@ -1,7 +1,7 @@
-package io.plasmasimulator.plasmasimulator.ethereum.models
+package io.plasmasimulator.ethereum.models
 
-import io.plasmasimulator.plasmasimulator.ethereum.models.ETHBlock
-import io.plasmasimulator.plasmasimulator.ethereum.models.ETHTransaction
+import io.plasmasimulator.ethereum.models.ETHBlock
+import io.plasmasimulator.ethereum.models.ETHTransaction
 
 class ETHChain {
   var blocks = mutableMapOf<Int, ETHBlock>()

@@ -1,3 +1,3 @@
-package io.plasmasimulator.plasmasimulator.ethereum.models
+package io.plasmasimulator.ethereum.models
 
 open class Account(val address: String, var balance: Int)

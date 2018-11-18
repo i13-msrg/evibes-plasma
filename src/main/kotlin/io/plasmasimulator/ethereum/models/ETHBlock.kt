@@ -1,4 +1,4 @@
-package io.plasmasimulator.plasmasimulator.ethereum.models
+package io.plasmasimulator.ethereum.models
 
 class ETHBlock(val number: Int, val prevBlockHash: String) {
   val timestamp = System.currentTimeMillis()

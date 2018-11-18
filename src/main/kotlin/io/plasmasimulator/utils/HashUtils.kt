@@ -1,4 +1,4 @@
-package io.plasmasimulator.plasmasimulator.utils
+package io.plasmasimulator.utils
 
 import java.security.MessageDigest
 

@@ -1,4 +1,4 @@
-package io.plasmasimulator.plasmasimulator.plasma.models
+package io.plasmasimulator.plasma.models
 
 class UTXOPool(var poolMap: MutableMap<UTXO, Transaction.Output> = mutableMapOf()) {
 

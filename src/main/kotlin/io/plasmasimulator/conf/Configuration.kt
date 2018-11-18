@@ -1,4 +1,4 @@
-package io.plasmasimulator.plasmasimulator.conf
+package io.plasmasimulator.conf
 
 import io.vertx.config.ConfigRetrieverOptions
 import io.vertx.core.json.JsonObject

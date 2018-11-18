@@ -1,6 +1,6 @@
-package io.plasmasimulator.plasmasimulator.plasma.models
+package io.plasmasimulator.plasma.models
 
-import io.plasmasimulator.plasmasimulator.ethereum.ETHNetworkGateway
+import io.plasmasimulator.ethereum.ETHNetworkGateway
 
 class PlasmaChain (var blocks: MutableList<PlasmaBlock> = mutableListOf(), var plasmaPool: UTXOPool = UTXOPool()) {
 

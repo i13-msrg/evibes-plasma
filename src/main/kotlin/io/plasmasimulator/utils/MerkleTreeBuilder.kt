@@ -1,11 +1,11 @@
-package io.plasmasimulator.plasmasimulator.utils
+package io.plasmasimulator.utils
 
-import io.plasmasimulator.plasmasimulator.plasma.models.MerkleTree
-import io.plasmasimulator.plasmasimulator.plasma.models.Transaction
+import io.plasmasimulator.plasma.models.MerkleTree
+import io.plasmasimulator.plasma.models.Transaction
 import java.util.*
 
-class MerkleTreeBuilder(val transactions: List<Transaction>) {
-  fun getRoot() : MerkleTree{
+object MerkleTreeBuilder {
+  fun getRoot(transactions: List<Transaction>) : MerkleTree {
     val leafs = createLeafs(transactions)
     val queue = LinkedList<MerkleTree>()
 

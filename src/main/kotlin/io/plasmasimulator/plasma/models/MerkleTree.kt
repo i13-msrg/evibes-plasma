@@ -1,6 +1,6 @@
-package io.plasmasimulator.plasmasimulator.plasma.models
+package io.plasmasimulator.plasma.models
 
-import io.plasmasimulator.plasmasimulator.utils.HashUtils
+import io.plasmasimulator.utils.HashUtils
 
 class MerkleTree(var digest: ByteArray? = null) {
 
