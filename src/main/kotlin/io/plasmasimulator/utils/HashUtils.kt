@@ -5,13 +5,12 @@ import java.security.MessageDigest
 object HashUtils {
   val HEX_CHARS = "0123456789abcdef"
 
-  fun hash(bytesToHash: ByteArray?) : ByteArray {
+  fun hash(bytesToHash: ByteArray) : ByteArray {
     val digest: MessageDigest = MessageDigest.getInstance("SHA-256")
-    val resultArray = digest.digest()
-    return resultArray
+    return digest.digest()
   }
 
-  fun hash(byteArrays: Array<ByteArray?>) : ByteArray{
+  fun hash(byteArrays: Array<ByteArray>) : ByteArray{
     val digest: MessageDigest = MessageDigest.getInstance("SHA-256")
 
     for(byteArray in byteArrays) {
@@ -20,8 +19,7 @@ object HashUtils {
     return digest.digest()
   }
 
-  fun transform(byteArray: ByteArray?) : String {
-    if(byteArray == null) return ""
+  fun transform(byteArray: ByteArray) : String {
     val result = StringBuilder(byteArray.size * 2)
 
     byteArray.forEach {

@@ -37,8 +37,11 @@ class PlasmaChain (var blocks: MutableList<PlasmaBlock> = mutableListOf(), var p
     return blocks.get(blockNum)
   }
 
+  fun getLastBlock(): PlasmaBlock {
+    return blocks.last()
+  }
+
   fun getTransaction(utxo: UTXO) : Transaction {
     return blocks.get(utxo.blockNum).transactions.get(utxo.txIndex)
   }
-
 }
