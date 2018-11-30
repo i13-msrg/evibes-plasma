@@ -2,10 +2,7 @@ package io.plasmasimulator.plasma.verticles
 
 import io.plasmasimulator.conf.Address
 import io.plasmasimulator.conf.Message
-import io.plasmasimulator.plasma.models.PlasmaBlock
-import io.plasmasimulator.plasma.models.PlasmaChain
-import io.plasmasimulator.plasma.models.Transaction
-import io.plasmasimulator.plasma.models.UTXO
+import io.plasmasimulator.plasma.models.*
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Future
@@ -65,7 +62,7 @@ class PlasmaManager: AbstractVerticle() {
   fun bootstrapBlockchain() {
     val genesisBlock = PlasmaBlock(number = 0, prevBlockNum = 0, prevBlockHash = mutableListOf<Byte>().toByteArray())
     val genesisBlockJson  = JsonObject(Json.encode(genesisBlock))
-    chain.addBlock(genesisBlock)
+    chain.addBlock(genesisBlock, UTXOPool())
     vertx.eventBus().publish(Address.GENESIS_PLASMA_BLOCK.name, genesisBlockJson)
   }
 

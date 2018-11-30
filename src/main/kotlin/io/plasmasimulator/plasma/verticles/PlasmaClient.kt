@@ -45,30 +45,28 @@ class PlasmaClient: PlasmaParticipant() {
     vertx.eventBus().consumer<Any>(Address.ISSUE_TRANSACTION.name) {
       LOG.info("ISSUE TRANSACTION MESSAGE RECEIVED")
       val tx = createTransaction()
-      val txJson  = JsonObject(Json.encode(tx))
-      vertx.eventBus().publish(Address.PUBLISH_TRANSACTION.name, txJson)
-      println("Just published transaction")
-      println(this.deploymentID())
+      if(tx != null) {
+        val txJson  = JsonObject(Json.encode(tx))
+        vertx.eventBus().publish(Address.PUBLISH_TRANSACTION.name, txJson)
+      }
+      else
+        println("Transaction is null")
     }
 
     vertx.eventBus().consumer<Any>(Address.PUBLISH_TRANSACTION.name) { msg ->
       val tx: Transaction = Json.decodeValue(msg.body().toString(), Transaction::class.java)
-      println("Just recceived transaction")
-      println("from: this.deploymentID()")
       if(!newTXs.contains(tx))
         newTXs.add(tx)
     }
 
     vertx.eventBus().consumer<Any>(Address.PUBLISH_BLOCK.name) { msg ->
       val block: PlasmaBlock = Json.decodeValue(msg.body().toString(), PlasmaBlock::class.java)
+      chain.addBlock(block, plasmaPool)
       removeUTXOsForBlock(block)
       createUTXOsForBlock(block)
-      chain.addBlock(block)
-      println("received block: ${HashUtils.transform(block.blockHash().toByteArray())}")
+      myFlyingUTXOS = myUTXOs.toMutableList()
       calculateBalance()
-      println("my balance: ${balance}")
-      println("my utxos:")
-      println(myUTXOs)
+      println("$address : my balance is ${balance}")
     }
   }
 
@@ -86,9 +84,12 @@ class PlasmaClient: PlasmaParticipant() {
 
   }
 
-  fun createTransaction() : Transaction {
-    val randomUTXO = myUTXOs.get(Random().nextInt(myUTXOs.size))
+  fun createTransaction() : Transaction? {
+    if(myFlyingUTXOS.size < 1 || allOtherClientsAddresses.size < 1) return null
+    val randomUTXO = myFlyingUTXOS.get(Random().nextInt(myFlyingUTXOS.size))
+    myFlyingUTXOS.remove(randomUTXO)
     val utxoAmount = amountFromUTXO(randomUTXO)
+    if(utxoAmount == 0) return null
     val amountToSend = Random().nextInt(utxoAmount)
     var randomAddress = allOtherClientsAddresses.get(Random().nextInt(allOtherClientsAddresses.size))
 
@@ -100,15 +101,17 @@ class PlasmaClient: PlasmaParticipant() {
   }
 
   fun calculateBalance() {
+    balance = 0
     for (utxo in myUTXOs) {
-      val txOutput = this.chain.plasmaPool.getTxOutput(utxo)
-      if(txOutput != null)
+      val txOutput = this.plasmaPool.getTxOutput(utxo)
+      if(txOutput != null) {
         balance += txOutput.amount
+      }
     }
   }
 
   fun amountFromUTXO(utxo: UTXO) : Int{
-    val txOutput = this.chain.plasmaPool.getTxOutput(utxo)
+    val txOutput = this.plasmaPool.getTxOutput(utxo)
     if(txOutput != null)
       return txOutput.amount
     return 0
