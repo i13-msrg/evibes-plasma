@@ -5,14 +5,19 @@ import io.plasmasimulator.conf.Message
 import io.plasmasimulator.plasma.models.PlasmaBlock
 import io.plasmasimulator.plasma.models.PlasmaChain
 import io.plasmasimulator.plasma.models.Transaction
+import io.plasmasimulator.plasma.models.UTXO
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Future
 import io.vertx.core.json.Json
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
 
 class PlasmaManager: AbstractVerticle() {
+
+  var clientsAddresses = mutableListOf<String>()
+  val chain = PlasmaChain()
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(PlasmaManager::class.java)
@@ -41,26 +46,45 @@ class PlasmaManager: AbstractVerticle() {
       vertx.deployVerticle("io.plasmasimulator.plasma.verticles.PlasmaClient", opt)
 
       bootstrapBlockchain()
-      //vertx.eventBus().publish(Address.SET_PLASMA_CONTRACT_ADDRESS.name, plasmaContractAddress)
-//      vertx.setPeriodic(10000) {id ->
-//        broadcast()
-//      }
 
+    }
+    vertx.eventBus().consumer<Any>(Address.PUSH_ALL_ADDRESSES.name) { msg ->
+      LOG.info("GOT ALL ADDRESSES")
+      val allClientsAddresses = (msg.body() as JsonArray).toMutableList()
+      clientsAddresses.addAll(allClientsAddresses.map { address -> address.toString() })
+    }
+
+    vertx.eventBus().consumer<Any>(Address.GENESIS_PLASMA_BLOCK_ADDED.name) {
+      createBlockTransactionForEachClient()
+      vertx.setPeriodic(10000) {id ->
+        broadcast()
+      }
     }
   }
 
   fun bootstrapBlockchain() {
-    val chain = PlasmaChain()
     val genesisBlock = PlasmaBlock(number = 0, prevBlockNum = 0, prevBlockHash = mutableListOf<Byte>().toByteArray())
     val genesisBlockJson  = JsonObject(Json.encode(genesisBlock))
     chain.addBlock(genesisBlock)
     vertx.eventBus().publish(Address.GENESIS_PLASMA_BLOCK.name, genesisBlockJson)
   }
 
+  fun createBlockTransactionForEachClient() {
+      for (address in clientsAddresses) {
+        vertx.eventBus().send(Address.DEPOSIT_TRANSACTION.name, JsonObject(Json.encode(createTransaction(address))))
+      }
+  }
+
+  fun createTransaction(address: String) : Transaction{
+    val tx = Transaction()
+    tx.depositTransaction = true
+    // TODO: set transaction amount via config
+    tx.addOutput(address, 10)
+    return tx
+  }
+
   fun broadcast() {
-    vertx.eventBus().send<Any>(Address.PLASMA_BROADCAST.name, Message.ISSUE_TRANSACTION.name) { response ->
-      LOG.info("Response: ${response.result().body()}")
-    }
+    vertx.eventBus().publish(Address.ISSUE_TRANSACTION.name, Message.ISSUE_TRANSACTION.name)
   }
 
   override fun stop(stopFuture: Future<Void>?) {

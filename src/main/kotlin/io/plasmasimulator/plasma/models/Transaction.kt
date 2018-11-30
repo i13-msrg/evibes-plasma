@@ -3,10 +3,10 @@ package io.plasmasimulator.plasma.models
 import java.security.MessageDigest
 
 class Transaction {
-  val digest: MessageDigest = MessageDigest.getInstance("SHA-256")
   var hash = mutableListOf<Byte>()
   var inputs = mutableListOf<Input>()
   var outputs = mutableListOf<Output>()
+  var depositTransaction = false
 
   class Input(val blockNum: Int, val txIndex: Int, val outputIndex: Int, val sig: String = "")
   class Output(val address: String, val amount: Int)
@@ -19,8 +19,9 @@ class Transaction {
     outputs.add(Output(address, amount))
   }
 
-  fun getTxHash() : List<Byte> {
+  fun txHashCode() : List<Byte> {
     if(hash.size > 0) return hash
+    val digest: MessageDigest = MessageDigest.getInstance("SHA-256")
 
     var tx = mutableListOf<Byte>()
 
@@ -31,7 +32,7 @@ class Transaction {
     }
     for(output in outputs) {
       tx.add(output.amount.toByte())
-      tx.add(output.address.toByte())
+      tx.addAll(output.address.toByteArray().toMutableList())
     }
     digest.update(tx.toByteArray())
 

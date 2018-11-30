@@ -4,8 +4,8 @@ import io.plasmasimulator.utils.HashUtils
 
 class MerkleTree(var digest: ByteArray = mutableListOf<Byte>().toByteArray()) {
 
-  var leftChild: MerkleTree = MerkleTree()
-  var rightChild: MerkleTree? = MerkleTree()
+  var leftChild: MerkleTree? = null
+  var rightChild: MerkleTree? = null
 
   fun add(leftChild: MerkleTree, rightChild: MerkleTree) {
     this.leftChild = leftChild

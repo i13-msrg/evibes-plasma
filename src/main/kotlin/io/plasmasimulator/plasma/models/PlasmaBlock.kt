@@ -17,7 +17,7 @@ class PlasmaBlock(val number: Int, val prevBlockNum: Int, val prevBlockHash: Byt
     blockHash.addAll(prevBlockHash.toMutableList())
 
     for(tx in transactions) {
-      blockHash.addAll(tx.getTxHash())
+      blockHash.addAll(tx.txHashCode())
     }
 
     digest.update(blockHash.toByteArray())
