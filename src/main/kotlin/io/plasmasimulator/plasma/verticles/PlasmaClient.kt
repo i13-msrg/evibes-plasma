@@ -99,7 +99,7 @@ class PlasmaClient: PlasmaParticipant() {
     return tx
   }
 
-  fun calculateBalancegeorgi91g() {
+  fun calculateBalance() {
     for (utxo in myUTXOs) {
       val txOutput = this.chain.plasmaPool.getTxOutput(utxo)
       if(txOutput != null)
