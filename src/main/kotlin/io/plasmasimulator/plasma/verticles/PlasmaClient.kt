@@ -117,7 +117,10 @@ class PlasmaClient: PlasmaParticipant() {
 
     if(!spentUTXOs.contains(randomUTXO))
       spentUTXOs.add(randomUTXO)
-    else LOG.info("DOUUUUUUUUUUUUUUUUUUBBBBBLLLLEEEE SPEND")
+    else {
+      //LOG.info("DOUBLE SPEND")
+      return null
+    }
     return tx
   }
 

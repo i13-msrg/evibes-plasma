@@ -77,6 +77,7 @@ open class PlasmaParticipant: AbstractVerticle() {
         if(address == output.address && !myUTXOs.contains(newUTXO)){
           myUTXOs.add(newUTXO)
         }
+
         plasmaPool.addUTXO(newUTXO, output)
       }
     }
