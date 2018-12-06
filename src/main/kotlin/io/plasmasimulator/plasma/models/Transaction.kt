@@ -3,6 +3,7 @@ package io.plasmasimulator.plasma.models
 import java.security.MessageDigest
 
 class Transaction {
+  var source = "-1"
   var hash = mutableListOf<Byte>()
   var inputs = mutableListOf<Input>()
   var outputs = mutableListOf<Output>()

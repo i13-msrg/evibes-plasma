@@ -3,6 +3,7 @@ package io.plasmasimulator.plasma.verticles
 import io.plasmasimulator.conf.Address
 import io.plasmasimulator.conf.Message
 import io.plasmasimulator.plasma.models.*
+import io.plasmasimulator.utils.FileManager
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Future
@@ -18,6 +19,7 @@ class PlasmaManager: AbstractVerticle() {
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(PlasmaManager::class.java)
+    private var NumberOfBlocks = 20
   }
 
   override fun start(startFuture: Future<Void>?) {
@@ -29,7 +31,6 @@ class PlasmaManager: AbstractVerticle() {
       val numberOfPlasmaClients = jsonObject.getInteger("numberOfPlasmaClients")
       val plasmaContractAddress = jsonObject.getString("plasmaContractAddress")
       val balance = jsonObject.getInteger("amount")
-
 
       val config = JsonObject().put("plasmaContractAddress", plasmaContractAddress).put("balance", balance)
       // Deploy DiscoveryVerticle
@@ -54,7 +55,13 @@ class PlasmaManager: AbstractVerticle() {
     vertx.eventBus().consumer<Any>(Address.GENESIS_PLASMA_BLOCK_ADDED.name) {
       createBlockTransactionForEachClient()
       vertx.setPeriodic(10000) {id ->
+        if(NumberOfBlocks-- == 0) {
+          vertx.eventBus().send(Address.PRINT_BALANCE_FOR_EACH_CLIENT.name, "")
+          vertx.cancelTimer(id)
+        }
+
         broadcast()
+
       }
     }
   }

@@ -5,10 +5,15 @@ class UTXOPool(var poolMap: MutableMap<UTXO, Transaction.Output> = mutableMapOf(
   constructor(pool: UTXOPool) : this(pool.poolMap.toMutableMap())
 
   fun addUTXO(utxo: UTXO, txOutput: Transaction.Output) {
-    poolMap.put(utxo, txOutput)
+    if(!poolMap.containsKey(utxo))
+      poolMap.put(utxo, txOutput)
+    else println("UTXO is in poolmap")
   }
 
   fun removeUTXO(utxo: UTXO) {
+    if(!poolMap.containsKey(utxo)) {
+      println("CANNOT REMOVE UTXO. IT DOES NOT EXIST")
+    }
     poolMap.remove(utxo)
   }
 

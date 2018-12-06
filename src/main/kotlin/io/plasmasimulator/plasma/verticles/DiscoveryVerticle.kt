@@ -12,6 +12,7 @@ import java.util.*
 
 class DiscoveryVerticle: AbstractVerticle() {
   var clientsAddresses = JsonArray()
+  var balanceMap = mutableMapOf<String, Int>()
 
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
@@ -28,6 +29,20 @@ class DiscoveryVerticle: AbstractVerticle() {
         vertx.eventBus().publish(Address.PUSH_ALL_ADDRESSES.name, clientsAddresses)
       }
       msg.reply(Message.SUCCESS.name)
+    }
+
+    vertx.eventBus().consumer<Any>(Address.PUBLISH_BALANCE.name) { msg ->
+      val jsonbObject = msg.body() as JsonObject
+      balanceMap.put(jsonbObject.getString("address"), jsonbObject.getInteger("balance"))
+    }
+
+    vertx.eventBus().consumer<Any>(Address.PRINT_BALANCE_FOR_EACH_CLIENT.name) {
+      var total = 0
+      balanceMap.forEach{(address, balance) ->
+        println("$address has $balance")
+        total += balance
+      }
+      println("TOTAL SUM: $total")
     }
 
 //    vertx.eventBus().consumer<Any>(Address.REQUEST_ADDRESS.name) { msg ->

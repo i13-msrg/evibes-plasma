@@ -7,9 +7,12 @@ import io.plasmasimulator.plasma.models.PlasmaBlock
 import io.plasmasimulator.plasma.models.PlasmaChain
 import io.plasmasimulator.plasma.models.Transaction
 import io.plasmasimulator.plasma.models.UTXO
+import io.plasmasimulator.utils.FileManager
 import io.plasmasimulator.utils.HashUtils
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
+import io.vertx.core.buffer.Buffer
+import io.vertx.core.file.OpenOptions
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
@@ -43,14 +46,15 @@ class PlasmaClient: PlasmaParticipant() {
     }
 
     vertx.eventBus().consumer<Any>(Address.ISSUE_TRANSACTION.name) {
-      LOG.info("ISSUE TRANSACTION MESSAGE RECEIVED")
+      //LOG.info("ISSUE TRANSACTION MESSAGE RECEIVED")
       val tx = createTransaction()
       if(tx != null) {
         val txJson  = JsonObject(Json.encode(tx))
+
         vertx.eventBus().publish(Address.PUBLISH_TRANSACTION.name, txJson)
       }
       else
-        println("Transaction is null")
+        LOG.info("Transaction is null")
     }
 
     vertx.eventBus().consumer<Any>(Address.PUBLISH_TRANSACTION.name) { msg ->
@@ -61,12 +65,15 @@ class PlasmaClient: PlasmaParticipant() {
 
     vertx.eventBus().consumer<Any>(Address.PUBLISH_BLOCK.name) { msg ->
       val block: PlasmaBlock = Json.decodeValue(msg.body().toString(), PlasmaBlock::class.java)
+
       chain.addBlock(block, plasmaPool)
       removeUTXOsForBlock(block)
       createUTXOsForBlock(block)
       myFlyingUTXOS = myUTXOs.toMutableList()
       calculateBalance()
-      println("$address : my balance is ${balance}")
+      var jsonObject = JsonObject().put("address", address).put("balance", balance)
+      vertx.eventBus().send(Address.PUBLISH_BALANCE.name, jsonObject)
+      //LOG.info("$address : my balance is ${balance}")
     }
   }
 
@@ -85,18 +92,32 @@ class PlasmaClient: PlasmaParticipant() {
   }
 
   fun createTransaction() : Transaction? {
+    if(myFlyingUTXOS.size < 1) {
+      LOG.info("$address has not flying utxos")
+      return null
+    }
     if(myFlyingUTXOS.size < 1 || allOtherClientsAddresses.size < 1) return null
     val randomUTXO = myFlyingUTXOS.get(Random().nextInt(myFlyingUTXOS.size))
     myFlyingUTXOS.remove(randomUTXO)
+
     val utxoAmount = amountFromUTXO(randomUTXO)
-    if(utxoAmount == 0) return null
-    val amountToSend = Random().nextInt(utxoAmount)
+    if(utxoAmount == 0) {
+      LOG.info("$address has utxo with 0 amount")
+      return null
+    }
+    val amountToSend = Random().nextInt(utxoAmount) + 1 // [1 ... utxoAmount +1] amount should not be 0
     var randomAddress = allOtherClientsAddresses.get(Random().nextInt(allOtherClientsAddresses.size))
 
     val tx = Transaction()
+    tx.source = address
     tx.addInput(randomUTXO.blockNum, randomUTXO.txIndex, randomUTXO.index)
     tx.addOutput(randomAddress, amountToSend)
-    tx.addOutput(address, utxoAmount - amountToSend)
+    if(utxoAmount > amountToSend)
+      tx.addOutput(address, utxoAmount - amountToSend)
+
+    if(!spentUTXOs.contains(randomUTXO))
+      spentUTXOs.add(randomUTXO)
+    else LOG.info("DOUUUUUUUUUUUUUUUUUUBBBBBLLLLEEEE SPEND")
     return tx
   }
 
@@ -112,8 +133,11 @@ class PlasmaClient: PlasmaParticipant() {
 
   fun amountFromUTXO(utxo: UTXO) : Int{
     val txOutput = this.plasmaPool.getTxOutput(utxo)
-    if(txOutput != null)
+    if(txOutput != null) {
       return txOutput.amount
+    }
+    else  LOG.info("UTXO MISMATCH. It is in myutxos but not in plasma pool :O")
+
     return 0
   }
 

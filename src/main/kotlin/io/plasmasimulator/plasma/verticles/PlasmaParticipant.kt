@@ -6,6 +6,7 @@ import io.plasmasimulator.plasma.models.PlasmaChain
 import io.plasmasimulator.plasma.models.PlasmaBlock
 import io.plasmasimulator.plasma.models.UTXO
 import io.plasmasimulator.plasma.models.UTXOPool
+import io.plasmasimulator.utils.FileManager
 import io.plasmasimulator.utils.HashUtils
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
@@ -22,6 +23,7 @@ open class PlasmaParticipant: AbstractVerticle() {
   var balance: Int = 0
   var plasmaContractAddress = ""
   var myUTXOs = mutableListOf<UTXO>()
+  var spentUTXOs = mutableListOf<UTXO>()
   var myFlyingUTXOS = myUTXOs.toMutableList()
 
   private companion object {
@@ -31,6 +33,7 @@ open class PlasmaParticipant: AbstractVerticle() {
 
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
+    chain.vertx = vertx
     LOG.info("Initialize PlasmaVerticle")
     val jsonObj = config()
     plasmaContractAddress = jsonObj.getString("plasmaContractAddress")
@@ -43,17 +46,18 @@ open class PlasmaParticipant: AbstractVerticle() {
 //      balance = jsonObj.getInteger("balance")
 //    }
     vertx.eventBus().consumer<Any>(Address.GENESIS_PLASMA_BLOCK.name) { msg ->
-      println(msg.body().toString())
+      LOG.info(msg.body().toString())
       val block: PlasmaBlock = Json.decodeValue(msg.body().toString(), PlasmaBlock::class.java)
       createUTXOsForBlock(block)
       myFlyingUTXOS = myUTXOs.toMutableList()
       chain.addBlock(block, plasmaPool)
-      println(HashUtils.transform(block.blockHash().toByteArray()))
+      LOG.info(HashUtils.transform(block.blockHash().toByteArray()))
       if(this is Operator) {
         vertx.eventBus().send(Address.GENESIS_PLASMA_BLOCK_ADDED.name, "genesis block added")
       }
     }
   }
+
   fun removeUTXOsForBlock(block: PlasmaBlock) {
     for(tx in block.transactions) {
       for(input in tx.inputs) {
@@ -70,12 +74,9 @@ open class PlasmaParticipant: AbstractVerticle() {
     for((txIndex, tx) in block.transactions.withIndex()) {
       for((outputIndex, output) in tx.outputs.withIndex()) {
         val newUTXO = UTXO(block.number, txIndex, outputIndex)
-        if(this is Operator) {
-          print("Client ${output.address} receives ${output.amount}")
-          println()
-        }
-        if(address == output.address)
+        if(address == output.address && !myUTXOs.contains(newUTXO)){
           myUTXOs.add(newUTXO)
+        }
         plasmaPool.addUTXO(newUTXO, output)
       }
     }
