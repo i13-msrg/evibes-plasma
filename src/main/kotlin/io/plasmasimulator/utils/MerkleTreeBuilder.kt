@@ -31,12 +31,12 @@ object MerkleTreeBuilder {
   private fun createLeafs(transactions: MutableList<Transaction>) : List<MerkleTree> {
     val leafs = mutableListOf<MerkleTree>()
     for(i in 0 until transactions.size) {
-      leafs.add(MerkleTree(transactions[i].txHashCode().toByteArray()))
+      leafs.add(MerkleTree(transactions[i].txHashCode()))
     }
     // if the number of transactions is odd then the last hash must be duplicated
     // to create even number of transactions
     if(transactions.size % 2 != 0)
-      leafs.add(MerkleTree(transactions.get(transactions.size - 1).txHashCode().toByteArray()))
+      leafs.add(MerkleTree(transactions.get(transactions.size - 1).txHashCode()))
 
     return leafs
   }

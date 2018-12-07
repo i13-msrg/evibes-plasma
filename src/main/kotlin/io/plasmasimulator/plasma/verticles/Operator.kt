@@ -71,16 +71,15 @@ class Operator: PlasmaParticipant() {
       val prevBlock = chain.getLastBlock()
       val newBlock = PlasmaBlock(number = prevBlock.number + 1,
                                  prevBlockNum = prevBlock.number,
-                                 prevBlockHash = prevBlock.blockHash().toByteArray(),
+                                 prevBlockHash = prevBlock.blockHash(),
                                  transactions = newTransactions)
-
       if(newTransactions.size == 1) { // deposit transaction block
-        newBlock.merkleRoot = newTransactions[0].txHashCode().toMutableList()
+        newBlock.merkleRoot = newTransactions[0].txHashCode()
         return newBlock
       }
 
       val blockRoot = MerkleTreeBuilder.getRoot(newBlock.transactions.toMutableList())
-      newBlock.merkleRoot = blockRoot.digest.toMutableList()
+      newBlock.merkleRoot = blockRoot.digest
 
       return newBlock
   }

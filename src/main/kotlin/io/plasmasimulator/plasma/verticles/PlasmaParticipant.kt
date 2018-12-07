@@ -51,7 +51,7 @@ open class PlasmaParticipant: AbstractVerticle() {
       createUTXOsForBlock(block)
       myFlyingUTXOS = myUTXOs.toMutableList()
       chain.addBlock(block, plasmaPool)
-      LOG.info(HashUtils.transform(block.blockHash().toByteArray()))
+      LOG.info(HashUtils.transform(block.blockHash()))
       if(this is Operator) {
         vertx.eventBus().send(Address.GENESIS_PLASMA_BLOCK_ADDED.name, "genesis block added")
       }

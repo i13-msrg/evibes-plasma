@@ -4,7 +4,7 @@ import java.security.MessageDigest
 
 class Transaction {
   var source = "-1"
-  var hash = mutableListOf<Byte>()
+  var hash = ByteArray(0)
   var inputs = mutableListOf<Input>()
   var outputs = mutableListOf<Output>()
   var depositTransaction = false
@@ -20,7 +20,7 @@ class Transaction {
     outputs.add(Output(address, amount))
   }
 
-  fun txHashCode() : List<Byte> {
+  fun txHashCode() : ByteArray {
     if(hash.size > 0) return hash
     val digest: MessageDigest = MessageDigest.getInstance("SHA-256")
 
@@ -37,7 +37,7 @@ class Transaction {
     }
     digest.update(tx.toByteArray())
 
-    hash = digest.digest().toMutableList()
+    hash = digest.digest()
 
     return hash
   }

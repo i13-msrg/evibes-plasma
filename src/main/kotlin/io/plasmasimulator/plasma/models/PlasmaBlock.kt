@@ -4,11 +4,11 @@ import java.security.MessageDigest
 
 class PlasmaBlock(val number: Int, val prevBlockNum: Int, val prevBlockHash: ByteArray, var transactions: List<Transaction> = mutableListOf<Transaction>()) {
   // TODO: signature
-  var hash = mutableListOf<Byte>()
-  var merkleRoot = mutableListOf<Byte>()
+  var hash = ByteArray(0)
+  var merkleRoot = ByteArray(0)
   val timestamp = System.currentTimeMillis()
 
-  fun blockHash() : List<Byte> {
+  fun blockHash() : ByteArray {
     if(hash.size > 0) return hash
     val digest = MessageDigest.getInstance("SHA-256")
     val blockHash = mutableListOf<Byte>()
@@ -17,12 +17,12 @@ class PlasmaBlock(val number: Int, val prevBlockNum: Int, val prevBlockHash: Byt
     blockHash.addAll(prevBlockHash.toMutableList())
 
     for(tx in transactions) {
-      blockHash.addAll(tx.txHashCode())
+      blockHash + tx.txHashCode()
     }
 
     digest.update(blockHash.toByteArray())
 
-    hash = digest.digest().toMutableList()
+    hash = digest.digest()
 
     return hash
   }
