@@ -7,7 +7,7 @@ import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
 
 class PlasmaContract {
-  var state: MutableMap<String, Account> = mutableMapOf<String, Account>()
+  var state: MutableMap<String, Account> = mutableMapOf()
   var childBlocks = mutableListOf<PlasmaBlock>()
 
   init {
@@ -35,5 +35,5 @@ class PlasmaContract {
 }
 
 class PlasmaBlock(var rootHash: String = "") {
-  var timestamp = System.currentTimeMillis()
+  val timestamp = System.currentTimeMillis()
 }

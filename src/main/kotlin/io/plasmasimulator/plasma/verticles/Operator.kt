@@ -42,24 +42,7 @@ class Operator: PlasmaParticipant() {
         if(applyBlock(newBlock))
           transactions = transactions.drop(TRANSACTIONS_PER_BLOCK).toMutableList()
       }
-
-
-//      do {
-//        LOG.info("creating block")
-//        // TODO: send only TRANSACTIONS_PER_BLOCK number of transactions, not everyone
-//        val newBlock = createBlock(transactions.take(TRANSACTIONS_PER_BLOCK))
-//        if(applyBlock(newBlock))
-//          transactions = transactions.drop(TRANSACTIONS_PER_BLOCK).toMutableList()
-//      } while (transactions.size >= TRANSACTIONS_PER_BLOCK)
     }
-
-//    vertx.setPeriodic(10000) {id ->
-//      if(transactions.size >= TRANSACTIONS_PER_BLOCK) {
-//        val newBlock = createBlock(transactions.take(TRANSACTIONS_PER_BLOCK))
-//        if (applyBlock(newBlock))
-//          transactions = transactions.drop(TRANSACTIONS_PER_BLOCK).toMutableList()
-//      }
-//    }
 
     vertx.eventBus().consumer<Any>(Address.DEPOSIT_TRANSACTION.name) { msg ->
       val depositTransaction = Json.decodeValue(msg.body().toString(), Transaction::class.java)
@@ -69,10 +52,7 @@ class Operator: PlasmaParticipant() {
 
     vertx.eventBus().consumer<Any>(Address.ETH_ANNOUNCE_DEPOSIT.name) { msg ->
       val jsonObj = msg.body() as JsonObject
-      if(chain.containsBlock(jsonObj.getInteger("blockNum")))
-        println("Block already there")
-      else {
-        LOG.info("OPERATOR ADDS ${jsonObj.getString("address")}:  ${jsonObj.getInteger("amount")}")
+      if(!chain.containsBlock(jsonObj.getInteger("blockNum"))) {
         val tx = Transaction()
         tx.depositTransaction = true
         tx.addOutput(jsonObj.getString("address"), jsonObj.getInteger("amount"))

@@ -9,6 +9,8 @@ class Configuration {
   companion object {
     val jsonObject = JsonObject()
       .put("instances", 3)
+      .put("numberOfPlasmaClients", 6)
+      .put("amountPerClient", 10)
 
     fun getConfigRetrieverOptions() : ConfigRetrieverOptions {
       val jsonStore = ConfigStoreOptions()

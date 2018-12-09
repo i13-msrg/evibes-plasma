@@ -40,25 +40,7 @@ open class PlasmaParticipant: AbstractVerticle() {
     LOG.info("Initialize PlasmaVerticle")
     val jsonObj = config()
     plasmaContractAddress = jsonObj.getString("plasmaContractAddress")
-    balance = jsonObj.getInteger("balance")
     bootstrapBlockchain()
-//    vertx.eventBus().consumer<Any>(Address.SET_PLASMA_CONTRACT_ADDRESS.name) { msg ->
-//      LOG.info("Initialize PlasmaVerticle")
-//      val jsonObj = msg.body() as JsonObject
-//      plasmaContractAddress = jsonObj.getString("plasmaContractAddress")
-//      balance = jsonObj.getInteger("balance")
-//    }
-//    vertx.eventBus().consumer<Any>(Address.GENESIS_PLASMA_BLOCK.name) { msg ->
-//      LOG.info(msg.body().toString())
-//      val block: PlasmaBlock = Json.decodeValue(msg.body().toString(), PlasmaBlock::class.java)
-//      createUTXOsForBlock(block)
-//      myFlyingUTXOS = myUTXOs.toMutableList()
-//      chain.addBlock(block, plasmaPool)
-//      LOG.info(HashUtils.transform(block.blockHash()))
-//      if(this is Operator) {
-//        vertx.eventBus().send(Address.GENESIS_PLASMA_BLOCK_ADDED.name, "genesis block added")
-//      }
-//    }
   }
 
   fun bootstrapBlockchain() {

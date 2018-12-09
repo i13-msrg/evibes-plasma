@@ -17,13 +17,11 @@ class DiscoveryVerticle: AbstractVerticle() {
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
     val numberOfClients = config().getInteger("numberOfClients")
-    val balancePerClient = config().getInteger("balance")
 
     vertx.eventBus().consumer<Any>(Address.PUBLISH_ADDRESS.name) { msg ->
       val newAddress = msg.body() as String
       if(!clientsAddresses.contains(newAddress))
         clientsAddresses.add(newAddress)
-      //val utxo = UTXO()
 
       if(clientsAddresses.size() == numberOfClients){
         vertx.eventBus().publish(Address.PUSH_ALL_ADDRESSES.name, clientsAddresses)
@@ -44,12 +42,6 @@ class DiscoveryVerticle: AbstractVerticle() {
       }
       println("TOTAL SUM: $total")
     }
-
-//    vertx.eventBus().consumer<Any>(Address.REQUEST_ADDRESS.name) { msg ->
-//      val requesterAddress = msg.body()
-//      val remainingAddreses = clientsAddresses.filter { address -> address != requesterAddress }
-//      msg.reply(remainingAddreses.get(Random().nextInt(remainingAddreses.size)))
-//    }
   }
 
   override fun stop(stopFuture: Future<Void>?) {

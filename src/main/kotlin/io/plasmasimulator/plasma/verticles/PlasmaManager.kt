@@ -33,12 +33,12 @@ class PlasmaManager: AbstractVerticle() {
 
       val numberOfPlasmaClients = jsonObject.getInteger("numberOfPlasmaClients")
       val plasmaContractAddress = jsonObject.getString("plasmaContractAddress")
-      val balance = jsonObject.getInteger("amount")
+      val amountPerClient = jsonObject.getInteger("amountPerClient")
 
-      val config = JsonObject().put("plasmaContractAddress", plasmaContractAddress).put("balance", balance)
+      val config = JsonObject().put("plasmaContractAddress", plasmaContractAddress).put("amount", amountPerClient)
       // Deploy DiscoveryVerticle
       vertx.deployVerticle("io.plasmasimulator.plasma.verticles.DiscoveryVerticle",
-        DeploymentOptions().setWorker(true).setConfig(JsonObject().put("numberOfClients", numberOfPlasmaClients).put("balance", balance)))
+        DeploymentOptions().setWorker(true).setConfig(JsonObject().put("numberOfClients", numberOfPlasmaClients)))
       // Deploy Operator
       vertx.deployVerticle("io.plasmasimulator.plasma.verticles.Operator", DeploymentOptions().setWorker(true).setConfig((config)))
 
@@ -61,24 +61,6 @@ class PlasmaManager: AbstractVerticle() {
         }
       }
     }
-  }
-
-  fun createBlockTransactionForEachClient() {
-      for (address in clientsAddresses) {
-        vertx.eventBus().send(Address.DEPOSIT_TRANSACTION.name, JsonObject(Json.encode(createTransaction(address))))
-      }
-  }
-
-  fun createTransaction(address: String) : Transaction{
-    val tx = Transaction()
-    tx.depositTransaction = true
-    // TODO: set transaction amount via config
-    tx.addOutput(address, 10)
-    return tx
-  }
-
-  fun broadcast() {
-    vertx.eventBus().publish(Address.ISSUE_TRANSACTION.name, Message.ISSUE_TRANSACTION.name)
   }
 
   override fun stop(stopFuture: Future<Void>?) {

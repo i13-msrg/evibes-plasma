@@ -43,9 +43,10 @@ class SimulationManagerVerticle : AbstractVerticle() {
             JsonObject().put("type", Message.ISSUE_TRANSACTION.name))
 
           vertx.eventBus().send(Address.RUN_PLASMA_CHAIN.name,
-            JsonObject().put("numberOfPlasmaClients", 6)
+            JsonObject()
+              .put("numberOfPlasmaClients", conf.getInteger("numberOfPlasmaClients"))
               .put("plasmaContractAddress", UUID.randomUUID().toString())
-              .put("amount", 10))
+              .put("amountPerClient", conf.getInteger("amountPerClient")))
 
           req.response()
             .putHeader("content-type", "text/plain")

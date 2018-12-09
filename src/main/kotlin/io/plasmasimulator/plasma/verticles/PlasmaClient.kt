@@ -31,6 +31,8 @@ class PlasmaClient: PlasmaParticipant() {
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
     LOG.info("Here is my address $address")
+    println(config())
+    val amount = config().getInteger("amount")
 
     vertx.eventBus().send<Any>(Address.PUBLISH_ADDRESS.name, address) { response ->
       LOG.info("SUCCESS")
@@ -43,9 +45,8 @@ class PlasmaClient: PlasmaParticipant() {
       allOtherClientsAddresses.addAll(allClientsAddresses
                               .filter { clientAddress -> clientAddress != this.address  }
                               .map { address -> address.toString() })
+      rootChainService.deposit(address, amount)
     }
-
-    rootChainService.deposit(address, 10)
 
     vertx.eventBus().consumer<Any>(Address.ISSUE_TRANSACTION.name) {
       //LOG.info("ISSUE TRANSACTION MESSAGE RECEIVED")
@@ -81,16 +82,6 @@ class PlasmaClient: PlasmaParticipant() {
 
   override fun stop(stopFuture: Future<Void>?) {
     super.stop(stopFuture)
-  }
-
-  fun receive() {
-
-  }
-
-  fun send() {
-    var amount = Random().nextInt(balance)
-    var address = allOtherClientsAddresses.get(Random().nextInt(allOtherClientsAddresses.size))
-
   }
 
   fun createTransaction() : Transaction? {
