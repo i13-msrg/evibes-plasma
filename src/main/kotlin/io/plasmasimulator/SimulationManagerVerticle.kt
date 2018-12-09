@@ -32,7 +32,7 @@ class SimulationManagerVerticle : AbstractVerticle() {
       var opt = DeploymentOptions().setWorker(true).setInstances(conf.getInteger("instances", 1))
 
       vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.ETHNodeVerticle", opt)
-      vertx.deployVerticle("io.plasmasimulator.plasma.verticles.PlasmaManager", opt)
+      vertx.deployVerticle("io.plasmasimulator.plasma.verticles.PlasmaManager", DeploymentOptions().setWorker(true).setInstances(1))
 
       vertx
         .createHttpServer()

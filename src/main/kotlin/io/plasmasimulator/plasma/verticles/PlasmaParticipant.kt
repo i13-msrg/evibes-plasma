@@ -41,24 +41,32 @@ open class PlasmaParticipant: AbstractVerticle() {
     val jsonObj = config()
     plasmaContractAddress = jsonObj.getString("plasmaContractAddress")
     balance = jsonObj.getInteger("balance")
-
+    bootstrapBlockchain()
 //    vertx.eventBus().consumer<Any>(Address.SET_PLASMA_CONTRACT_ADDRESS.name) { msg ->
 //      LOG.info("Initialize PlasmaVerticle")
 //      val jsonObj = msg.body() as JsonObject
 //      plasmaContractAddress = jsonObj.getString("plasmaContractAddress")
 //      balance = jsonObj.getInteger("balance")
 //    }
-    vertx.eventBus().consumer<Any>(Address.GENESIS_PLASMA_BLOCK.name) { msg ->
-      LOG.info(msg.body().toString())
-      val block: PlasmaBlock = Json.decodeValue(msg.body().toString(), PlasmaBlock::class.java)
-      createUTXOsForBlock(block)
-      myFlyingUTXOS = myUTXOs.toMutableList()
-      chain.addBlock(block, plasmaPool)
-      LOG.info(HashUtils.transform(block.blockHash()))
-      if(this is Operator) {
-        vertx.eventBus().send(Address.GENESIS_PLASMA_BLOCK_ADDED.name, "genesis block added")
-      }
-    }
+//    vertx.eventBus().consumer<Any>(Address.GENESIS_PLASMA_BLOCK.name) { msg ->
+//      LOG.info(msg.body().toString())
+//      val block: PlasmaBlock = Json.decodeValue(msg.body().toString(), PlasmaBlock::class.java)
+//      createUTXOsForBlock(block)
+//      myFlyingUTXOS = myUTXOs.toMutableList()
+//      chain.addBlock(block, plasmaPool)
+//      LOG.info(HashUtils.transform(block.blockHash()))
+//      if(this is Operator) {
+//        vertx.eventBus().send(Address.GENESIS_PLASMA_BLOCK_ADDED.name, "genesis block added")
+//      }
+//    }
+  }
+
+  fun bootstrapBlockchain() {
+    val genesisBlock = PlasmaBlock(number = 0, prevBlockNum = 0, prevBlockHash = mutableListOf<Byte>().toByteArray())
+    genesisBlock.merkleRoot = HashUtils.hash("0,0,-1".toByteArray())
+    myFlyingUTXOS = myUTXOs.toMutableList()
+    createUTXOsForBlock(genesisBlock)
+    chain.addBlock(genesisBlock, UTXOPool())
   }
 
   fun removeUTXOsForBlock(block: PlasmaBlock) {

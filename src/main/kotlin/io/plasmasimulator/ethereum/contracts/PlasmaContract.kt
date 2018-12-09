@@ -4,10 +4,19 @@ import io.plasmasimulator.ethereum.models.Account
 import io.plasmasimulator.utils.HashUtils
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
+import org.slf4j.LoggerFactory
 
 class PlasmaContract {
   var state: MutableMap<String, Account> = mutableMapOf<String, Account>()
   var childBlocks = mutableListOf<PlasmaBlock>()
+
+  init {
+      childBlocks.add(PlasmaBlock(HashUtils.transform(HashUtils.hash("0,0,-1".toByteArray()))))
+  }
+
+  companion object {
+      private val LOG = LoggerFactory.getLogger(PlasmaContract::class.java)
+  }
 
   fun deposit(address: String, amount: Int) : JsonObject{
     state.put(address, Account(address, amount))
@@ -21,7 +30,6 @@ class PlasmaContract {
   }
 
   fun submitBlock(rootHash: String) {
-    println("BLOCK ADDED TO PLASMA CONTRACT")
     childBlocks.add(PlasmaBlock(rootHash))
   }
 }

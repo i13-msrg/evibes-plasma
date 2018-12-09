@@ -37,13 +37,15 @@ class PlasmaClient: PlasmaParticipant() {
     }
 
     vertx.eventBus().consumer<Any>(Address.PUSH_ALL_ADDRESSES.name) { msg ->
-      LOG.info("GOT ALL ADDRESSES")
+      LOG.info("CLIENT $address GOT ALL ADDRESSES")
       val allClientsAddresses = (msg.body() as JsonArray).toMutableList()
 
       allOtherClientsAddresses.addAll(allClientsAddresses
                               .filter { clientAddress -> clientAddress != this.address  }
                               .map { address -> address.toString() })
     }
+
+    rootChainService.deposit(address, 10)
 
     vertx.eventBus().consumer<Any>(Address.ISSUE_TRANSACTION.name) {
       //LOG.info("ISSUE TRANSACTION MESSAGE RECEIVED")
@@ -96,7 +98,10 @@ class PlasmaClient: PlasmaParticipant() {
       LOG.info("$address has not flying utxos")
       return null
     }
-    if(myFlyingUTXOS.size < 1 || allOtherClientsAddresses.size < 1) return null
+    if(myFlyingUTXOS.size < 1 || allOtherClientsAddresses.size < 1){
+      println("no address there")
+      return null
+    }
     val randomUTXO = myFlyingUTXOS.get(Random().nextInt(myFlyingUTXOS.size))
     myFlyingUTXOS.remove(randomUTXO)
 

@@ -21,7 +21,10 @@ class PlasmaChain (var blocks: MutableMap<Int, PlasmaBlock> = mutableMapOf<Int, 
   fun addBlock(block: PlasmaBlock, plasmaPool: UTXOPool) {
     // same block could be added more than once, since eth nodes submit deposit blocks
     // once they add them to the chain. This happens due to p2p characteristics
-    if(blocks.containsKey(block.number)) return
+    if(blocks.containsKey(block.number)){
+      println("BLOCK ALREADY THERE")
+      return
+    }
     if(validateBlock(block, plasmaPool)) {
       blocks.put(block.number, block)
     } else
@@ -75,6 +78,10 @@ class PlasmaChain (var blocks: MutableMap<Int, PlasmaBlock> = mutableMapOf<Int, 
 
   fun getBlock(blockNum: Int) : PlasmaBlock? {
     return blocks.get(blockNum)
+  }
+
+  fun containsBlock(blockNum: Int) : Boolean {
+    return blocks.containsKey(blockNum)
   }
 
   fun getLastBlock(): PlasmaBlock? {

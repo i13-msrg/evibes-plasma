@@ -69,16 +69,17 @@ class Operator: PlasmaParticipant() {
 
     vertx.eventBus().consumer<Any>(Address.ETH_ANNOUNCE_DEPOSIT.name) { msg ->
       val jsonObj = msg.body() as JsonObject
-      val tx = Transaction()
-      tx.depositTransaction = true
-      tx.addOutput(jsonObj.getString("address"), jsonObj.getInteger("amount"))
-      val newBlock = createBlock(listOf(tx))
-      //TODO: verify new block root hash is same as the once coming from contract
-      if(HashUtils.transform(newBlock.merkleRoot) == jsonObj.getString("rootHash"))
-        println("PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASSSS")
-      else
-        println("NO PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASSSS")
-      //applyBlock(newBlock)
+      if(chain.containsBlock(jsonObj.getInteger("blockNum")))
+        println("Block already there")
+      else {
+        LOG.info("OPERATOR ADDS ${jsonObj.getString("address")}:  ${jsonObj.getInteger("amount")}")
+        val tx = Transaction()
+        tx.depositTransaction = true
+        tx.addOutput(jsonObj.getString("address"), jsonObj.getInteger("amount"))
+        val newBlock = createBlock(listOf(tx))
+        //TODO: verify new block root hash is same as the once coming from contract
+        applyBlock(newBlock)
+      }
     }
   }
 

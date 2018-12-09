@@ -16,9 +16,17 @@ class RootChainService() {
   private var nonce = 1
 
   fun deposit(address: String, amount: Int) {
-    val data = JsonObject().put("address", address).put("amount", amount)
+    var data = mutableMapOf<String, String>()
+    data.put("type", "plasma")
+    data.put("method", "deposit")
+    data.put("address", address)
+    data.put("amount", amount.toString())
+
+    val tx: ETHTransaction = createTransaction(address, data)
+    val txJson = Json.encode(tx)
+
     if(vertx != null)
-      vertx!!.eventBus().publish(Address.ETH_DEPOSIT.name, data)
+      vertx!!.eventBus().publish(Address.ETH_SUBMIT_TRANSACTION.name, txJson)
   }
 
   fun submitBlock(from: String, rootHash: ByteArray) {
