@@ -4,6 +4,7 @@ import io.plasmasimulator.conf.Address
 import io.plasmasimulator.plasma.models.PlasmaBlock
 import io.plasmasimulator.plasma.models.Transaction
 import io.plasmasimulator.utils.FileManager
+import io.plasmasimulator.utils.HashUtils
 import io.plasmasimulator.utils.MerkleTreeBuilder
 import io.vertx.core.Future
 import io.vertx.core.buffer.Buffer
@@ -19,7 +20,7 @@ import io.vertx.core.file.OpenOptions
 
 class Operator: PlasmaParticipant() {
   var transactions = mutableListOf<Transaction>()
-  val TRANSACTIONS_PER_BLOCK = 20
+  val TRANSACTIONS_PER_BLOCK = 3
   var counter = 0
 
   private companion object {
@@ -65,16 +66,31 @@ class Operator: PlasmaParticipant() {
 
       applyBlock(createBlock(mutableListOf(depositTransaction)))
     }
+
+    vertx.eventBus().consumer<Any>(Address.ETH_ANNOUNCE_DEPOSIT.name) { msg ->
+      val jsonObj = msg.body() as JsonObject
+      val tx = Transaction()
+      tx.depositTransaction = true
+      tx.addOutput(jsonObj.getString("address"), jsonObj.getInteger("amount"))
+      val newBlock = createBlock(listOf(tx))
+      //TODO: verify new block root hash is same as the once coming from contract
+      if(HashUtils.transform(newBlock.merkleRoot) == jsonObj.getString("rootHash"))
+        println("PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASSSS")
+      else
+        println("NO PAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASSSS")
+      //applyBlock(newBlock)
+    }
   }
 
   fun createBlock(newTransactions: List<Transaction>) : PlasmaBlock{
-      val prevBlock = chain.getLastBlock()
+      val prevBlock = chain.getLastBlock()!!
       val newBlock = PlasmaBlock(number = prevBlock.number + 1,
                                  prevBlockNum = prevBlock.number,
                                  prevBlockHash = prevBlock.blockHash(),
                                  transactions = newTransactions)
       if(newTransactions.size == 1) { // deposit transaction block
-        newBlock.merkleRoot = newTransactions[0].txHashCode()
+        val depositTxOutput = newTransactions[0].outputs[0]
+        newBlock.merkleRoot = HashUtils.hash(depositTxOutput.address.toByteArray() + depositTxOutput.address.toByte())
         return newBlock
       }
 
@@ -89,6 +105,7 @@ class Operator: PlasmaParticipant() {
       return false
 
     chain.addBlock(block, plasmaPool)
+    rootChainService.submitBlock(from = address, rootHash = block.merkleRoot)
     FileManager.writeNewFile(vertx, Json.encode(chain.blocks), "blockchain.json")
 
     removeUTXOsForBlock(block)

@@ -9,9 +9,9 @@ import java.util.ArrayList
 
 
 
-class PlasmaChain (var blocks: MutableList<PlasmaBlock> = mutableListOf()) {
+class PlasmaChain (var blocks: MutableMap<Int, PlasmaBlock> = mutableMapOf<Int, PlasmaBlock>()) {
   var vertx: Vertx? = null
-  constructor(chain: PlasmaChain): this(chain.blocks.toMutableList())
+  //constructor(chain: PlasmaChain): this(chain.blocks.toMutableList())
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(PlasmaChain::class.java)
@@ -19,8 +19,11 @@ class PlasmaChain (var blocks: MutableList<PlasmaBlock> = mutableListOf()) {
   }
 
   fun addBlock(block: PlasmaBlock, plasmaPool: UTXOPool) {
+    // same block could be added more than once, since eth nodes submit deposit blocks
+    // once they add them to the chain. This happens due to p2p characteristics
+    if(blocks.containsKey(block.number)) return
     if(validateBlock(block, plasmaPool)) {
-      blocks.add(block)
+      blocks.put(block.number, block)
     } else
       LOG.info("block invalid")
   }
@@ -70,16 +73,16 @@ class PlasmaChain (var blocks: MutableList<PlasmaBlock> = mutableListOf()) {
     return inputsAsOutputs.size != inputs.size
   }
 
-  fun getBlock(blockNum: Int) : PlasmaBlock {
+  fun getBlock(blockNum: Int) : PlasmaBlock? {
     return blocks.get(blockNum)
   }
 
-  fun getLastBlock(): PlasmaBlock {
-    return blocks.last()
+  fun getLastBlock(): PlasmaBlock? {
+    return blocks.get(blocks.keys.sorted().last())
   }
 
-  fun getTransaction(utxo: UTXO) : Transaction {
-    return blocks.get(utxo.blockNum).transactions.get(utxo.txIndex)
+  fun getTransaction(utxo: UTXO) : Transaction? {
+    return blocks.get(utxo.blockNum)?.transactions?.get(utxo.txIndex)
   }
 
   private fun areValuesCorrect(tx: Transaction, pool: UTXOPool): Boolean {

@@ -1,5 +1,6 @@
 package io.plasmasimulator
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.plasmasimulator.conf.Address
 import io.plasmasimulator.conf.Configuration
@@ -42,7 +43,7 @@ class SimulationManagerVerticle : AbstractVerticle() {
             JsonObject().put("type", Message.ISSUE_TRANSACTION.name))
 
           vertx.eventBus().send(Address.RUN_PLASMA_CHAIN.name,
-            JsonObject().put("numberOfPlasmaClients", 100)
+            JsonObject().put("numberOfPlasmaClients", 6)
               .put("plasmaContractAddress", UUID.randomUUID().toString())
               .put("amount", 10))
 

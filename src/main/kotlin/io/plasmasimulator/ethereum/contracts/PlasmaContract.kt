@@ -11,19 +11,21 @@ class PlasmaContract {
 
   fun deposit(address: String, amount: Int) : JsonObject{
     state.put(address, Account(address, amount))
-    val rootHash = HashUtils.hash(address.toByteArray() + amount.toByte())
+    val rootHash = HashUtils.transform(HashUtils.hash(address.toByteArray() + amount.toByte()))
     childBlocks.add(PlasmaBlock(rootHash))
     return JsonObject()
       .put("address", address)
       .put("amount", amount)
+      .put("blockNum", childBlocks.size - 1)
       .put("rootHash", rootHash)
   }
 
-  fun submit_block(rootHash: ByteArray) {
+  fun submitBlock(rootHash: String) {
+    println("BLOCK ADDED TO PLASMA CONTRACT")
     childBlocks.add(PlasmaBlock(rootHash))
   }
 }
 
-class PlasmaBlock(var rootHash: ByteArray = ByteArray(0)) {
+class PlasmaBlock(var rootHash: String = "") {
   var timestamp = System.currentTimeMillis()
 }
