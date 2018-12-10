@@ -34,18 +34,21 @@ class PlasmaClient: PlasmaParticipant() {
     println(config())
     val amount = config().getInteger("amount")
 
-    vertx.eventBus().send<Any>(Address.PUBLISH_ADDRESS.name, address) { response ->
-      LOG.info("SUCCESS")
-    }
-
     vertx.eventBus().consumer<Any>(Address.PUSH_ALL_ADDRESSES.name) { msg ->
       LOG.info("CLIENT $address GOT ALL ADDRESSES")
       val allClientsAddresses = (msg.body() as JsonArray).toMutableList()
 
       allOtherClientsAddresses.addAll(allClientsAddresses
-                              .filter { clientAddress -> clientAddress != this.address  }
-                              .map { address -> address.toString() })
+        .filter { clientAddress -> clientAddress != this.address  }
+        .map { address -> address.toString() })
+
+      vertx.eventBus().send(Address.RECEIVED_ALL_ADDRESSES.name, address)
+
       rootChainService.deposit(address, amount)
+    }
+
+    vertx.eventBus().send<Any>(Address.PUBLISH_ADDRESS.name, address) { response ->
+      LOG.info("SUCCESS")
     }
 
     vertx.eventBus().consumer<Any>(Address.ISSUE_TRANSACTION.name) {

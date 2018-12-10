@@ -7,7 +7,7 @@ import io.vertx.kotlin.config.ConfigStoreOptions
 
 class Configuration {
   companion object {
-    val jsonObject = JsonObject()
+    var jsonObject = JsonObject()
       .put("instances", 3)
       .put("numberOfPlasmaClients", 6)
       .put("amountPerClient", 10)
@@ -17,6 +17,10 @@ class Configuration {
         .setType("json")
         .setConfig(jsonObject)
       return ConfigRetrieverOptions().addStore(jsonStore)
+    }
+
+    fun setConfigRetrieverOptions(newJsonObject: JsonObject) {
+      jsonObject = newJsonObject
     }
   }
 }

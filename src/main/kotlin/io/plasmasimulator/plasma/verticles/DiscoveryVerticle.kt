@@ -8,11 +8,16 @@ import io.vertx.core.Future
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
+import org.slf4j.LoggerFactory
 import java.util.*
 
 class DiscoveryVerticle: AbstractVerticle() {
   var clientsAddresses = JsonArray()
   var balanceMap = mutableMapOf<String, Int>()
+
+  companion object {
+      private val LOG = LoggerFactory.getLogger(DiscoveryVerticle::class.java)
+  }
 
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
@@ -24,6 +29,7 @@ class DiscoveryVerticle: AbstractVerticle() {
         clientsAddresses.add(newAddress)
 
       if(clientsAddresses.size() == numberOfClients){
+
         vertx.eventBus().publish(Address.PUSH_ALL_ADDRESSES.name, clientsAddresses)
       }
       msg.reply(Message.SUCCESS.name)
@@ -40,7 +46,7 @@ class DiscoveryVerticle: AbstractVerticle() {
         println("$address has $balance")
         total += balance
       }
-      println("TOTAL SUM: $total")
+      LOG.info("TOTAL SUM: $total")
     }
   }
 
