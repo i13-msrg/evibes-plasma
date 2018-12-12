@@ -2,7 +2,7 @@ package io.plasmasimulator.conf
 
 enum class Address {
   // Conf
-  CONFIGURE_SIMULATION,
+  UPDATE_CONFIGURATION,
   GET_CONFIGURATION,
   // ETH
   ETH_NODES_BROADCAST,

@@ -29,4 +29,15 @@ export class PlasmaEffects {
             );
         })
     );
+
+    @Effect() updateConfiguration$: Observable<PlasmaAction.PlasmaActions> = this.actions$.pipe(
+        ofType(PlasmaAction.PlasmaActionTypes.UPDATE_CONFIGURATION),
+        switchMap((action: PlasmaAction.PlasmaActions) => {
+            return this.plasmaEventBusService.sendAction(action).pipe(
+                map(result => {
+                    return new PlasmaAction.SetConfiguration(action.payload);
+                })
+            );
+        })
+    );
 }

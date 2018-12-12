@@ -1,22 +1,22 @@
-<ng-container *ngIf="plasmaConfiguration$ | async as plasmaConfiguration">
+<ng-container *ngIf="currentConfiguration">
 <div class="settings-form">
   <div class="icon-form-field">
     <mat-icon color="primary"><fa-icon [icon]="['fab', 'ethereum']" color="primary"></fa-icon></mat-icon>
     <mat-form-field class="settings-full-width">
-        <input matInput placeholder="Ethereum nodes" [ngModel]="plasmaConfiguration.numberOfEthereumNodes">
+        <input matInput type="number" placeholder="Ethereum nodes" [(ngModel)]="currentConfiguration.numberOfEthereumNodes">
     </mat-form-field>
   </div>
   <div class="icon-form-field">
     <mat-icon color="primary"><fa-icon icon="bolt" color="primary"></fa-icon></mat-icon> 
     <mat-form-field class="settings-full-width">
-      <input matInput placeholder="Plasma clients" [ngModel]="plasmaConfiguration.numberOfPlasmaClients">
+      <input matInput type="number" placeholder="Plasma clients" [(ngModel)]="currentConfiguration.numberOfPlasmaClients">
     </mat-form-field>
   </div>
 
   <div class="icon-form-field">
     <mat-icon color="primary"><fa-icon icon="coins" color="primary"></fa-icon></mat-icon> 
     <mat-form-field class="settings-full-width">
-      <input matInput placeholder="Tokens per Client" [ngModel]="plasmaConfiguration.tokensPerClient">
+      <input matInput type="number" placeholder="Tokens per Client" [(ngModel)]="currentConfiguration.tokensPerClient">
     </mat-form-field>
   </div>
 
@@ -28,7 +28,7 @@
   </div>
   
   <div class="settings-buttons">
-    <button mat-flat-button class="settings-button" color="primary">Save</button>
+    <button mat-flat-button class="settings-button" color="primary" (click)="save()">Save</button>
     <button mat-flat-button class="settings-button" color="primary">Cancel</button>
   </div>
 </div>

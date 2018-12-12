@@ -32,10 +32,8 @@ class SimulationManagerVerticle : AbstractVerticle() {
     val sockJSHandler = SockJSHandler.create(vertx)
 
     val options = BridgeOptions()
-      .addInboundPermitted(PermittedOptions().setAddress(Address.PUSH_ALL_ADDRESSES.name))
-      .addOutboundPermitted(PermittedOptions().setAddress(Address.PUSH_ALL_ADDRESSES.name))
-      .addInboundPermitted(PermittedOptions().setAddress(Address.CONFIGURE_SIMULATION.name))
-      .addOutboundPermitted(PermittedOptions().setAddress(Address.CONFIGURE_SIMULATION.name))
+      .addInboundPermitted(PermittedOptions().setAddress(Address.UPDATE_CONFIGURATION.name))
+      .addOutboundPermitted(PermittedOptions().setAddress(Address.UPDATE_CONFIGURATION.name))
       .addInboundPermitted(PermittedOptions().setAddress(Address.GET_CONFIGURATION.name))
       .addOutboundPermitted(PermittedOptions().setAddress(Address.GET_CONFIGURATION.name))
 
@@ -90,8 +88,9 @@ class SimulationManagerVerticle : AbstractVerticle() {
       LOG.info("received GET CONFIG from APP");
       msg.reply(Configuration.configJSON);
     }
-    vertx.eventBus().consumer<Any>(Address.CONFIGURE_SIMULATION.name) { msg ->
+    vertx.eventBus().consumer<Any>(Address.UPDATE_CONFIGURATION.name) { msg ->
       LOG.info("received configuration from APP")
+      println(msg.body())
       configureSimulationWith(msg.body() as JsonObject)
       msg.reply("SUCCESS")
     }

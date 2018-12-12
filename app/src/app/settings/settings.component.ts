@@ -5,6 +5,7 @@ import { selectPlasmaConfiguration } from '../../plasma/plasma.selectors';
 import { Observable } from 'rxjs';
 import { Configuration } from 'src/plasma/models/configuration';
 import { AppState } from '../app.state';
+import * as PlasmaAction from '../../plasma/plasma.actions';
 
 
 @Component({
@@ -14,13 +15,21 @@ import { AppState } from '../app.state';
 })
 export class SettingsComponent implements OnInit {
   plasmaConfiguration$: Observable<Configuration>;
+  currentConfiguration: Configuration = null;
 
   constructor(private store: Store<AppState>) {
-    this.plasmaConfiguration$ = this.store.pipe(select(selectPlasmaConfiguration));
    }
 
   ngOnInit() {
+    this.store.pipe(select(selectPlasmaConfiguration)).subscribe(configuration => {
+      if (configuration) {
+        console.log('New configuration arrived');
+        this.currentConfiguration = configuration;
+      }
+    })
   }
-  doSth() {
+
+  save() {
+    this.store.dispatch(new PlasmaAction.UpdateConfiguration(this.currentConfiguration));
   }
 }

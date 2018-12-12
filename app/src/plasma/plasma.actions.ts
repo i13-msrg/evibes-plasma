@@ -10,7 +10,8 @@ export enum PlasmaActionTypes {
     STOP_SIMULATION                   = 'STOP_SIMULATION',
     GET_PLASMA_BLOCKS                 = 'GET_PLASMA_BLOCKS',
     GET_CONFIGURATION                 = 'GET_CONFIGURATION',
-    SET_CONFIGURATION                 = 'SET_CONFIGURATION     ',
+    SET_CONFIGURATION                 = 'SET_CONFIGURATION',
+    UPDATE_CONFIGURATION              = 'UPDATE_CONFIGURATION',
     UPDATE_NUMBER_OF_PLASMA_BLOCKS    = 'UPDATE_NUMBER_OF_PLASMA_BLOCKS',
 }
 
@@ -59,7 +60,13 @@ export class GetConfiguration implements Action {
 export class SetConfiguration implements Action {
     readonly type: string = PlasmaActionTypes.SET_CONFIGURATION;
 
-    constructor(public payload: any) {}
+    constructor(public payload: Configuration) {}
+}
+
+export class UpdateConfiguration implements Action {
+    readonly type: string = PlasmaActionTypes.UPDATE_CONFIGURATION;
+
+    constructor(public payload: Configuration) {}
 }
 
 
