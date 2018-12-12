@@ -30,7 +30,7 @@ class ETHNodeVerticle : AbstractVerticle() {
       val jsonObject= msg.body() as JsonObject
       LOG.info("RECEIVED MESSAGE")
 
-//      when(jsonObject.getString("type")) {
+//      when(configJSON.getString("type")) {
 //        Message.ISSUE_TRANSACTION.name -> issue_transaction()
 //      }
     }
@@ -39,7 +39,7 @@ class ETHNodeVerticle : AbstractVerticle() {
       val jsonObject= msg.body() as JsonObject
       LOG.info("RECEIVED MESSAGE")
 
-//      when(jsonObject.getString("type")) {
+//      when(configJSON.getString("type")) {
 //        Message.ISSUE_TRANSACTION.name -> issue_transaction()
 //      }
     }

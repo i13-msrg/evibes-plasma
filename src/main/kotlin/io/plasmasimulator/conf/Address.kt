@@ -1,6 +1,9 @@
 package io.plasmasimulator.conf
 
 enum class Address {
+  // Conf
+  CONFIGURE_SIMULATION,
+  GET_CONFIGURATION,
   // ETH
   ETH_NODES_BROADCAST,
   ETH_DEPOSIT,

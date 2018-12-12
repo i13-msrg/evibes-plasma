@@ -26,7 +26,7 @@ class SimulationManagerVerticle : AbstractVerticle() {
   override fun start(startFuture: Future<Void>) {
     // module for parsing json to objects
     Json.mapper.registerModule(KotlinModule())
-
+    consumers()
     var router = Router.router(vertx)
 
     val sockJSHandler = SockJSHandler.create(vertx)
@@ -34,32 +34,43 @@ class SimulationManagerVerticle : AbstractVerticle() {
     val options = BridgeOptions()
       .addInboundPermitted(PermittedOptions().setAddress(Address.PUSH_ALL_ADDRESSES.name))
       .addOutboundPermitted(PermittedOptions().setAddress(Address.PUSH_ALL_ADDRESSES.name))
+      .addInboundPermitted(PermittedOptions().setAddress(Address.CONFIGURE_SIMULATION.name))
+      .addOutboundPermitted(PermittedOptions().setAddress(Address.CONFIGURE_SIMULATION.name))
+      .addInboundPermitted(PermittedOptions().setAddress(Address.GET_CONFIGURATION.name))
+      .addOutboundPermitted(PermittedOptions().setAddress(Address.GET_CONFIGURATION.name))
 
     sockJSHandler.bridge(options)
 
     router.route("/eventbus/*").handler(sockJSHandler)
-    router.route("/start").handler() { req ->
+    router.route("/start").handler { req ->
       LOG.info("Starting simulation from API")
-      var responseMsg = ""
-      if(startSimulation())
-        responseMsg = "Simulation started!"
+      val responseMsg = if(startSimulation())
+        "Simulation started!"
       else
-        responseMsg = "Simulation is running! Please stop id first in order to restart it."
+        "Simulation is running! Please stop id first in order to restart it."
 
       req.response()
         .putHeader("content-type", "text/plain")
         .end(responseMsg)
     }
-    router.route("/stop").handler() { req ->
+    router.route("/stop").handler { req ->
       LOG.info("Stopping simulation from API")
-      var responseMsg = ""
-      if(stopSimulation())
-        responseMsg = "Simulation stopped!"
+      val responseMsg = if(stopSimulation())
+        "Simulation stopped!"
       else
-        responseMsg = "Simulation is not running!"
+        "Simulation is not running!"
       req.response()
         .putHeader("content-type", "text/plain")
         .end(responseMsg)
+    }
+
+    router.route("/configure").handler { req ->
+
+      val updateConfig = req.body as JsonObject
+
+      req.response()
+        .putHeader("content-type", "text/plain")
+        .end("CONFIGURE")
     }
     vertx
       .createHttpServer()
@@ -74,8 +85,26 @@ class SimulationManagerVerticle : AbstractVerticle() {
       }
   }
 
-  fun configureSimulation(configJSON: JsonObject) {
-
+  fun consumers() {
+    vertx.eventBus().consumer<Any>(Address.GET_CONFIGURATION.name) { msg ->
+      LOG.info("received GET CONFIG from APP");
+      msg.reply(Configuration.configJSON);
+    }
+    vertx.eventBus().consumer<Any>(Address.CONFIGURE_SIMULATION.name) { msg ->
+      LOG.info("received configuration from APP")
+      configureSimulationWith(msg.body() as JsonObject)
+      msg.reply("SUCCESS")
+    }
+  }
+  fun configureSimulationWith(updateConfig: JsonObject) : String {
+    val currentConfig = Configuration.configJSON
+    val result = matchParams(currentConfig, updateConfig)
+    if(result == Message.SUCCESS.name) {
+      Configuration.setConfigRetrieverOptions(updateConfig)
+      return Message.SUCCESS.name
+    }
+    else
+      return result
   }
 
   fun startSimulation(): Boolean {
@@ -84,7 +113,7 @@ class SimulationManagerVerticle : AbstractVerticle() {
     var retriever = ConfigRetriever.create(vertx, confOptions)
     retriever.getConfig() { ar ->
       var conf = ar.result()
-      var opt = DeploymentOptions().setWorker(true).setInstances(conf.getInteger("instances", 1))
+      var opt = DeploymentOptions().setWorker(true).setInstances(conf.getInteger("numberOfEthereumNodes", 1))
 
       vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.ETHNodeVerticle", opt) { ar ->
         deployedVerticleIds.add(ar.result())
@@ -93,7 +122,7 @@ class SimulationManagerVerticle : AbstractVerticle() {
       val plasmaManagerConfig = JsonObject()
         .put("numberOfPlasmaClients", conf.getInteger("numberOfPlasmaClients"))
         .put("plasmaContractAddress", UUID.randomUUID().toString())
-        .put("amountPerClient", conf.getInteger("amountPerClient"))
+        .put("amountPerClient", conf.getInteger("tokensPerClient"))
 
       vertx.deployVerticle("io.plasmasimulator.plasma.verticles.PlasmaManager",
         DeploymentOptions().setWorker(true).setInstances(1).setConfig(plasmaManagerConfig)) { ar ->
@@ -121,5 +150,13 @@ class SimulationManagerVerticle : AbstractVerticle() {
 
     deployedVerticleIds.clear()
     return true
+  }
+
+  fun matchParams(currentConfig: JsonObject, updateConfig: JsonObject) : String {
+    currentConfig.forEach { item ->
+      if(!updateConfig.containsKey(item.key))
+        return item.key
+    }
+    return Message.SUCCESS.name
   }
 }
