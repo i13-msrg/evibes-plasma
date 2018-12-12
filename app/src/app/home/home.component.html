@@ -1,0 +1,23 @@
+<div style="height: 100vh;">
+<mat-toolbar color="primary">
+    <span fxFlex="90%">Plasma Simulator</span>
+    <div fxFlex="10%">    
+      <button mat-icon-button (click)="settings()"><mat-icon >settings</mat-icon></button>
+      <button mat-icon-button (click)="settings()"><mat-icon >check_circle</mat-icon></button>
+    </div>
+</mat-toolbar>
+
+
+
+<mat-card class="card">
+  <!-- <mat-card-header class="header">
+    <div fxFlex="95%" class="subheading-2 title">Plasma Simulator</div>
+    <div fxFlex="5%"  class="header-actions">
+      <button mat-icon-button (click)="settings()"><mat-icon>settings</mat-icon></button>
+    </div>
+  </mat-card-header> -->
+  <mat-card-content class="content">
+    <app-settings [hidden]="showSettings"></app-settings>
+  </mat-card-content>
+</mat-card>
+</div>

@@ -1,0 +1,64 @@
+<ng-container *ngIf="plasmaConfiguration$ | async as plasmaConfiguration">
+<div class="settings-form">
+  <div class="icon-form-field">
+    <mat-icon color="primary"><fa-icon [icon]="['fab', 'ethereum']" color="primary"></fa-icon></mat-icon>
+    <mat-form-field class="settings-full-width">
+        <input matInput placeholder="Ethereum nodes" [ngModel]="plasmaConfiguration.numberOfEthereumNodes">
+    </mat-form-field>
+  </div>
+  <div class="icon-form-field">
+    <mat-icon color="primary"><fa-icon icon="bolt" color="primary"></fa-icon></mat-icon> 
+    <mat-form-field class="settings-full-width">
+      <input matInput placeholder="Plasma clients" [ngModel]="plasmaConfiguration.numberOfPlasmaClients">
+    </mat-form-field>
+  </div>
+
+  <div class="icon-form-field">
+    <mat-icon color="primary"><fa-icon icon="coins" color="primary"></fa-icon></mat-icon> 
+    <mat-form-field class="settings-full-width">
+      <input matInput placeholder="Tokens per Client" [ngModel]="plasmaConfiguration.tokensPerClient">
+    </mat-form-field>
+  </div>
+
+  <div class="icon-form-field">
+    <mat-icon color="primary"><fa-icon icon="gas-pump" color="primary"></fa-icon></mat-icon> 
+    <mat-form-field class="settings-full-width">
+      <input matInput placeholder="Gas Limit per Block" value="0">
+    </mat-form-field>
+  </div>
+  
+  <div class="settings-buttons">
+    <button mat-flat-button class="settings-button" color="primary">Save</button>
+    <button mat-flat-button class="settings-button" color="primary">Cancel</button>
+  </div>
+</div>
+</ng-container>
+
+
+<!-- </div>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12"><h1>Settings</h1></div>
+  </div>
+
+  <ng-container>
+    <div class="row">
+      <div class="col-md-6 group" [ngClass]="routeAnimationsElements">
+        <h2>General</h2>
+        <div class="icon-form-field">
+          <mat-icon color="accent"><fa-icon icon="language" color="accent"></fa-icon></mat-icon>
+        </div>
+        <div class="icon-form-field">
+           <mat-icon color="accent"><fa-icon icon="bars" color="accent"></fa-icon></mat-icon>
+           <mat-form-field class="settings-full-width">
+              <input matInput placeholder="Plasma nodes" value="10">
+            </mat-form-field>
+           <mat-slide-toggle
+             [checked]="true"
+             (change)="doSth()">
+           </mat-slide-toggle>
+         </div>
+      </div>
+    </div>
+  </ng-container>
+</div> -->
