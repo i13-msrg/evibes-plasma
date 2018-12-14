@@ -33,8 +33,11 @@ class PlasmaManager: AbstractVerticle() {
     val numberOfPlasmaClients = config().getInteger("numberOfPlasmaClients")
     val plasmaContractAddress = config().getString("plasmaContractAddress")
     val amountPerClient = config().getInteger("amountPerClient")
+    val transactionsPerBlock = config().getInteger("transactionsPerBlock")
 
-    val config = JsonObject().put("plasmaContractAddress", plasmaContractAddress).put("amount", amountPerClient)
+    val config = JsonObject().put("plasmaContractAddress", plasmaContractAddress)
+                                         .put("amount", amountPerClient)
+                                         .put("transactionsPerBlock", transactionsPerBlock)
     // Deploy DiscoveryVerticle
     vertx.deployVerticle("io.plasmasimulator.plasma.verticles.DiscoveryVerticle",
       DeploymentOptions().setWorker(true).setConfig(JsonObject().put("numberOfClients", numberOfPlasmaClients))) { ar ->

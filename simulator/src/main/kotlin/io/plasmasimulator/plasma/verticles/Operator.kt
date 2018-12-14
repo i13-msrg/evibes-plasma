@@ -20,8 +20,7 @@ import io.vertx.core.file.OpenOptions
 
 class Operator: PlasmaParticipant() {
   var transactions = mutableListOf<Transaction>()
-  val TRANSACTIONS_PER_BLOCK = 3
-  var counter = 0
+  var TRANSACTIONS_PER_BLOCK = 0
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(Operator::class.java)
@@ -30,9 +29,11 @@ class Operator: PlasmaParticipant() {
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
 
+    TRANSACTIONS_PER_BLOCK = config().getInteger("transactionsPerBlock")
+    LOG.info("My transactions $TRANSACTIONS_PER_BLOCK")
+
     vertx.eventBus().consumer<Any>(Address.PUBLISH_TRANSACTION.name) { msg ->
       val newTransaction = Json.decodeValue(msg.body().toString(), Transaction::class.java)
-      counter++
       if(chain.validateTransaction(newTransaction, plasmaPool))
         transactions.add(newTransaction)
       else LOG.info("transaction is invalid, my friend")

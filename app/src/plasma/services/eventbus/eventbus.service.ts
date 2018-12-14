@@ -56,7 +56,6 @@ export class EventBusService {
     }
 
     get connected(): boolean {
-        console.log('check');
         return this.state === EventBusService.STATE_OPEN;
     }
 

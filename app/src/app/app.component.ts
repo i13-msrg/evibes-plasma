@@ -24,10 +24,5 @@ export class AppComponent {
 
   onClick() {
     console.log('click');
-    if (this.plasmaEventBusService.connected) {
-      this.plasmaEventBusService.configureSimulation();
-    } else {
-      console.log('not connected');
-    }
   }
 }

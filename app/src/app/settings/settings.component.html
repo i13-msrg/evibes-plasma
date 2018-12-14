@@ -1,38 +1,56 @@
+<div class="container">
 <ng-container *ngIf="currentConfiguration">
-<div class="settings-form">
-  <div class="icon-form-field">
-    <mat-icon color="primary"><fa-icon [icon]="['fab', 'ethereum']" color="primary"></fa-icon></mat-icon>
-    <mat-form-field class="settings-full-width">
-        <input matInput type="number" placeholder="Ethereum nodes" [(ngModel)]="currentConfiguration.numberOfEthereumNodes">
-    </mat-form-field>
-  </div>
-  <div class="icon-form-field">
-    <mat-icon color="primary"><fa-icon icon="bolt" color="primary"></fa-icon></mat-icon> 
-    <mat-form-field class="settings-full-width">
-      <input matInput type="number" placeholder="Plasma clients" [(ngModel)]="currentConfiguration.numberOfPlasmaClients">
-    </mat-form-field>
+<!--<div class="settings-form"> -->
+  <div class="row">
+    <div class="col-md-6 group">
+      <h2>Ethereum Configuration</h2>
+        <div class="icon-form-field">
+            <mat-icon color="primary"><fa-icon [icon]="['fab', 'ethereum']" color="primary"></fa-icon></mat-icon>
+            <mat-form-field >
+                <input matInput type="number" placeholder="Ethereum nodes" [(ngModel)]="currentConfiguration.numberOfEthereumNodes">
+            </mat-form-field>
+          </div>
+
+          <div class="icon-form-field">
+              <mat-icon color="primary"><fa-icon icon="bolt" color="primary"></fa-icon></mat-icon> 
+              <mat-form-field >
+                <input matInput type="number" placeholder="Plasma clients" [(ngModel)]="currentConfiguration.numberOfPlasmaClients">
+              </mat-form-field>
+            </div>
+    </div>
   </div>
 
-  <div class="icon-form-field">
-    <mat-icon color="primary"><fa-icon icon="coins" color="primary"></fa-icon></mat-icon> 
-    <mat-form-field class="settings-full-width">
-      <input matInput type="number" placeholder="Tokens per Client" [(ngModel)]="currentConfiguration.tokensPerClient">
-    </mat-form-field>
+  <div class="row">
+      <div class="col-md-6 group">
+        <h2>Plasma Configuration</h2>
+        <div class="icon-form-field">
+            <mat-icon color="primary"><fa-icon icon="coins" color="primary"></fa-icon></mat-icon> 
+            <mat-form-field >
+              <input matInput type="number" placeholder="Tokens per Client" [(ngModel)]="currentConfiguration.tokensPerClient">
+            </mat-form-field>
+          </div>
+        
+          <div class="icon-form-field">
+              <mat-icon color="primary"><fa-icon icon="exchange-alt" color="primary"></fa-icon></mat-icon> 
+              <mat-form-field >
+                <input matInput type="number" placeholder="Transactions per Plasma block" [(ngModel)]="currentConfiguration.transactionsPerPlasmaBlock">
+              </mat-form-field>
+            </div>
+          <div class="icon-form-field">
+              <mat-icon color="primary"><fa-icon icon="gas-pump" color="primary"></fa-icon></mat-icon> 
+              <mat-form-field >
+                <input matInput placeholder="Gas Limit per Block" value="0">
+              </mat-form-field>
+            </div>
+      </div>
   </div>
 
-  <div class="icon-form-field">
-    <mat-icon color="primary"><fa-icon icon="gas-pump" color="primary"></fa-icon></mat-icon> 
-    <mat-form-field class="settings-full-width">
-      <input matInput placeholder="Gas Limit per Block" value="0">
-    </mat-form-field>
-  </div>
-  
   <div class="settings-buttons">
     <button mat-flat-button class="settings-button" color="primary" (click)="save()">Save</button>
     <button mat-flat-button class="settings-button" color="primary">Cancel</button>
   </div>
-</div>
 </ng-container>
+</div>
 
 
 <!-- </div>

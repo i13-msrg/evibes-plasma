@@ -1,9 +1,17 @@
 <div style="height: 100vh;">
 <mat-toolbar color="primary">
-    <span fxFlex="90%">Plasma Simulator</span>
-    <div fxFlex="10%">    
-      <button mat-icon-button (click)="settings()"><mat-icon >settings</mat-icon></button>
-      <button mat-icon-button (click)="settings()"><mat-icon >check_circle</mat-icon></button>
+    <span fxFlex="85%">Plasma Simulator</span>
+    <div fxFlex="15%">
+      <button mat-icon-button matTooltip="Home" (click)="home()"><mat-icon >home</mat-icon></button>    
+      <button mat-icon-button matTooltip="Configuration" (click)="settings()"><mat-icon >settings</mat-icon></button>
+      <button mat-icon-button matTooltip="You are {{connected? 'connected' : 'disconnected'}}">
+      <ng-container *ngIf="connected; else elseTemplate">
+          <mat-icon >check_circle</mat-icon>
+      </ng-container>
+      <ng-template #elseTemplate>
+          <mat-icon >highlight_off</mat-icon>
+      </ng-template>
+      </button>
     </div>
 </mat-toolbar>
 
@@ -17,7 +25,14 @@
     </div>
   </mat-card-header> -->
   <mat-card-content class="content">
-    <app-settings [hidden]="showSettings"></app-settings>
+    <app-settings *ngIf="showSettings"></app-settings>
+    <ng-container *ngIf="!showSettings">
+        <div>{{plasmaBlocks}}</div>
+        <div class="sim-buttons">
+            <button mat-flat-button class="sim-button" color="primary" (click)="startSimulation()">Start Simulation</button>
+            <button mat-flat-button class="sim-button" color="primary" (click)="stopSimulation()">Stop Simulation</button>
+          </div>
+    </ng-container>
   </mat-card-content>
 </mat-card>
 </div>

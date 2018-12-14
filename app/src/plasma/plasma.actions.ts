@@ -12,7 +12,11 @@ export enum PlasmaActionTypes {
     GET_CONFIGURATION                 = 'GET_CONFIGURATION',
     SET_CONFIGURATION                 = 'SET_CONFIGURATION',
     UPDATE_CONFIGURATION              = 'UPDATE_CONFIGURATION',
-    UPDATE_NUMBER_OF_PLASMA_BLOCKS    = 'UPDATE_NUMBER_OF_PLASMA_BLOCKS',
+    SUBSCRIBE_NEW_BLOCK               = 'SUBSCRIBE_NEW_BLOCK',
+    UNSUBSCRIBE_NEW_BLOCK             = 'UNSUBSCRIBE_NEW_BLOCK',
+    ADD_NEW_BLOCK                     = 'ADD_NEW_BLOCK',
+    SIMULATION_STARTED                = 'SIMULATION_STARTED',
+    SIMULATION_STOPPED                = 'SIMULATION_STOPPED'
 }
 
 export class Connect implements Action {
@@ -69,11 +73,40 @@ export class UpdateConfiguration implements Action {
     constructor(public payload: Configuration) {}
 }
 
+export class SubscribeToNewBlock implements Action {
+    readonly type: string = PlasmaActionTypes.SUBSCRIBE_NEW_BLOCK;
+}
 
-// export class ReceivedPlasmaBlocks implements Action {
-//     readonly type: string = PlasmaActionTypes.GET_PLASMA_BLOCKS_RECEIVED;
+export class UnsubscribeToNewBlock implements Action {
+    readonly type: string = PlasmaActionTypes.SUBSCRIBE_NEW_BLOCK;
+}
 
-//     constructor(public payload: { [number: number]: PlasmaBlock }) {}
-// }
+export class AddNewBlock implements Action {
+    readonly type: string = PlasmaActionTypes.ADD_NEW_BLOCK;
 
-export type PlasmaActions = GetConfiguration | GetPlasmaBlocks;
+    constructor(public payload: null) {}
+}
+
+export class SimulationStarted implements Action {
+    readonly type: string = PlasmaActionTypes.SIMULATION_STARTED;
+
+    constructor(public payload: null) {}
+}
+
+export class SimulationStopped implements Action {
+    readonly type: string = PlasmaActionTypes.SIMULATION_STOPPED;
+
+    constructor(public payload: null) {}
+}
+
+export type PlasmaActions = Connect             |
+                            ConnectionOpened    |
+                            ConnectionClosed    |
+                            StartSimulation     |
+                            StopSimulation      |
+                            SetConfiguration    |
+                            UpdateConfiguration |
+                            GetConfiguration    |
+                            AddNewBlock         |
+                            SimulationStarted   |
+                            GetPlasmaBlocks;

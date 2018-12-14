@@ -10,6 +10,7 @@ class Configuration {
       .put("numberOfEthereumNodes", 3)
       .put("numberOfPlasmaClients", 6)
       .put("tokensPerClient", 10)
+      .put("transactionsPerPlasmaBlock", 3)
 
     fun getConfigRetrieverOptions() : ConfigRetrieverOptions {
       val jsonStore = ConfigStoreOptions()

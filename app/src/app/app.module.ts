@@ -15,6 +15,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { PlasmaEffects } from 'src/plasma/plasma.effects';
 import { FormsModule } from '@angular/forms';
 import { reducers } from './app.reducer';
+import { SnackbarComponent } from './snackbar/snackbar.component';
 
 
 
@@ -22,7 +23,8 @@ import { reducers } from './app.reducer';
   declarations: [
     AppComponent,
     HomeComponent,
-    SettingsComponent
+    SettingsComponent,
+    SnackbarComponent
   ],
   imports: [
     BrowserModule,

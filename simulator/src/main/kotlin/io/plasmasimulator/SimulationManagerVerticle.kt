@@ -36,6 +36,12 @@ class SimulationManagerVerticle : AbstractVerticle() {
       .addOutboundPermitted(PermittedOptions().setAddress(Address.UPDATE_CONFIGURATION.name))
       .addInboundPermitted(PermittedOptions().setAddress(Address.GET_CONFIGURATION.name))
       .addOutboundPermitted(PermittedOptions().setAddress(Address.GET_CONFIGURATION.name))
+      .addInboundPermitted(PermittedOptions().setAddress(Address.START_SIMULATION.name))
+      .addOutboundPermitted(PermittedOptions().setAddress(Address.START_SIMULATION.name))
+      .addInboundPermitted(PermittedOptions().setAddress(Address.STOP_SIMULATION.name))
+      .addOutboundPermitted(PermittedOptions().setAddress(Address.STOP_SIMULATION.name))
+      .addInboundPermitted(PermittedOptions().setAddress(Address.ADD_NEW_BLOCK.name))
+      .addOutboundPermitted(PermittedOptions().setAddress(Address.ADD_NEW_BLOCK.name))
 
     sockJSHandler.bridge(options)
 
@@ -85,15 +91,27 @@ class SimulationManagerVerticle : AbstractVerticle() {
 
   fun consumers() {
     vertx.eventBus().consumer<Any>(Address.GET_CONFIGURATION.name) { msg ->
-      LOG.info("received GET CONFIG from APP");
       msg.reply(Configuration.configJSON);
     }
     vertx.eventBus().consumer<Any>(Address.UPDATE_CONFIGURATION.name) { msg ->
-      LOG.info("received configuration from APP")
-      println(msg.body())
+      LOG.info("Received new configuration")
+      LOG.info(msg.body().toString())
       configureSimulationWith(msg.body() as JsonObject)
       msg.reply("SUCCESS")
     }
+
+    vertx.eventBus().consumer<Any>(Address.START_SIMULATION.name) { msg ->
+      LOG.info("Starting simulation ...");
+      startSimulation()
+      msg.reply("SUCCESS")
+    }
+
+    vertx.eventBus().consumer<Any>(Address.STOP_SIMULATION.name) { msg ->
+      LOG.info("Stopping simulation ...");
+      stopSimulation()
+      msg.reply("SUCCESS")
+    }
+
   }
   fun configureSimulationWith(updateConfig: JsonObject) : String {
     val currentConfig = Configuration.configJSON
@@ -114,16 +132,26 @@ class SimulationManagerVerticle : AbstractVerticle() {
       var conf = ar.result()
       var opt = DeploymentOptions().setWorker(true).setInstances(conf.getInteger("numberOfEthereumNodes", 1))
 
+      // Deploy eth nodes
       vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.ETHNodeVerticle", opt) { ar ->
         deployedVerticleIds.add(ar.result())
       }
 
+      // Deploy plasma clients
       val plasmaManagerConfig = JsonObject()
         .put("numberOfPlasmaClients", conf.getInteger("numberOfPlasmaClients"))
         .put("plasmaContractAddress", UUID.randomUUID().toString())
         .put("amountPerClient", conf.getInteger("tokensPerClient"))
+        .put("transactionsPerBlock", conf.getInteger("transactionsPerPlasmaBlock"))
 
+      // Deploy plasma manager
       vertx.deployVerticle("io.plasmasimulator.plasma.verticles.PlasmaManager",
+        DeploymentOptions().setWorker(true).setInstances(1).setConfig(plasmaManagerConfig)) { ar ->
+        deployedVerticleIds.add(ar.result())
+      }
+
+      // Deploy reducer
+      vertx.deployVerticle("io.plasmasimulator.Reducer",
         DeploymentOptions().setWorker(true).setInstances(1).setConfig(plasmaManagerConfig)) { ar ->
         deployedVerticleIds.add(ar.result())
       }
