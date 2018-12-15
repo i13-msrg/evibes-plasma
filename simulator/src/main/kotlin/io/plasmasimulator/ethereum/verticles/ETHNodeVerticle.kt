@@ -61,10 +61,12 @@ class ETHNodeVerticle : AbstractVerticle() {
     when(tx.data!!.get("method")) {
       "submitBlock" -> plasmaContract.submitBlock(tx.data!!.get("rootHash")!!)
       "deposit" -> {
-        var result: JsonObject = plasmaContract.deposit(tx.data!!.get("address")!!, tx.data!!.get("amount")!!.toInt())
+        var result: JsonObject = plasmaContract.deposit(tx.data!!.get("address")!!,
+                                                        tx.data!!.get("amount")!!.toInt(),
+                                                        tx.data!!.get("chainAddress")!!)
         // publish deposit block to operator
         // TODO: consider sending the block to all plasma participants
-        vertx.eventBus().send(Address.ETH_ANNOUNCE_DEPOSIT.name, result)
+        vertx.eventBus().send("${tx.data!!.get("chainAddress")!!}/${Address.ETH_ANNOUNCE_DEPOSIT.name}", result)
       }
     }
   }

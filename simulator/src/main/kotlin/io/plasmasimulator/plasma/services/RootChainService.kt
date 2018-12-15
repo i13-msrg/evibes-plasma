@@ -15,12 +15,13 @@ class RootChainService() {
   val plasmaAddress = ""
   private var nonce = 1
 
-  fun deposit(address: String, amount: Int) {
+  fun deposit(address: String, amount: Int, chainAddress: String) {
     var data = mutableMapOf<String, String>()
     data.put("type", "plasma")
     data.put("method", "deposit")
     data.put("address", address)
     data.put("amount", amount.toString())
+    data.put("chainAddress", chainAddress)
 
     val tx: ETHTransaction = createTransaction(address, data)
     val txJson = Json.encode(tx)

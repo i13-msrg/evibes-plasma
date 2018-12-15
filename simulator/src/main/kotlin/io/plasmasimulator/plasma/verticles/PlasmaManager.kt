@@ -16,13 +16,14 @@ import java.util.*
 
 class PlasmaManager: AbstractVerticle() {
 
-  var clientsAddresses = mutableListOf<String>()
-  val chain = PlasmaChain()
+  var clientsAddressesMap = mutableMapOf<String, MutableList<String>>()
+  var confirmedAddressesMap = mutableMapOf<String, Int>()
   val addressMe = UUID.randomUUID()
   var deployedVerticles = mutableListOf<String>()
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(PlasmaManager::class.java)
+    private var periodicalMap = mutableMapOf<String, Int>()
     private var NumberOfBlocks = 10
   }
 
@@ -30,53 +31,114 @@ class PlasmaManager: AbstractVerticle() {
     super.start(startFuture)
     LOG.info("Plasma Manager deployed!")
 
-    val numberOfPlasmaClients = config().getInteger("numberOfPlasmaClients")
-    val plasmaContractAddress = config().getString("plasmaContractAddress")
-    val amountPerClient = config().getInteger("amountPerClient")
-    val transactionsPerBlock = config().getInteger("transactionsPerBlock")
+    val numberOfPlasmaClients: Int              = config().getInteger("numberOfPlasmaClients")
+    val plasmaContractAddress: String           = config().getString("plasmaContractAddress")
+    val amountPerClient: Int                    = config().getInteger("amountPerClient")
+    val transactionsPerBlock: Int               = config().getInteger("transactionsPerBlock")
+    val mainPlasmaChainAddress: String          = config().getString("mainPlasmaChainAddress")
+    val childrenPlasmaChainAddresses: JsonArray = config().getJsonArray("plasmaChildrenAddresses")
 
     val config = JsonObject().put("plasmaContractAddress", plasmaContractAddress)
                                          .put("amount", amountPerClient)
                                          .put("transactionsPerBlock", transactionsPerBlock)
+
+    // deploy children plasma chains
+    childrenPlasmaChainAddresses.forEach { obj ->
+      val childAddress = obj.toString()
+      println("childAddress: $childAddress")
+      consumersPerChain(childAddress, numberOfPlasmaClients)
+      deployPlasma(childAddress, numberOfPlasmaClients, config.copy(), mainPlasmaChainAddress)
+      periodicalMap.put(childAddress, NumberOfBlocks)
+    }
+    if(childrenPlasmaChainAddresses.size() > 0)
+      config.put("childrenPlasmaChainAddresses", childrenPlasmaChainAddresses)
+    // deploy plasma main chain
+    consumersPerChain(mainPlasmaChainAddress, numberOfPlasmaClients)
+    deployPlasma(mainPlasmaChainAddress, numberOfPlasmaClients, config.copy(), null)
+    periodicalMap.put(mainPlasmaChainAddress, NumberOfBlocks)
+
+  }
+
+  fun deployPlasma(chainAddress: String, numberOfPlasmaClients: Int, config: JsonObject, parentPlasmaAddress: String?) {
     // Deploy DiscoveryVerticle
     vertx.deployVerticle("io.plasmasimulator.plasma.verticles.DiscoveryVerticle",
-      DeploymentOptions().setWorker(true).setConfig(JsonObject().put("numberOfClients", numberOfPlasmaClients))) { ar ->
+      DeploymentOptions().setWorker(true).setConfig(
+        JsonObject()
+          .put("numberOfClients", numberOfPlasmaClients)
+          .put("chainAddress", chainAddress)
+        )
+    ) { ar ->
       deployedVerticles.add(ar.result())
+    }
+
+    config.put("chainAddress", chainAddress)
+
+    if(parentPlasmaAddress != null) {
+      config.put("parentPlasmaAddress", parentPlasmaAddress)
     }
     // Deploy Operator
     vertx.deployVerticle("io.plasmasimulator.plasma.verticles.Operator",
       DeploymentOptions().setWorker(true).setConfig((config))) { ar ->
+      if(ar.failed()) {
+        LOG.info(ar.cause().toString())
+      }
       deployedVerticles.add(ar.result())
     }
 
     // Deploy PlasmaClients
-    var opt = DeploymentOptions().setWorker(true).setInstances(numberOfPlasmaClients).setConfig(config)
-    vertx.deployVerticle("io.plasmasimulator.plasma.verticles.PlasmaClient", opt) { ar ->
+    vertx.deployVerticle("io.plasmasimulator.plasma.verticles.PlasmaClient",
+      DeploymentOptions().setWorker(true).setInstances(numberOfPlasmaClients).setConfig(config)) { ar ->
+      if(ar.failed()) {
+        LOG.info(ar.cause().toString())
+      }
       deployedVerticles.add(ar.result())
     }
+  }
 
-    vertx.eventBus().consumer<Any>(Address.RUN_PLASMA_CHAIN.name) { msg ->
-      val jsonObject= msg.body() as JsonObject
-      LOG.info("RECEIVED MESSAGE")
-
-    }
-    vertx.eventBus().consumer<Any>(Address.PUSH_ALL_ADDRESSES.name) { msg ->
+  fun consumersPerChain(chainAddress: String, numberOfPlasmaClients: Int) {
+    vertx.eventBus().consumer<Any>("$chainAddress/${Address.PUSH_ALL_ADDRESSES.name}") { msg ->
       LOG.info("GOT ALL ADDRESSES")
+      val clientsAddresses = mutableListOf<String>()
       val allClientsAddresses = (msg.body() as JsonArray).toMutableList()
       clientsAddresses.addAll(allClientsAddresses.map { address -> address.toString() })
+      clientsAddressesMap.put(chainAddress, clientsAddresses)
+
     }
-    var confirmedClients = 0
-    vertx.eventBus().consumer<Any>(Address.RECEIVED_ALL_ADDRESSES.name) { msg ->
+
+    confirmedAddressesMap.put(chainAddress, 0)
+    vertx.eventBus().consumer<Any>("$chainAddress/${Address.RECEIVED_ALL_ADDRESSES.name}") { msg ->
       LOG.info("RECEIVED FROM ${msg.body().toString()}")
-      confirmedClients ++
-      if(confirmedClients == numberOfPlasmaClients) {
-        vertx.setPeriodic(10000) {id ->
-          if(NumberOfBlocks-- == 0) {
-            vertx.eventBus().send(Address.PRINT_BALANCE_FOR_EACH_CLIENT.name, "")
+      LOG.info("CHAIN ADDRESS: $chainAddress")
+      if(confirmedAddressesMap.containsKey(chainAddress)) {
+        var confirmedAddresses: Int? = confirmedAddressesMap.get(chainAddress)
+        if(confirmedAddresses != null) {
+          confirmedAddresses ++
+          confirmedAddressesMap.put(chainAddress, confirmedAddresses)
+        }
+        if(confirmedAddressesMap.get(chainAddress) == numberOfPlasmaClients) {
+          LOG.info("$chainAddress confirmed")
+          startPeriodicCall(chainAddress)
+        }
+      } else {
+        println("chainAddress not there")
+      }
+    }
+  }
+
+  fun startPeriodicCall(chainAddress: String) {
+    vertx.setPeriodic(2000) {id ->
+      if(periodicalMap.contains(chainAddress)) {
+        var numberOfBlocks = periodicalMap.get(chainAddress)
+        if(numberOfBlocks != null) {
+          numberOfBlocks--
+          periodicalMap.put(chainAddress, numberOfBlocks)
+          println("PERIODIC $id")
+          if(numberOfBlocks == 0) {
+            vertx.eventBus().send("$chainAddress/${Address.PRINT_BALANCE_FOR_EACH_CLIENT.name}", "")
             vertx.cancelTimer(id)
-          } else {
-            println("send $addressMe")
-            vertx.eventBus().publish(Address.ISSUE_TRANSACTION.name, Message.ISSUE_TRANSACTION.name)
+          }
+          else {
+            vertx.eventBus().publish("$chainAddress/${Address.ISSUE_TRANSACTION.name}", Message.ISSUE_TRANSACTION.name)
           }
         }
       }

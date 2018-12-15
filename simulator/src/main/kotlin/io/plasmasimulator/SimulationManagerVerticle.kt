@@ -9,6 +9,7 @@ import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Future
 import io.vertx.core.json.Json
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.bridge.PermittedOptions
 import io.vertx.ext.web.Router
@@ -136,6 +137,12 @@ class SimulationManagerVerticle : AbstractVerticle() {
       vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.ETHNodeVerticle", opt) { ar ->
         deployedVerticleIds.add(ar.result())
       }
+      val mainPlasmaChainAddress = UUID.randomUUID().toString()
+      val plasmaChildren = conf.getInteger("plasmaChildren")
+      val plasmaChildrenAddresses = JsonArray()
+      if(plasmaChildren > 0) {
+        plasmaChildrenAddresses.addAll(generateAddreses(plasmaChildren))
+      }
 
       // Deploy plasma clients
       val plasmaManagerConfig = JsonObject()
@@ -143,27 +150,31 @@ class SimulationManagerVerticle : AbstractVerticle() {
         .put("plasmaContractAddress", UUID.randomUUID().toString())
         .put("amountPerClient", conf.getInteger("tokensPerClient"))
         .put("transactionsPerBlock", conf.getInteger("transactionsPerPlasmaBlock"))
+        .put("mainPlasmaChainAddress", mainPlasmaChainAddress)
+        .put("plasmaChildrenAddresses", plasmaChildrenAddresses)
 
       // Deploy plasma manager
       vertx.deployVerticle("io.plasmasimulator.plasma.verticles.PlasmaManager",
         DeploymentOptions().setWorker(true).setInstances(1).setConfig(plasmaManagerConfig)) { ar ->
+        if(ar.failed()) {
+          println(ar.cause())
+        }
         deployedVerticleIds.add(ar.result())
       }
 
       // Deploy reducer
       vertx.deployVerticle("io.plasmasimulator.Reducer",
         DeploymentOptions().setWorker(true).setInstances(1).setConfig(plasmaManagerConfig)) { ar ->
+        if(ar.failed()){
+          LOG.info("Reducer deployment failed")
+          println(ar.cause())
+        }
         deployedVerticleIds.add(ar.result())
       }
 
       vertx.eventBus().publish(Address.ETH_NODES_BROADCAST.name,
         JsonObject().put("type", Message.ISSUE_TRANSACTION.name))
 
-      vertx.eventBus().send(Address.RUN_PLASMA_CHAIN.name,
-        JsonObject()
-          .put("numberOfPlasmaClients", conf.getInteger("numberOfPlasmaClients"))
-          .put("plasmaContractAddress", UUID.randomUUID().toString())
-          .put("amountPerClient", conf.getInteger("amountPerClient")))
     }
     return true
   }
@@ -177,6 +188,14 @@ class SimulationManagerVerticle : AbstractVerticle() {
 
     deployedVerticleIds.clear()
     return true
+  }
+
+  fun generateAddreses(number: Int) : JsonArray {
+    var addresses = JsonArray()
+    for (i in 0 until number) {
+      addresses.add(UUID.randomUUID().toString());
+    }
+    return addresses
   }
 
   fun matchParams(currentConfig: JsonObject, updateConfig: JsonObject) : String {

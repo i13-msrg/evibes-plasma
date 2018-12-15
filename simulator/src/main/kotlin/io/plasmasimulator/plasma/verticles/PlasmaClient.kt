@@ -34,7 +34,7 @@ class PlasmaClient: PlasmaParticipant() {
     println(config())
     val amount = config().getInteger("amount")
 
-    vertx.eventBus().consumer<Any>(Address.PUSH_ALL_ADDRESSES.name) { msg ->
+    vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.PUSH_ALL_ADDRESSES.name}") { msg ->
       LOG.info("CLIENT $address GOT ALL ADDRESSES")
       val allClientsAddresses = (msg.body() as JsonArray).toMutableList()
 
@@ -42,34 +42,35 @@ class PlasmaClient: PlasmaParticipant() {
         .filter { clientAddress -> clientAddress != this.address  }
         .map { address -> address.toString() })
 
-      vertx.eventBus().send(Address.RECEIVED_ALL_ADDRESSES.name, address)
+      println("[$address] sending confirmation for ${chain.chainAddress}")
+      vertx.eventBus().send("${chain.chainAddress}/${Address.RECEIVED_ALL_ADDRESSES.name}", address)
 
-      rootChainService.deposit(address, amount)
+      rootChainService.deposit(address, amount, chain.chainAddress)
     }
 
-    vertx.eventBus().send<Any>(Address.PUBLISH_ADDRESS.name, address) { response ->
+    vertx.eventBus().send<Any>("${chain.chainAddress}/${Address.PUBLISH_ADDRESS.name}", address) { response ->
       LOG.info("SUCCESS")
     }
 
-    vertx.eventBus().consumer<Any>(Address.ISSUE_TRANSACTION.name) {
+    vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.ISSUE_TRANSACTION.name}") {
       //LOG.info("ISSUE TRANSACTION MESSAGE RECEIVED")
       val tx = createTransaction()
       if(tx != null) {
         val txJson  = JsonObject(Json.encode(tx))
 
-        vertx.eventBus().publish(Address.PUBLISH_TRANSACTION.name, txJson)
+        vertx.eventBus().publish("${chain.chainAddress}/${Address.PUBLISH_TRANSACTION.name}", txJson)
       }
       else
         LOG.info("Transaction is null")
     }
 
-    vertx.eventBus().consumer<Any>(Address.PUBLISH_TRANSACTION.name) { msg ->
+    vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.PUBLISH_TRANSACTION.name}") { msg ->
       val tx: Transaction = Json.decodeValue(msg.body().toString(), Transaction::class.java)
       if(!newTXs.contains(tx))
         newTXs.add(tx)
     }
 
-    vertx.eventBus().consumer<Any>(Address.PUBLISH_BLOCK.name) { msg ->
+    vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.PUBLISH_BLOCK.name}") { msg ->
       val block: PlasmaBlock = Json.decodeValue(msg.body().toString(), PlasmaBlock::class.java)
 
       chain.addBlock(block, plasmaPool)
@@ -78,7 +79,7 @@ class PlasmaClient: PlasmaParticipant() {
       myFlyingUTXOS = myUTXOs.toMutableList()
       calculateBalance()
       var jsonObject = JsonObject().put("address", address).put("balance", balance)
-      vertx.eventBus().send(Address.PUBLISH_BALANCE.name, jsonObject)
+      vertx.eventBus().send("${chain.chainAddress}/${Address.PUBLISH_BALANCE.name}", jsonObject)
       //LOG.info("$address : my balance is ${balance}")
     }
   }

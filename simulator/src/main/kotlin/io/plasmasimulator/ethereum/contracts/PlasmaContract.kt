@@ -18,7 +18,8 @@ class PlasmaContract {
       private val LOG = LoggerFactory.getLogger(PlasmaContract::class.java)
   }
 
-  fun deposit(address: String, amount: Int) : JsonObject{
+  fun deposit(address: String, amount: Int, chainAddress: String) : JsonObject{
+    LOG.info("Deposit $amount for $address")
     state.put(address, Account(address, amount))
     val rootHash = HashUtils.transform(HashUtils.hash(address.toByteArray() + amount.toByte()))
     childBlocks.add(PlasmaBlock(rootHash))
@@ -27,6 +28,7 @@ class PlasmaContract {
       .put("amount", amount)
       .put("blockNum", childBlocks.size - 1)
       .put("rootHash", rootHash)
+      .put("chainAddress", chainAddress)
   }
 
   fun submitBlock(rootHash: String) {

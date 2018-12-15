@@ -22,31 +22,32 @@ class DiscoveryVerticle: AbstractVerticle() {
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
     val numberOfClients = config().getInteger("numberOfClients")
+    val chainAddress = config().getString("chainAddress")
 
-    vertx.eventBus().consumer<Any>(Address.PUBLISH_ADDRESS.name) { msg ->
+    vertx.eventBus().consumer<Any>("$chainAddress/${Address.PUBLISH_ADDRESS.name}") { msg ->
       val newAddress = msg.body() as String
       if(!clientsAddresses.contains(newAddress))
         clientsAddresses.add(newAddress)
 
       if(clientsAddresses.size() == numberOfClients){
 
-        vertx.eventBus().publish(Address.PUSH_ALL_ADDRESSES.name, clientsAddresses)
+        vertx.eventBus().publish("$chainAddress/${Address.PUSH_ALL_ADDRESSES.name}", clientsAddresses)
       }
       msg.reply(Message.SUCCESS.name)
     }
 
-    vertx.eventBus().consumer<Any>(Address.PUBLISH_BALANCE.name) { msg ->
+    vertx.eventBus().consumer<Any>("$chainAddress/${Address.PUBLISH_BALANCE.name}") { msg ->
       val jsonbObject = msg.body() as JsonObject
       balanceMap.put(jsonbObject.getString("address"), jsonbObject.getInteger("balance"))
     }
 
-    vertx.eventBus().consumer<Any>(Address.PRINT_BALANCE_FOR_EACH_CLIENT.name) {
+    vertx.eventBus().consumer<Any>("$chainAddress/${Address.PRINT_BALANCE_FOR_EACH_CLIENT.name}") {
       var total = 0
       balanceMap.forEach{(address, balance) ->
         println("$address has $balance")
         total += balance
       }
-      LOG.info("TOTAL SUM: $total")
+      LOG.info("[$chainAddress] TOTAL SUM: $total")
     }
   }
 

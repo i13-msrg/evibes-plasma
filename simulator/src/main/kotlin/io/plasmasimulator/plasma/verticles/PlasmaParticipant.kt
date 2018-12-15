@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 open class PlasmaParticipant: AbstractVerticle() {
-  val chain: PlasmaChain = PlasmaChain()
+  var chain: PlasmaChain = PlasmaChain("")
   val rootChainService = RootChainService()
   var plasmaPool: UTXOPool = UTXOPool()
 
@@ -34,13 +34,26 @@ open class PlasmaParticipant: AbstractVerticle() {
 
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
-    chain.vertx = vertx
     // TODO: Improve vetx referencing
     rootChainService.vertx = vertx
     LOG.info("Initialize PlasmaVerticle")
-    val jsonObj = config()
-    plasmaContractAddress = jsonObj.getString("plasmaContractAddress")
+    plasmaContractAddress               = config().getString("plasmaContractAddress")
+    val chainAddress: String            = config().getString("chainAddress")
+
+    chain = PlasmaChain(chainAddress)
+
+    if(config().containsKey("parentPlasmaAddress")) {
+      chain.parentChainAddress          = config().getString("parentPlasmaAddress")
+    }
     bootstrapBlockchain()
+
+    if(chain.parentChainAddress != null) {
+      // I have a parent plasma chain, so I am expecting to see some blocks
+      vertx.eventBus().consumer<Any>(chain.chainAddress) { msg ->
+        val parentBlock: PlasmaBlock = Json.decodeValue(msg.body().toString(), PlasmaBlock::class.java)
+        chain.addParentBlock(parentBlock)
+      }
+    }
   }
 
   fun bootstrapBlockchain() {

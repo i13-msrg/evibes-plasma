@@ -9,13 +9,23 @@ import java.util.ArrayList
 
 
 
-class PlasmaChain (var blocks: MutableMap<Int, PlasmaBlock> = mutableMapOf<Int, PlasmaBlock>()) {
-  var vertx: Vertx? = null
+class PlasmaChain (val chainAddress: String,
+                   var parentChainAddress: String? = null,
+                   var blocks: MutableMap<Int, PlasmaBlock> = mutableMapOf<Int, PlasmaBlock>(),
+                   var parentBlocks: MutableMap<Int, PlasmaBlock> = mutableMapOf<Int, PlasmaBlock>()) {
   //constructor(chain: PlasmaChain): this(chain.blocks.toMutableList())
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(PlasmaChain::class.java)
 
+  }
+
+  fun addParentBlock(parentBlock: PlasmaBlock) {
+    if(parentBlocks.containsKey(parentBlock.number)) {
+      println("PARENT BLOCK ALREADY THERE")
+      return
+    }
+    parentBlocks.put(parentBlock.number, parentBlock)
   }
 
   fun addBlock(block: PlasmaBlock, plasmaPool: UTXOPool) {
@@ -57,9 +67,6 @@ class PlasmaChain (var blocks: MutableMap<Int, PlasmaBlock> = mutableMapOf<Int, 
       val utxo = UTXO(input.blockNum, input.txIndex, input.outputIndex)
       if(!plasmaPool.containsUTXO(utxo)) {
         LOG.info("UTXO not in pool")
-        if(vertx != null) {
-          //FileManager.writeFile(vertx!!, Json.encode(plasmaPool.poolMap.keys), "plasmaPoolCHAIN.json")
-        }
         LOG.info(Json.encode(utxo).toString())
         return false
       }

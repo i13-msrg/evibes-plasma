@@ -7,10 +7,11 @@ import io.vertx.kotlin.config.ConfigStoreOptions
 class Configuration {
   companion object {
     var configJSON = JsonObject()
-      .put("numberOfEthereumNodes", 3)
+      .put("numberOfEthereumNodes", 1)
       .put("numberOfPlasmaClients", 6)
       .put("tokensPerClient", 10)
       .put("transactionsPerPlasmaBlock", 3)
+      .put("plasmaChildren", 3)
 
     fun getConfigRetrieverOptions() : ConfigRetrieverOptions {
       val jsonStore = ConfigStoreOptions()

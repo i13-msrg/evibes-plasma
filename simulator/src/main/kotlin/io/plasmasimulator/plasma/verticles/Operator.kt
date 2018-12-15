@@ -20,6 +20,7 @@ import io.vertx.core.file.OpenOptions
 
 class Operator: PlasmaParticipant() {
   var transactions = mutableListOf<Transaction>()
+  var childChains = mutableListOf<String>()
   var TRANSACTIONS_PER_BLOCK = 0
 
   private companion object {
@@ -28,12 +29,20 @@ class Operator: PlasmaParticipant() {
 
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
+    LOG.info("Hello from Operator $address")
 
     TRANSACTIONS_PER_BLOCK = config().getInteger("transactionsPerBlock")
-    LOG.info("My transactions $TRANSACTIONS_PER_BLOCK")
 
-    vertx.eventBus().consumer<Any>(Address.PUBLISH_TRANSACTION.name) { msg ->
+    if(config().containsKey("childrenPlasmaChainAddresses")) {
+      childChains = config().getJsonArray("childrenPlasmaChainAddresses").list.toMutableList() as MutableList<String>
+    }
+
+    vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.PUBLISH_TRANSACTION.name}") { msg ->
       val newTransaction = Json.decodeValue(msg.body().toString(), Transaction::class.java)
+      if(newTransaction.childChainTransaction) {
+        LOG.info("[$address] Child Chain Transaction received <<<<<<<<<")
+        println(newTransaction.childChainData)
+      }
       if(chain.validateTransaction(newTransaction, plasmaPool))
         transactions.add(newTransaction)
       else LOG.info("transaction is invalid, my friend")
@@ -45,18 +54,18 @@ class Operator: PlasmaParticipant() {
       }
     }
 
-    vertx.eventBus().consumer<Any>(Address.DEPOSIT_TRANSACTION.name) { msg ->
+    vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.DEPOSIT_TRANSACTION.name}") { msg ->
       val depositTransaction = Json.decodeValue(msg.body().toString(), Transaction::class.java)
-
       applyBlock(createBlock(mutableListOf(depositTransaction)))
     }
 
-    vertx.eventBus().consumer<Any>(Address.ETH_ANNOUNCE_DEPOSIT.name) { msg ->
+    vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.ETH_ANNOUNCE_DEPOSIT.name}") { msg ->
       val jsonObj = msg.body() as JsonObject
       if(!chain.containsBlock(jsonObj.getInteger("blockNum"))) {
         val tx = Transaction()
         tx.depositTransaction = true
         tx.addOutput(jsonObj.getString("address"), jsonObj.getInteger("amount"))
+        LOG.info("[$address] Operator received deposit ${jsonObj.getInteger("amount")} for ${jsonObj.getString("address")} ")
         val newBlock = createBlock(listOf(tx))
         //TODO: verify new block root hash is same as the once coming from contract
         applyBlock(newBlock)
@@ -92,11 +101,28 @@ class Operator: PlasmaParticipant() {
 
     removeUTXOsForBlock(block)
     createUTXOsForBlock(block)
-    LOG.info("BLOCK ADDED TO BLOCKCHAIN. NUMBER OF BLOCKS: ${chain.blocks.size}")
-    LOG.info("TOTAL SUM OF UTXOs: ${calculateTotalBalance()}")
+    LOG.info("[$address] BLOCK ADDED TO BLOCKCHAIN. NUMBER OF BLOCKS: ${chain.blocks.size}")
+    LOG.info("[$address] TOTAL SUM OF UTXOs: ${calculateTotalBalance()}")
     val blockJson  = JsonObject(Json.encode(block))
-    //send(Address.APPLY_BLOCK.name, blockJson) PLASMA CONTRACT
-    send(Address.PUBLISH_BLOCK.name, blockJson)
+    send("${chain.chainAddress}/${Address.PUBLISH_BLOCK.name}", blockJson)
+
+    if(chain.parentChainAddress != null) {
+      LOG.info("[$address] Create transaction to parent")
+      // send the block to the parent chain as a transaction
+      val tx = Transaction()
+      tx.source = address
+      tx.childChainTransaction = true
+      tx.childChainData.put("blockNum", block.number.toString())
+      tx.childChainData.put("merkleRoot", HashUtils.transform(block.merkleRoot))
+      send("${chain.parentChainAddress}/${Address.PUBLISH_TRANSACTION.name}", JsonObject(Json.encode(tx)))
+    }
+    // send the block to all child chains since the block could contain a transaction
+    // that came from a child chain
+    if(childChains.size > 0) {
+      childChains.forEach{ chain ->
+        send(chain, blockJson)
+      }
+    }
     return true
   }
   // TODO: create UTXOs from outputs
