@@ -19,7 +19,6 @@ export class SettingsComponent implements OnInit {
 
   constructor(private store: Store<AppState>,
               private commonService: CommonService) {
-    this.store.dispatch(new PlasmaAction.GetConfiguration());
    }
 
   ngOnInit() {

@@ -68,7 +68,8 @@ import {
     faGasPump,
     faCircle,
     faExchangeAlt,
-    faHome
+    faHome,
+    faChild
   } from '@fortawesome/free-solid-svg-icons';
  
   import {
@@ -105,6 +106,7 @@ import {
     faGasPump,
     faCircle,
     faHome,
+    faChild,
     faExchangeAlt,
     faEthereum,
     faYoutube,

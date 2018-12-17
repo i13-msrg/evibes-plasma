@@ -11,7 +11,7 @@ class Configuration {
       .put("numberOfPlasmaClients", 6)
       .put("tokensPerClient", 10)
       .put("transactionsPerPlasmaBlock", 3)
-      .put("plasmaChildren", 3)
+      .put("plasmaChildren", 0)
 
     fun getConfigRetrieverOptions() : ConfigRetrieverOptions {
       val jsonStore = ConfigStoreOptions()

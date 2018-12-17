@@ -60,6 +60,12 @@ class PlasmaManager: AbstractVerticle() {
   }
 
   fun deployPlasma(chainAddress: String, numberOfPlasmaClients: Int, config: JsonObject, parentPlasmaAddress: String?) {
+    config.put("chainAddress", chainAddress)
+
+    if(parentPlasmaAddress != null) {
+      config.put("parentPlasmaAddress", parentPlasmaAddress)
+    }
+
     // Deploy DiscoveryVerticle
     vertx.deployVerticle("io.plasmasimulator.plasma.verticles.DiscoveryVerticle",
       DeploymentOptions().setWorker(true).setConfig(
@@ -69,35 +75,29 @@ class PlasmaManager: AbstractVerticle() {
         )
     ) { ar ->
       deployedVerticles.add(ar.result())
-    }
-
-    config.put("chainAddress", chainAddress)
-
-    if(parentPlasmaAddress != null) {
-      config.put("parentPlasmaAddress", parentPlasmaAddress)
-    }
-    // Deploy Operator
-    vertx.deployVerticle("io.plasmasimulator.plasma.verticles.Operator",
-      DeploymentOptions().setWorker(true).setConfig((config))) { ar ->
-      if(ar.failed()) {
-        LOG.info(ar.cause().toString())
+      // Deploy Operator
+      vertx.deployVerticle("io.plasmasimulator.plasma.verticles.Operator",
+        DeploymentOptions().setWorker(true).setConfig((config))) { ar ->
+        if(ar.failed()) {
+          LOG.info(ar.cause().toString())
+        }
+        deployedVerticles.add(ar.result())
       }
-      deployedVerticles.add(ar.result())
-    }
 
-    // Deploy PlasmaClients
-    vertx.deployVerticle("io.plasmasimulator.plasma.verticles.PlasmaClient",
-      DeploymentOptions().setWorker(true).setInstances(numberOfPlasmaClients).setConfig(config)) { ar ->
-      if(ar.failed()) {
-        LOG.info(ar.cause().toString())
+      // Deploy PlasmaClients
+      vertx.deployVerticle("io.plasmasimulator.plasma.verticles.PlasmaClient",
+        DeploymentOptions().setWorker(true).setInstances(numberOfPlasmaClients).setConfig(config)) { ar ->
+        if(ar.failed()) {
+          LOG.info(ar.cause().toString())
+        }
+        deployedVerticles.add(ar.result())
       }
-      deployedVerticles.add(ar.result())
     }
   }
 
   fun consumersPerChain(chainAddress: String, numberOfPlasmaClients: Int) {
     vertx.eventBus().consumer<Any>("$chainAddress/${Address.PUSH_ALL_ADDRESSES.name}") { msg ->
-      LOG.info("GOT ALL ADDRESSES")
+      LOG.info("GOT ALL ADDRESSES [$chainAddress]")
       val clientsAddresses = mutableListOf<String>()
       val allClientsAddresses = (msg.body() as JsonArray).toMutableList()
       clientsAddresses.addAll(allClientsAddresses.map { address -> address.toString() })
@@ -132,7 +132,6 @@ class PlasmaManager: AbstractVerticle() {
         if(numberOfBlocks != null) {
           numberOfBlocks--
           periodicalMap.put(chainAddress, numberOfBlocks)
-          println("PERIODIC $id")
           if(numberOfBlocks == 0) {
             vertx.eventBus().send("$chainAddress/${Address.PRINT_BALANCE_FOR_EACH_CLIENT.name}", "")
             vertx.cancelTimer(id)

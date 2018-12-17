@@ -24,6 +24,7 @@ export class PlasmaEventBusService {
   connect() {
     this.eventBusService.open.subscribe(() => {
       this.store.dispatch(new plasmaAction.ConnectionOpened());
+      this.store.dispatch(new plasmaAction.GetConfiguration());
     });
 
     this.eventBusService.close.subscribe(() => {
@@ -53,7 +54,7 @@ export class PlasmaEventBusService {
       return;
     }
     return Observable.create( observer => {
-      console.log('here');
+      console.log(action.payload);
       this.eventBusService.send(action.type, action.payload ? action.payload : 'no-msg', (error, message) => {
         if (error) {
           console.log('Error: ${error}');
@@ -72,7 +73,9 @@ export class PlasmaEventBusService {
   }
 
   subscribeToAction(actionType: string) {
+    console.log('Subscribing to ' + actionType);
     if (!this.connected) {
+      console.log('not connected');
       return;
     }
     this.eventBusService.registerHandler(actionType, (error, message) => {
@@ -84,6 +87,7 @@ export class PlasmaEventBusService {
       }
 
       console.log(actionType);
+      console.log(message.body);
 
       this.store.dispatch({
         type: actionType,

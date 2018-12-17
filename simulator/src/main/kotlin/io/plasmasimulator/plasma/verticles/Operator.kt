@@ -81,7 +81,7 @@ class Operator: PlasmaParticipant() {
                                  transactions = newTransactions)
       if(newTransactions.size == 1) { // deposit transaction block
         val depositTxOutput = newTransactions[0].outputs[0]
-        newBlock.merkleRoot = HashUtils.hash(depositTxOutput.address.toByteArray() + depositTxOutput.address.toByte())
+        newBlock.merkleRoot = HashUtils.hash(depositTxOutput.address.toByteArray() + depositTxOutput.amount.toByte())
         return newBlock
       }
 

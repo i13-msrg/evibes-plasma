@@ -24,6 +24,8 @@ class DiscoveryVerticle: AbstractVerticle() {
     val numberOfClients = config().getInteger("numberOfClients")
     val chainAddress = config().getString("chainAddress")
 
+    LOG.info("DiscoveryVerticle for $chainAddress deployed")
+
     vertx.eventBus().consumer<Any>("$chainAddress/${Address.PUBLISH_ADDRESS.name}") { msg ->
       val newAddress = msg.body() as String
       if(!clientsAddresses.contains(newAddress))

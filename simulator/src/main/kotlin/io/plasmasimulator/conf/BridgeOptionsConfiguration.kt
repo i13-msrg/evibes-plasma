@@ -20,5 +20,9 @@ object BridgeOptionsConfig {
       .addOutboundPermitted(PermittedOptions().setAddress(Address.SET_PLASMA_CHAIN_ADDRESSES.name))
       .addInboundPermitted(PermittedOptions().setAddress(Address.ADD_NEW_CHILD_PLASMA_BLOCK.name))
       .addOutboundPermitted(PermittedOptions().setAddress(Address.ADD_NEW_CHILD_PLASMA_BLOCK.name))
+      .addInboundPermitted(PermittedOptions().setAddress(Address.TRANSACTION_PUBLISHED.name))
+      .addOutboundPermitted(PermittedOptions().setAddress(Address.TRANSACTION_PUBLISHED.name))
+      .addInboundPermitted(PermittedOptions().setAddress(Address.DEPOSIT_TRANSACTION_PUBLISHED.name))
+      .addOutboundPermitted(PermittedOptions().setAddress(Address.DEPOSIT_TRANSACTION_PUBLISHED.name))
   }
 }

@@ -2,6 +2,7 @@ package io.plasmasimulator
 
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.plasmasimulator.conf.Address
+import io.plasmasimulator.conf.BridgeOptionsConfig
 import io.plasmasimulator.conf.Configuration
 import io.plasmasimulator.conf.Message
 import io.vertx.config.ConfigRetriever
@@ -32,32 +33,22 @@ class SimulationManagerVerticle : AbstractVerticle() {
 
     val sockJSHandler = SockJSHandler.create(vertx)
 
-    val options = BridgeOptions()
-      .addInboundPermitted(PermittedOptions().setAddress(Address.UPDATE_CONFIGURATION.name))
-      .addOutboundPermitted(PermittedOptions().setAddress(Address.UPDATE_CONFIGURATION.name))
-      .addInboundPermitted(PermittedOptions().setAddress(Address.GET_CONFIGURATION.name))
-      .addOutboundPermitted(PermittedOptions().setAddress(Address.GET_CONFIGURATION.name))
-      .addInboundPermitted(PermittedOptions().setAddress(Address.START_SIMULATION.name))
-      .addOutboundPermitted(PermittedOptions().setAddress(Address.START_SIMULATION.name))
-      .addInboundPermitted(PermittedOptions().setAddress(Address.STOP_SIMULATION.name))
-      .addOutboundPermitted(PermittedOptions().setAddress(Address.STOP_SIMULATION.name))
-      .addInboundPermitted(PermittedOptions().setAddress(Address.ADD_NEW_BLOCK.name))
-      .addOutboundPermitted(PermittedOptions().setAddress(Address.ADD_NEW_BLOCK.name))
+    val options = BridgeOptionsConfig.getOptions()
 
     sockJSHandler.bridge(options)
 
     router.route("/eventbus/*").handler(sockJSHandler)
-    router.route("/start").handler { req ->
-      LOG.info("Starting simulation from API")
-      val responseMsg = if(startSimulation())
-        "Simulation started!"
-      else
-        "Simulation is running! Please stop id first in order to restart it."
-
-      req.response()
-        .putHeader("content-type", "text/plain")
-        .end(responseMsg)
-    }
+//    router.route("/start").handler { req ->
+//      LOG.info("Starting simulation from API")
+//      val responseMsg = if(startSimulation())
+//        "Simulation started!"
+//      else
+//        "Simulation is running! Please stop id first in order to restart it."
+//
+//      req.response()
+//        .putHeader("content-type", "text/plain")
+//        .end(responseMsg)
+//    }
     router.route("/stop").handler { req ->
       LOG.info("Stopping simulation from API")
       val responseMsg = if(stopSimulation())
@@ -102,8 +93,9 @@ class SimulationManagerVerticle : AbstractVerticle() {
     }
 
     vertx.eventBus().consumer<Any>(Address.START_SIMULATION.name) { msg ->
-      LOG.info("Starting simulation ...");
-      startSimulation()
+      LOG.info("Starting simulation ...")
+      LOG.info(msg.body().toString())
+      startSimulation(msg.body() as JsonObject)
       msg.reply("SUCCESS")
     }
 
@@ -125,7 +117,7 @@ class SimulationManagerVerticle : AbstractVerticle() {
       return result
   }
 
-  fun startSimulation(): Boolean {
+  fun startSimulation(chainAddresses: JsonObject): Boolean {
     if(deployedVerticleIds.size > 0) return false
     val confOptions = Configuration.getConfigRetrieverOptions()
     var retriever = ConfigRetriever.create(vertx, confOptions)
@@ -137,12 +129,18 @@ class SimulationManagerVerticle : AbstractVerticle() {
       vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.ETHNodeVerticle", opt) { ar ->
         deployedVerticleIds.add(ar.result())
       }
-      val mainPlasmaChainAddress = UUID.randomUUID().toString()
+      val mainPlasmaChainAddress = chainAddresses.getString("mainPlasmaChainAddress")
       val plasmaChildren = conf.getInteger("plasmaChildren")
       val plasmaChildrenAddresses = JsonArray()
       if(plasmaChildren > 0) {
-        plasmaChildrenAddresses.addAll(generateAddreses(plasmaChildren))
+        chainAddresses.getJsonArray("plasmaChildrenAddresses").forEach { address ->
+          plasmaChildrenAddresses.add(address)
+        }
       }
+
+//      vertx.eventBus().send(Address.SET_PLASMA_CHAIN_ADDRESSES.name, JsonObject()
+//        .put("mainPlasmaChainAddress", mainPlasmaChainAddress)
+//        .put("plasmaChildrenAddresses", plasmaChildrenAddresses))
 
       // Deploy plasma clients
       val plasmaManagerConfig = JsonObject()

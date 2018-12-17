@@ -3,4 +3,5 @@ export interface Configuration {
     numberOfPlasmaClients: number;
     tokensPerClient: number;
     transactionsPerPlasmaBlock: number;
+    plasmaChildren: number;
 }

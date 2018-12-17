@@ -19,12 +19,17 @@ export const selectPlasmaConnected = createSelector(
     (state: PlasmaState) => state.connected
 );
 
-export const selectPlasmaBlocks = createSelector(
+export const selectMainPlasmaChain = createSelector(
     selectPlasma,
-    (state: PlasmaState) => state.blocks
+    (state: PlasmaState) => state.mainPlasmaChain
 );
 
 export const selectPlasmaSimulationStarted = createSelector(
     selectPlasma,
     (state: PlasmaState) => state.simulationStarted
+);
+
+export const selectPlasmaChildrenChains = createSelector(
+    selectPlasma,
+    (state: PlasmaState) => state.plasmaChildrenChainsMap
 );

@@ -37,11 +37,18 @@
               </mat-form-field>
             </div>
           <div class="icon-form-field">
+            <mat-icon color="primary"><fa-icon icon="child" color="primary"></fa-icon></mat-icon> 
+            <mat-form-field >
+              <input matInput type="number" placeholder="Plasma Nested Chains" [(ngModel)]="currentConfiguration.plasmaChildren">
+            </mat-form-field>
+          </div>  
+
+          <div class="icon-form-field">
               <mat-icon color="primary"><fa-icon icon="gas-pump" color="primary"></fa-icon></mat-icon> 
               <mat-form-field >
                 <input matInput placeholder="Gas Limit per Block" value="0">
               </mat-form-field>
-            </div>
+          </div>
       </div>
   </div>
 
