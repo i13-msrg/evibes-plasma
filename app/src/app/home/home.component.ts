@@ -5,7 +5,8 @@ import { selectPlasmaConnected,
          selectPlasmaSimulationStarted,
          selectPlasmaConfiguration,
          selectPlasmaChildrenChains,
-         selectMainPlasmaChain
+         selectMainPlasmaChain,
+         selectPlasmaETHTransactions
         } from 'src/plasma/plasma.selectors';
 import * as PlasmaAction from 'src/plasma/plasma.actions';
 import { CommonService } from 'src/plasma/services/common.service';
@@ -27,6 +28,8 @@ export class HomeComponent implements OnInit {
   connected = false;
   started = false;
   objectKeys = Object.keys;
+  ethBlockTransactions = new Array();
+  ethDepositTransactions = new Array();
 
   constructor(private store: Store<AppState>,
               private commonService: CommonService) {
@@ -56,6 +59,11 @@ export class HomeComponent implements OnInit {
       this.currentConfiguration = configuration;
     });
 
+    this.store.pipe(select(selectPlasmaETHTransactions)).subscribe(txs => {
+      this.ethDepositTransactions = txs.filter(tx => tx.data.method === 'deposit');
+      this.ethBlockTransactions = txs.filter(tx => tx.data.method === 'submitBlock');
+    });
+
     this.store.pipe(select(selectPlasmaSimulationStarted)).subscribe(isStarted => {
       if (isStarted === this.started) { return; }
       this.started = isStarted;
@@ -66,6 +74,7 @@ export class HomeComponent implements OnInit {
         this.commonService.openSnackBar('Simulation stopped!', 'Close');
       }
     });
+
   }
 
   settings() {
@@ -76,6 +85,10 @@ export class HomeComponent implements OnInit {
     this.showSettings = false;
   }
 
+  reset() {
+    this.store.dispatch(new PlasmaAction.Reset());
+  }
+
   startSimulation() {
     if (this.connected && !this.started) {
       let uuids = new Array();
@@ -83,7 +96,7 @@ export class HomeComponent implements OnInit {
         uuids.push(uuid());
       }
       const data = { mainPlasmaChainAddress: uuid(), plasmaChildrenAddresses: uuids};
-      
+
       this.store.dispatch(new PlasmaAction.SetPlasmaChainAddresses(data));
       this.store.dispatch(new PlasmaAction.StartSimulation(data));
     }
@@ -95,5 +108,4 @@ export class HomeComponent implements OnInit {
       this.store.dispatch(new PlasmaAction.StopSimulation());
     }
   }
-
 }

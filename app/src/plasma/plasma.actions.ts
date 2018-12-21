@@ -19,7 +19,14 @@ export enum PlasmaActionTypes {
     ADD_NEW_MAIN_PLASMA_BLOCK           = 'ADD_NEW_MAIN_PLASMA_BLOCK',
     ADD_NEW_CHILD_PLASMA_BLOCK          = 'ADD_NEW_CHILD_PLASMA_BLOCK',
     SIMULATION_STARTED                  = 'SIMULATION_STARTED',
-    SIMULATION_STOPPED                  = 'SIMULATION_STOPPED'
+    SIMULATION_STOPPED                  = 'SIMULATION_STOPPED',
+    ADD_PLASMA_TRANSACTION              = 'ADD_PLASMA_TRANSACTION',
+    SUBSCRIBE_NEW_PLASMA_TRANSACTION    = 'SUBSCRIBE_NEW_PLASMA_TRANSACTION',
+    UNSUBSCRIBE_NEW_PLASMA_TRANSACTION  = 'UNSUBSCRIBE_NEW_PLASMA_TRANSACTION',
+    ADD_ETH_TRANSACTION                 = 'ADD_ETH_TRANSACTION',
+    SUBSCRIBE_NEW_ETH_TRANSACTION       = 'SUBSCRIBE_NEW_ETH_TRANSACTION',
+    UNSUBSCRIBE_NEW_ETH_TRANSACTION     = 'UNSUBSCRIBE_NEW_ETH_TRANSACTION',
+    RESET                               = 'RESET'
 }
 
 export class Connect implements Action {
@@ -92,6 +99,34 @@ export class UnsubscribeToPlasmaAddresses implements Action {
     readonly type: string = PlasmaActionTypes.UNSUBSCRIBE_PLASMA_CHAIN_ADDRESSES;
 }
 
+export class SubscribeToNewPlasmaTransaction implements Action {
+    readonly type: string = PlasmaActionTypes.SUBSCRIBE_NEW_PLASMA_TRANSACTION;
+}
+
+export class UnsubscribeToNewPlasmaTransaction implements Action {
+    readonly type: string = PlasmaActionTypes.UNSUBSCRIBE_NEW_PLASMA_TRANSACTION;
+}
+
+export class AddNewPlasmaTransaction implements Action {
+    readonly type: string = PlasmaActionTypes.ADD_PLASMA_TRANSACTION;
+
+    constructor(public payload: any ) {}
+}
+
+export class SubscribeToNewETHTransaction implements Action {
+    readonly type: string = PlasmaActionTypes.SUBSCRIBE_NEW_ETH_TRANSACTION;
+}
+
+export class UnsubscribeToNewETHTransaction implements Action {
+    readonly type: string = PlasmaActionTypes.UNSUBSCRIBE_NEW_ETH_TRANSACTION;
+}
+
+export class AddNewETHTransaction implements Action {
+    readonly type: string = PlasmaActionTypes.ADD_ETH_TRANSACTION;
+
+    constructor(public payload: any ) {}
+}
+
 export class AddNewMainPlasmaBlock implements Action {
     readonly type: string = PlasmaActionTypes.ADD_NEW_MAIN_PLASMA_BLOCK;
 
@@ -116,6 +151,12 @@ export class SimulationStopped implements Action {
     constructor(public payload: any = null) {}
 }
 
+export class Reset implements Action {
+    readonly type: string = PlasmaActionTypes.RESET;
+
+    constructor(public payload: any = null) {}
+}
+
 export type PlasmaActions = Connect                     |
                             ConnectionOpened            |
                             ConnectionClosed            |
@@ -127,4 +168,5 @@ export type PlasmaActions = Connect                     |
                             SetPlasmaChainAddresses     |
                             AddNewMainPlasmaBlock       |
                             AddNewChildPlasmaBlock      |
+                            Reset                       |
                             SimulationStarted;

@@ -1,6 +1,7 @@
 import { PlasmaBlock } from './models/plasmablock';
 import { Configuration } from './models/configuration';
 import { PlasmaChain } from './models/plasmachain';
+import { Transaction } from './models/transaction';
 
 export interface PlasmaState {
     mainPlasmaChain: PlasmaChain;
@@ -9,4 +10,5 @@ export interface PlasmaState {
     configuration: Configuration;
     simulationStarted: boolean;
     mainPlasmaChainAddress: string;
+    ethTransactions: Array<Transaction>;
 }

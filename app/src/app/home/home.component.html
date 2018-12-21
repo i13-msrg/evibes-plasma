@@ -25,17 +25,39 @@
               <mat-card-title> Ethereum</mat-card-title>
             </mat-card-header>
             <mat-card-content>
-              Hello
+              Ethereum Info
             </mat-card-content>
           </mat-card>
         </div>
+        
+        <div>
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title> Deposit Transactions</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <mat-list class="list-tx">
+                  <mat-list-item *ngFor="let tx of ethDepositTransactions">
+                      <mat-icon color="primary"><fa-icon icon="exchange-alt" color="primary"></fa-icon></mat-icon>
+                    {{tx.timestamp | date: 'yyyy-MM-dd hh:mm:ss:sss'}}: {{tx.data.method}}
+                    <mat-divider></mat-divider>
+                  </mat-list-item>
+                </mat-list>
+              </mat-card-content>
+            </mat-card>
+          </div>
         <div>
           <mat-card>
             <mat-card-header>
-              <mat-card-title> Plasma Contract Transactions</mat-card-title>
+              <mat-card-title> Block Transactions</mat-card-title>
             </mat-card-header>
             <mat-card-content>
-              Hello
+              <mat-list class="list-tx">
+                <mat-list-item *ngFor="let tx of ethBlockTransactions">
+                  {{tx.timestamp | date: 'yyyy-MM-dd hh:mm:ss:sss'}}: {{tx.data.method}}
+                  <mat-divider></mat-divider>
+                </mat-list-item>
+              </mat-list>
             </mat-card-content>
           </mat-card>
         </div>
@@ -98,10 +120,10 @@
   <mat-card-content class="content">
     <app-settings *ngIf="showSettings"></app-settings>
     <ng-container *ngIf="!showSettings">
-        <div>{{plasmaMainChainBlocks}}</div>
         <div class="sim-buttons">
             <button mat-flat-button class="sim-button" color="primary" (click)="startSimulation()">Start Simulation</button>
             <button mat-flat-button class="sim-button" color="primary" (click)="stopSimulation()">Stop Simulation</button>
+            <button mat-flat-button class="sim-button" color="primary" (click)="reset()">Reset</button>
           </div>
     </ng-container>
   </mat-card-content>

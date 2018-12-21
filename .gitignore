@@ -5,3 +5,4 @@ simulator/.gradle/
 simulator/build/
 simulator/docs/
 simulator/logs/plasmasimulator.log
+simulator/json/blockchain.json

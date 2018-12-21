@@ -92,10 +92,16 @@ $header-height: 64px;
   margin-right: auto;
 }
 
-mat-card {
-  height: 80%;
+.card-container-center {
+  justify-content: center;
 }
+
 
 .mat-list .mat-list-item {
   height: 30px;
+}
+
+.list-tx {
+  overflow: auto;
+  max-height: 150px;
 }

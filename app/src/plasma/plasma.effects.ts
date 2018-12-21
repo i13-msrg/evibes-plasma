@@ -55,7 +55,8 @@ export class PlasmaEffects {
                 switchMap(result => {
                     console.log('simulation started: ' + result);
                     return [new PlasmaAction.SubscribeToNewBlock(),
-                            new PlasmaAction.SimulationStarted()];
+                            new PlasmaAction.SimulationStarted(),
+                            new PlasmaAction.SubscribeToNewETHTransaction()];
                 })
             );
         })
@@ -68,7 +69,8 @@ export class PlasmaEffects {
                 switchMap(result => {
                     console.log('simulation stopped: ' + result);
                     return [new PlasmaAction.UnsubscribeToNewBlock(),
-                            new PlasmaAction.SimulationStopped()];
+                            new PlasmaAction.SimulationStopped(),
+                            new PlasmaAction.UnsubscribeToNewETHTransaction()];
                 })
             );
         })
@@ -101,6 +103,20 @@ export class PlasmaEffects {
         ofType(PlasmaAction.PlasmaActionTypes.UNSUBSCRIBE_PLASMA_CHAIN_ADDRESSES),
         tap((action) => {
             this.plasmaEventBusService.unsubscribeFromAction(PlasmaAction.PlasmaActionTypes.SET_PLASMA_CHAIN_ADDRESSES);
+        })
+    );
+
+    @Effect({dispatch: false}) subscribeToNewETHTransaction$: Observable<Action> = this.actions$.pipe(
+        ofType(PlasmaAction.PlasmaActionTypes.SUBSCRIBE_NEW_ETH_TRANSACTION),
+        tap((action) => {
+            this.plasmaEventBusService.subscribeToAction(PlasmaAction.PlasmaActionTypes.ADD_ETH_TRANSACTION);
+        })
+    );
+
+    @Effect({dispatch: false}) unsubscribeToNewETHTransaction$: Observable<Action> = this.actions$.pipe(
+        ofType(PlasmaAction.PlasmaActionTypes.UNSUBSCRIBE_NEW_ETH_TRANSACTION),
+        tap((action) => {
+            this.plasmaEventBusService.unsubscribeFromAction(PlasmaAction.PlasmaActionTypes.ADD_ETH_TRANSACTION);
         })
     );
 }

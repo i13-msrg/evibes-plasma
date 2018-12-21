@@ -4,6 +4,7 @@ import { Configuration } from './models/configuration';
 import { PlasmaActions, PlasmaActionTypes } from './plasma.actions';
 import { PlasmaState } from './plasma.state';
 import { PlasmaChain } from './models/plasmachain';
+import { Transaction } from './models/transaction';
 
 export const initialPlasmaChain: PlasmaChain = {
     address: '',
@@ -20,7 +21,8 @@ export const initialState: PlasmaState = {
     connected: false,
     configuration: null,
     simulationStarted: false,
-    mainPlasmaChainAddress: null
+    mainPlasmaChainAddress: null,
+    ethTransactions: new Array<Transaction>()
 };
 
 export function plasmaReducer(state = initialState, action: PlasmaActions) {
@@ -53,7 +55,7 @@ export function plasmaReducer(state = initialState, action: PlasmaActions) {
                                plasmaChildrenChainsMap: childrenPlasmaChainMap1};
         }
         case PlasmaActionTypes.ADD_NEW_MAIN_PLASMA_BLOCK: {
-            let plasmaChain = { ...state.mainPlasmaChain };
+            const plasmaChain = { ...state.mainPlasmaChain };
             plasmaChain.blocks = [... plasmaChain.blocks, action.payload];
             return { ...state, mainPlasmaChain: {... plasmaChain}};
         }
@@ -64,7 +66,6 @@ export function plasmaReducer(state = initialState, action: PlasmaActions) {
             const child = {... childrenPlasmaChainMap1[chainAddress]};
             child.blocks = [... child.blocks, chainBlock];
             childrenPlasmaChainMap1[chainAddress] = { ... child };
-            
             // const childrenBlocks1 = { ...state.childrenBlocks};
             // childrenBlocks1[chainAddress] = [...childrenBlocks1[chainAddress], chainBlock]
 
@@ -75,6 +76,12 @@ export function plasmaReducer(state = initialState, action: PlasmaActions) {
         }
         case PlasmaActionTypes.SIMULATION_STOPPED: {
             return { ...state, simulationStarted: false};
+        }
+        case PlasmaActionTypes.ADD_ETH_TRANSACTION: {
+            return { ...state, ethTransactions: [ ...state.ethTransactions, action.payload ]};
+        }
+        case PlasmaActionTypes.RESET: {
+            return { ... initialState };
         }
 
         default:

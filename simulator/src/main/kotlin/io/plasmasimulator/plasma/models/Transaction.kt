@@ -10,6 +10,7 @@ class Transaction {
   var depositTransaction = false
   var childChainTransaction = false
   var childChainData = mutableMapOf<String, String>() // block number, block merkle root come in here
+  val timestamp = System.currentTimeMillis()
 
   class Input(val blockNum: Int, val txIndex: Int, val outputIndex: Int, val sig: String = "")
   class Output(val address: String, val amount: Int)

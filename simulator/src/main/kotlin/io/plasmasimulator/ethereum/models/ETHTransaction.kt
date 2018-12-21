@@ -10,4 +10,5 @@ class ETHTransaction(val nonce: Int,
                      val amount: Int?,
                      //val gasPrice: Int?,
                      //val gasLimit: Int?,
-                     var data: Map<String, String>?)
+                     var data: Map<String, String>?,
+                     val timestamp: Long = System.currentTimeMillis())

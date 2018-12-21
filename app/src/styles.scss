@@ -18,9 +18,9 @@
 
  $custom-typography: mat-typography-config(
    $headline: mat-typography-level(32px, 32px, 700),
-   $title: mat-typography-level(16px, 32px, 700),
-   $subheading-2: mat-typography-level(12px, 24px, 500),
-   $body-1: mat-typography-level(12px, 24px, 500),
+   $title: mat-typography-level(12px, 32px, 700),
+   $subheading-2: mat-typography-level(11px, 24px, 500),
+   $body-1: mat-typography-level(11px, 24px, 500),
    $body-2: mat-typography-level(8px, 24px, 500)
  );
 

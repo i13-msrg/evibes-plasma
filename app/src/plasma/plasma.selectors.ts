@@ -33,3 +33,8 @@ export const selectPlasmaChildrenChains = createSelector(
     selectPlasma,
     (state: PlasmaState) => state.plasmaChildrenChainsMap
 );
+
+export const selectPlasmaETHTransactions = createSelector(
+    selectPlasma,
+    (state: PlasmaState) => state.ethTransactions
+);

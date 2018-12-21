@@ -24,24 +24,21 @@ class RootChainService() {
     data.put("chainAddress", chainAddress)
 
     val tx: ETHTransaction = createTransaction(address, data)
-    val txJson = Json.encode(tx)
 
     if(vertx != null)
-      vertx!!.eventBus().publish(Address.ETH_SUBMIT_TRANSACTION.name, txJson)
+      vertx!!.eventBus().publish(Address.ETH_SUBMIT_TRANSACTION.name, JsonObject(Json.encode(tx)))
   }
 
   fun submitBlock(from: String, rootHash: ByteArray) {
-    var data = mutableMapOf<String, String>()
+    val data = mutableMapOf<String, String>()
     data.put("type", "plasma")
     data.put("rootHash", HashUtils.transform(rootHash))
     data.put("method", "submitBlock")
     //val data = "rootHash:${HashUtils.transform(rootHash)}"
     //val data = JsonObject().put("type", "plasma").put("rootHash", rootHash).put("method", "submitBlock")
     val tx: ETHTransaction = createTransaction(from, data)
-    val txJson = Json.encode(tx)
-    println(txJson)
     if(vertx != null)
-      vertx!!.eventBus().publish(Address.ETH_SUBMIT_TRANSACTION.name, txJson)
+      vertx!!.eventBus().publish(Address.ETH_SUBMIT_TRANSACTION.name, JsonObject(Json.encode(tx)))
   }
 
   private fun createTransaction(from: String, data: Map<String, String>) : ETHTransaction {

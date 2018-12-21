@@ -1,6 +1,7 @@
 package io.plasmasimulator
 
 import io.plasmasimulator.conf.Address
+import io.plasmasimulator.ethereum.models.ETHTransaction
 import io.plasmasimulator.plasma.models.PlasmaBlock
 import io.plasmasimulator.plasma.models.Transaction
 import io.plasmasimulator.plasma.verticles.PlasmaParticipant
@@ -44,11 +45,15 @@ class Reducer: AbstractVerticle() {
   fun consumers(chainAddress: String) {
     vertx.eventBus().consumer<Any>("$chainAddress/${Address.PUBLISH_TRANSACTION.name}") { msg ->
       val data: JsonObject = JsonObject().put("chainAddress", chainAddress)
-      vertx.eventBus().send(Address.TRANSACTION_PUBLISHED.name, data)
+      vertx.eventBus().send(Address.PLASMA_TRANSACTION_PUBLISHED.name, data)
     }
+
     vertx.eventBus().consumer<Any>("$chainAddress/${Address.DEPOSIT_TRANSACTION.name}") { msg ->
       val data: JsonObject = JsonObject().put("chainAddress", chainAddress)
       vertx.eventBus().send(Address.DEPOSIT_TRANSACTION_PUBLISHED.name, data)
+    }
+    vertx.eventBus().consumer<Any>(Address.ETH_SUBMIT_TRANSACTION.name) { msg ->
+      vertx.eventBus().send(Address.ADD_ETH_TRANSACTION.name, msg.body())
     }
 
 
