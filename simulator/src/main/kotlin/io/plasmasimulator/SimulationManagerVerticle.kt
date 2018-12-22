@@ -123,12 +123,7 @@ class SimulationManagerVerticle : AbstractVerticle() {
     var retriever = ConfigRetriever.create(vertx, confOptions)
     retriever.getConfig() { ar ->
       var conf = ar.result()
-      var opt = DeploymentOptions().setWorker(true).setInstances(conf.getInteger("numberOfEthereumNodes", 1))
 
-      // Deploy eth nodes
-      vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.ETHNodeVerticle", opt) { ar ->
-        deployedVerticleIds.add(ar.result())
-      }
       val mainPlasmaChainAddress = chainAddresses.getString("mainPlasmaChainAddress")
       val plasmaChildren = conf.getInteger("plasmaChildren")
       val plasmaChildrenAddresses = JsonArray()
@@ -151,13 +146,31 @@ class SimulationManagerVerticle : AbstractVerticle() {
         .put("mainPlasmaChainAddress", mainPlasmaChainAddress)
         .put("plasmaChildrenAddresses", plasmaChildrenAddresses)
 
-      // Deploy plasma manager
-      vertx.deployVerticle("io.plasmasimulator.plasma.verticles.PlasmaManager",
-        DeploymentOptions().setWorker(true).setInstances(1).setConfig(plasmaManagerConfig)) { ar ->
+      vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.PeersDiscoveryNode",
+        DeploymentOptions()
+          .setWorker(true)
+          .setConfig(conf)
+          .setInstances(1)){ ar ->
         if(ar.failed()) {
-          println(ar.cause())
+          LOG.info(ar.cause().toString())
         }
         deployedVerticleIds.add(ar.result())
+        // Deploy eth nodes
+        vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.EthereumManager",
+          DeploymentOptions().setWorker(true).setInstances(1).setConfig(conf)) { ar ->
+          if(ar.failed()) {
+            println(ar.cause())
+          }
+          deployedVerticleIds.add(ar.result())
+        }
+        // Deploy plasma manager
+        vertx.deployVerticle("io.plasmasimulator.plasma.verticles.PlasmaManager",
+          DeploymentOptions().setWorker(true).setInstances(1).setConfig(plasmaManagerConfig)) { ar ->
+          if(ar.failed()) {
+            println(ar.cause())
+          }
+          deployedVerticleIds.add(ar.result())
+        }
       }
 
       // Deploy reducer

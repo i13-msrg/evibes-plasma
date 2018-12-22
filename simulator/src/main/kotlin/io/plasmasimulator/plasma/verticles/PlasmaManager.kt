@@ -117,7 +117,7 @@ class PlasmaManager: AbstractVerticle() {
         }
         if(confirmedAddressesMap.get(chainAddress) == numberOfPlasmaClients) {
           LOG.info("$chainAddress confirmed")
-          startPeriodicCall(chainAddress)
+          //startPeriodicCall(chainAddress)
         }
       } else {
         println("chainAddress not there")

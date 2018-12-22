@@ -20,7 +20,7 @@ class PlasmaContract {
 
   fun deposit(address: String, amount: Int, chainAddress: String) : JsonObject{
     LOG.info("Deposit $amount for $address")
-    state.put(address, Account(address, amount))
+    state.put(address, Account(0, address, amount))
     val rootHash = HashUtils.transform(HashUtils.hash(address.toByteArray() + amount.toByte()))
     childBlocks.add(PlasmaBlock(rootHash))
     return JsonObject()

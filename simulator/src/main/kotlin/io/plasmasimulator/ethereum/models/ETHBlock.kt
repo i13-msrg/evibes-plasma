@@ -1,7 +1,5 @@
 package io.plasmasimulator.ethereum.models
 
-class ETHBlock(val number: Int, val prevBlockHash: String) {
+class ETHBlock(val number: Int, val prevBlockNum: Int, val transactions: List<ETHTransaction>) {
   val timestamp = System.currentTimeMillis()
-  var transactions = setOf<ETHTransaction>()
-  var hash = this.hashCode()
 }

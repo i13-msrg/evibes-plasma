@@ -44,7 +44,7 @@ class PlasmaClient: PlasmaParticipant() {
       LOG.info("[$address] sending confirmation for ${chain.chainAddress}")
       vertx.eventBus().send("${chain.chainAddress}/${Address.RECEIVED_ALL_ADDRESSES.name}", address)
 
-      rootChainService.deposit(address, amount, chain.chainAddress)
+      rootChainService?.deposit(address, amount, chain.chainAddress)
     }
 
     vertx.eventBus().send<Any>("${chain.chainAddress}/${Address.PUBLISH_ADDRESS.name}", address) { response ->

@@ -6,6 +6,11 @@ import io.plasmasimulator.ethereum.models.ETHTransaction
 class ETHChain {
   var blocks = mutableMapOf<Int, ETHBlock>()
 
+  init {
+    val genesisBlock = ETHBlock(0,-1, mutableListOf())
+    this.addBlock(genesisBlock)
+  }
+
   fun addBlock(block: ETHBlock) {
     this.blocks.put(block.number, block)
   }
@@ -22,6 +27,14 @@ class ETHChain {
 
   fun getBlock(number: Int) {
     blocks.get(number)
+  }
+
+  fun containsBlock(blockNum: Int) : Boolean {
+    return blocks.containsKey(blockNum)
+  }
+
+  fun getLastBlock(): ETHBlock? {
+    return blocks.get(blocks.keys.sorted().last())
   }
 
 }

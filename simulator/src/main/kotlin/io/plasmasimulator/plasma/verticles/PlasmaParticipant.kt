@@ -2,7 +2,9 @@ package io.plasmasimulator.plasma.verticles
 
 import io.plasmasimulator.SimulationManagerVerticle
 import io.plasmasimulator.conf.Address
+import io.plasmasimulator.ethereum.models.ETHBlock
 import io.plasmasimulator.ethereum.models.ETHChain
+import io.plasmasimulator.ethereum.verticles.ETHBaseNode
 import io.plasmasimulator.plasma.models.*
 import io.plasmasimulator.plasma.services.RootChainService
 import io.plasmasimulator.utils.FileManager
@@ -15,9 +17,9 @@ import io.vertx.core.parsetools.JsonParser
 import org.slf4j.LoggerFactory
 import java.util.*
 
-open class PlasmaParticipant: AbstractVerticle() {
+open class PlasmaParticipant: ETHBaseNode() {
   var chain: PlasmaChain = PlasmaChain("")
-  val rootChainService = RootChainService()
+  var rootChainService : RootChainService? = null
   var plasmaPool: UTXOPool = UTXOPool()
 
   val address: String = PlasmaParticipant.addressNum++.toString()//UUID.randomUUID().toString()
@@ -35,8 +37,9 @@ open class PlasmaParticipant: AbstractVerticle() {
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
     // TODO: Improve vetx referencing
-    rootChainService.vertx = vertx
-    LOG.info("Initialize PlasmaVerticle")
+    //rootChainService.vertx = vertx
+    rootChainService = RootChainService(vertx, ethAddress, ethChain)
+    LOG.info("Initialize PlasmaVerticle $address")
     plasmaContractAddress               = config().getString("plasmaContractAddress")
     val chainAddress: String            = config().getString("chainAddress")
 

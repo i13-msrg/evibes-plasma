@@ -61,22 +61,25 @@ class Operator: PlasmaParticipant() {
 
     vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.ETH_ANNOUNCE_DEPOSIT.name}") { msg ->
       val jsonObj = msg.body() as JsonObject
+
       if(!chain.containsBlock(jsonObj.getInteger("blockNum"))) {
         val tx = Transaction()
         tx.depositTransaction = true
         tx.addOutput(jsonObj.getString("address"), jsonObj.getInteger("amount"))
+        var blockNumber = jsonObj.getInteger("blockNum")
         LOG.info("[$address] Operator received deposit ${jsonObj.getInteger("amount")} for ${jsonObj.getString("address")} ")
-        val newBlock = createBlock(listOf(tx))
+        LOG.info("Operator received block $blockNumber")
+        val newBlock = createBlock(listOf(tx), blockNumber)
         //TODO: verify new block root hash is same as the once coming from contract
-        applyBlock(newBlock)
+        applyBlock(newBlock, true)
       }
     }
   }
 
-  fun createBlock(newTransactions: List<Transaction>) : PlasmaBlock{
+  fun createBlock(newTransactions: List<Transaction>, num: Int = -1) : PlasmaBlock{
       val prevBlock = chain.getLastBlock()!!
       val newBlock = PlasmaBlock(number = prevBlock.number + 1,
-                                 prevBlockNum = prevBlock.number,
+                                 prevBlockNum = if(num > 0)  num else prevBlock.number,
                                  prevBlockHash = prevBlock.blockHash(),
                                  transactions = newTransactions)
       if(newTransactions.size == 1) { // deposit transaction block
@@ -91,12 +94,17 @@ class Operator: PlasmaParticipant() {
       return newBlock
   }
 
-  fun applyBlock(block: PlasmaBlock) : Boolean {
+  fun applyBlock(block: PlasmaBlock, depositBlock: Boolean = false) : Boolean {
     if(!chain.validateBlock(block, plasmaPool))
       return false
 
     chain.addBlock(block, plasmaPool)
-    rootChainService.submitBlock(from = address, rootHash = block.merkleRoot)
+    if(!depositBlock) {
+      // deposit blocks come from plasma contract when a client deposits tokens
+      // into the plasma chain, hence such blocks should not be submitted back
+      // to the contract
+      rootChainService?.submitBlock(from = address, rootHash = block.merkleRoot)
+    }
     FileManager.writeNewFile(vertx, Json.encode(chain.blocks), "blockchain.json")
 
     removeUTXOsForBlock(block)
