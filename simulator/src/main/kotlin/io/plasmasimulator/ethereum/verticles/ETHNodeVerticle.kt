@@ -19,7 +19,6 @@ class ETHNodeVerticle : ETHBaseNode() {
   val plasmaContract = PlasmaContract()
   var accountsMap = mutableMapOf<String, Account>()
   var transactions = mutableListOf<ETHTransaction>()
-  val TRANSACTIONS_PER_BLOCK = 10
   var peers = mutableListOf<String>()
   private var blockGasLimit = 0
   private var txPoolGas = 0
@@ -35,33 +34,6 @@ class ETHNodeVerticle : ETHBaseNode() {
     startConsumers()
     tokensPerClient = config().getInteger("tokensPerClient")
     blockGasLimit = config().getInteger("blockGasLimit")
-    vertx.eventBus().consumer<Any>(Address.ETH_NODES_BROADCAST.name) { msg ->
-      val jsonObject= msg.body() as JsonObject
-      LOG.info("RECEIVED MESSAGE")
-
-//      when(configJSON.getString("type")) {
-//        Message.ISSUE_TRANSACTION.name -> issue_transaction()
-//      }
-    }
-
-    vertx.eventBus().consumer<Any>(Address.APPLY_BLOCK.name) { msg ->
-      val jsonObject= msg.body() as JsonObject
-      LOG.info("RECEIVED MESSAGE")
-
-//      when(configJSON.getString("type")) {
-//        Message.ISSUE_TRANSACTION.name -> issue_transaction()
-//      }
-    }
-
-    vertx.eventBus().consumer<Any>(Address.ETH_SUBMIT_TRANSACTION.name) { msg ->
-      val tx: ETHTransaction = Json.decodeValue(msg.body().toString(), ETHTransaction::class.java)
-      if(tx.data != null) {
-        processContractTransaction(tx)
-      }
-      transactions.add(tx)
-    }
-
-    println("Hello from ETHNodeVerticle")
   }
 
   fun processContractTransaction(tx: ETHTransaction) {
@@ -74,7 +46,6 @@ class ETHNodeVerticle : ETHBaseNode() {
                                                         tx.data!!.get("chainAddress")!!)
         // publish deposit block to operator
         // TODO: consider sending the block to all plasma participants
-        LOG.info("[$ethAddress] announce deposit")
         vertx.eventBus().send("${tx.data!!.get("chainAddress")!!}/${Address.ETH_ANNOUNCE_DEPOSIT.name}", result)
       }
     }
@@ -207,7 +178,6 @@ class ETHNodeVerticle : ETHBaseNode() {
   }
 
   fun createBlock() : ETHBlock {
-    LOG.info("[$ethAddress] creating block")
     var gasLimit = 0
     val txList = mutableListOf<ETHTransaction>()
 
@@ -259,9 +229,5 @@ class ETHNodeVerticle : ETHBaseNode() {
     for( peer in peers) {
       vertx.eventBus().send(peer, data)
     }
-  }
-
-  fun propagateBlockToManager(block: ETHBlock) {
-
   }
 }

@@ -23,12 +23,10 @@ open class ETHBaseNode : AbstractVerticle() {
 
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
-    LOG.info("Hello from base node")
     vertx.eventBus().send(Address.ETH_PUBLISH_ADDRESS.name, ethAddress)
   }
 
   override fun stop(stopFuture: Future<Void>?) {
     super.stop(stopFuture)
-    LOG.info("BB from base node")
   }
 }

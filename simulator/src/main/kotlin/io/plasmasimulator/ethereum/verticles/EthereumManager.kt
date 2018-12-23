@@ -48,7 +48,6 @@ class EthereumManager : AbstractVerticle() {
   }
 
   fun deployVerticles(config: JsonObject) {
-    LOG.info("[Ethereum Manager] deploying ethereum nodes")
 
     var opt = DeploymentOptions()
       .setWorker(true)
