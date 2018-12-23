@@ -54,9 +54,7 @@ export class PlasmaEffects {
             return this.plasmaEventBusService.sendAction(action).pipe(
                 switchMap(result => {
                     console.log('simulation started: ' + result);
-                    return [new PlasmaAction.SubscribeToNewBlock(),
-                            new PlasmaAction.SimulationStarted(),
-                            new PlasmaAction.SubscribeToNewETHTransaction()];
+                    return [new PlasmaAction.SimulationStarted()];
                 })
             );
         })
@@ -68,55 +66,30 @@ export class PlasmaEffects {
             return this.plasmaEventBusService.sendAction(action).pipe(
                 switchMap(result => {
                     console.log('simulation stopped: ' + result);
-                    return [new PlasmaAction.UnsubscribeToNewBlock(),
-                            new PlasmaAction.SimulationStopped(),
-                            new PlasmaAction.UnsubscribeToNewETHTransaction()];
+                    return [new PlasmaAction.SimulationStopped()];
                 })
             );
         })
     );
 
-    @Effect({dispatch: false}) subscribeToNewBlock$: Observable<Action> = this.actions$.pipe(
-        ofType(PlasmaAction.PlasmaActionTypes.SUBSCRIBE_NEW_BLOCK),
+    @Effect({dispatch: false}) subscribeToSimulatorTopics$: Observable<Action> = this.actions$.pipe(
+        ofType(PlasmaAction.PlasmaActionTypes.SUBSCRIBE_SIMULATOR_TOPICS),
         tap((action) => {
             this.plasmaEventBusService.subscribeToAction(PlasmaAction.PlasmaActionTypes.ADD_NEW_MAIN_PLASMA_BLOCK);
             this.plasmaEventBusService.subscribeToAction(PlasmaAction.PlasmaActionTypes.ADD_NEW_CHILD_PLASMA_BLOCK);
+            this.plasmaEventBusService.subscribeToAction(PlasmaAction.PlasmaActionTypes.ADD_ETH_TRANSACTION);
+            this.plasmaEventBusService.subscribeToAction(PlasmaAction.PlasmaActionTypes.ADD_ETH_BLOCK);
         })
     );
 
-    @Effect({dispatch: false}) unsubscribeToNewBlock$: Observable<Action> = this.actions$.pipe(
-        ofType(PlasmaAction.PlasmaActionTypes.UNSUBSCRIBE_NEW_BLOCK),
+    @Effect({dispatch: false}) unsubscribeToSimulatorTopics$: Observable<Action> = this.actions$.pipe(
+        ofType(PlasmaAction.PlasmaActionTypes.UNSUBSCRIBE_SIMULATOR_TOPICS),
         tap((action) => {
             this.plasmaEventBusService.unsubscribeFromAction(PlasmaAction.PlasmaActionTypes.ADD_NEW_MAIN_PLASMA_BLOCK);
             this.plasmaEventBusService.unsubscribeFromAction(PlasmaAction.PlasmaActionTypes.ADD_NEW_CHILD_PLASMA_BLOCK);
-        })
-    );
-
-    @Effect({dispatch: false}) subscribeToPlasmaAddresses$: Observable<Action> = this.actions$.pipe(
-        ofType(PlasmaAction.PlasmaActionTypes.SUBSCRIBE_PLASMA_CHAIN_ADDRESSES),
-        tap((action) => {
-            this.plasmaEventBusService.subscribeToAction(PlasmaAction.PlasmaActionTypes.SET_PLASMA_CHAIN_ADDRESSES);
-        })
-    );
-
-    @Effect({dispatch: false}) unsubscribeToPlasmaAddresses$: Observable<Action> = this.actions$.pipe(
-        ofType(PlasmaAction.PlasmaActionTypes.UNSUBSCRIBE_PLASMA_CHAIN_ADDRESSES),
-        tap((action) => {
-            this.plasmaEventBusService.unsubscribeFromAction(PlasmaAction.PlasmaActionTypes.SET_PLASMA_CHAIN_ADDRESSES);
-        })
-    );
-
-    @Effect({dispatch: false}) subscribeToNewETHTransaction$: Observable<Action> = this.actions$.pipe(
-        ofType(PlasmaAction.PlasmaActionTypes.SUBSCRIBE_NEW_ETH_TRANSACTION),
-        tap((action) => {
-            this.plasmaEventBusService.subscribeToAction(PlasmaAction.PlasmaActionTypes.ADD_ETH_TRANSACTION);
-        })
-    );
-
-    @Effect({dispatch: false}) unsubscribeToNewETHTransaction$: Observable<Action> = this.actions$.pipe(
-        ofType(PlasmaAction.PlasmaActionTypes.UNSUBSCRIBE_NEW_ETH_TRANSACTION),
-        tap((action) => {
             this.plasmaEventBusService.unsubscribeFromAction(PlasmaAction.PlasmaActionTypes.ADD_ETH_TRANSACTION);
+            this.plasmaEventBusService.unsubscribeFromAction(PlasmaAction.PlasmaActionTypes.ADD_ETH_BLOCK);
+
         })
     );
 }

@@ -10,22 +10,17 @@ export enum PlasmaActionTypes {
     STOP_SIMULATION                     = 'STOP_SIMULATION',
     GET_CONFIGURATION                   = 'GET_CONFIGURATION',
     SET_CONFIGURATION                   = 'SET_CONFIGURATION',
-    SUBSCRIBE_PLASMA_CHAIN_ADDRESSES    = 'SUBSCRIBE_PLASMA_CHAIN_ADDRESSES',
-    UNSUBSCRIBE_PLASMA_CHAIN_ADDRESSES  = 'UNSUBSCRIBE_PLASMA_CHAIN_ADDRESSES',
     SET_PLASMA_CHAIN_ADDRESSES          = 'SET_PLASMA_CHAIN_ADDRESSES',
     UPDATE_CONFIGURATION                = 'UPDATE_CONFIGURATION',
-    SUBSCRIBE_NEW_BLOCK                 = 'SUBSCRIBE_NEW_BLOCK',
-    UNSUBSCRIBE_NEW_BLOCK               = 'UNSUBSCRIBE_NEW_BLOCK',
     ADD_NEW_MAIN_PLASMA_BLOCK           = 'ADD_NEW_MAIN_PLASMA_BLOCK',
     ADD_NEW_CHILD_PLASMA_BLOCK          = 'ADD_NEW_CHILD_PLASMA_BLOCK',
     SIMULATION_STARTED                  = 'SIMULATION_STARTED',
     SIMULATION_STOPPED                  = 'SIMULATION_STOPPED',
     ADD_PLASMA_TRANSACTION              = 'ADD_PLASMA_TRANSACTION',
-    SUBSCRIBE_NEW_PLASMA_TRANSACTION    = 'SUBSCRIBE_NEW_PLASMA_TRANSACTION',
-    UNSUBSCRIBE_NEW_PLASMA_TRANSACTION  = 'UNSUBSCRIBE_NEW_PLASMA_TRANSACTION',
     ADD_ETH_TRANSACTION                 = 'ADD_ETH_TRANSACTION',
-    SUBSCRIBE_NEW_ETH_TRANSACTION       = 'SUBSCRIBE_NEW_ETH_TRANSACTION',
-    UNSUBSCRIBE_NEW_ETH_TRANSACTION     = 'UNSUBSCRIBE_NEW_ETH_TRANSACTION',
+    ADD_ETH_BLOCK                       = 'ADD_ETH_BLOCK',
+    SUBSCRIBE_SIMULATOR_TOPICS          = 'SUBSCRIBE_SIMULATOR_TOPICS',
+    UNSUBSCRIBE_SIMULATOR_TOPICS        = 'UNSUBSCRIBE_SIMULATOR_TOPICS',
     RESET                               = 'RESET'
 }
 
@@ -83,42 +78,18 @@ export class UpdateConfiguration implements Action {
     constructor(public payload: Configuration) {}
 }
 
-export class SubscribeToNewBlock implements Action {
-    readonly type: string = PlasmaActionTypes.SUBSCRIBE_NEW_BLOCK;
+export class SubscribeToSimulatorTopics implements Action {
+    readonly type: string = PlasmaActionTypes.SUBSCRIBE_SIMULATOR_TOPICS;
 }
 
-export class UnsubscribeToNewBlock implements Action {
-    readonly type: string = PlasmaActionTypes.UNSUBSCRIBE_NEW_BLOCK;
-}
-
-export class SubscribeToPlasmaAddresses implements Action {
-    readonly type: string = PlasmaActionTypes.SUBSCRIBE_PLASMA_CHAIN_ADDRESSES;
-}
-
-export class UnsubscribeToPlasmaAddresses implements Action {
-    readonly type: string = PlasmaActionTypes.UNSUBSCRIBE_PLASMA_CHAIN_ADDRESSES;
-}
-
-export class SubscribeToNewPlasmaTransaction implements Action {
-    readonly type: string = PlasmaActionTypes.SUBSCRIBE_NEW_PLASMA_TRANSACTION;
-}
-
-export class UnsubscribeToNewPlasmaTransaction implements Action {
-    readonly type: string = PlasmaActionTypes.UNSUBSCRIBE_NEW_PLASMA_TRANSACTION;
+export class UnsubscribeFromSimulatorTopics implements Action {
+    readonly type: string = PlasmaActionTypes.UNSUBSCRIBE_SIMULATOR_TOPICS;
 }
 
 export class AddNewPlasmaTransaction implements Action {
     readonly type: string = PlasmaActionTypes.ADD_PLASMA_TRANSACTION;
 
     constructor(public payload: any ) {}
-}
-
-export class SubscribeToNewETHTransaction implements Action {
-    readonly type: string = PlasmaActionTypes.SUBSCRIBE_NEW_ETH_TRANSACTION;
-}
-
-export class UnsubscribeToNewETHTransaction implements Action {
-    readonly type: string = PlasmaActionTypes.UNSUBSCRIBE_NEW_ETH_TRANSACTION;
 }
 
 export class AddNewETHTransaction implements Action {

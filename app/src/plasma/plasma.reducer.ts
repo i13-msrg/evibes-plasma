@@ -16,6 +16,7 @@ export const initialPlasmaChain: PlasmaChain = {
 
 export const initialState: PlasmaState = {
     mainPlasmaChain: initialPlasmaChain,
+    ethBlocks: Array(),
     plasmaChildrenChainsMap: new Map(),
     // childrenBlocks: new Map(),
     connected: false,
@@ -79,6 +80,9 @@ export function plasmaReducer(state = initialState, action: PlasmaActions) {
         }
         case PlasmaActionTypes.ADD_ETH_TRANSACTION: {
             return { ...state, ethTransactions: [ ...state.ethTransactions, action.payload ]};
+        }
+        case PlasmaActionTypes.ADD_ETH_BLOCK: {
+            return { ...state, ethBlocks: [ ...state.ethBlocks, action.payload ]};
         }
         case PlasmaActionTypes.RESET: {
             return { ... initialState };

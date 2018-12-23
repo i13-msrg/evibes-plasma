@@ -84,12 +84,12 @@ class RootChainService(val vertx: Vertx, val ethAddress: String, val ethChain: E
 
   private fun createTransaction(from: String, to: String, amount: Int) : ETHTransaction {
     return ETHTransaction(nonce = nonce++,
-      from = from,
-      to = to,
-      amount = amount,
-      data = null,
-      gasLimit = 30,
-      gasPrice = 20)
+                          from = from,
+                          to = to,
+                          amount = amount,
+                          data = null,
+                          gasLimit = 30,
+                          gasPrice = 20)
   }
 
   fun startConsumers() {

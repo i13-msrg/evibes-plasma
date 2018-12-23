@@ -5,6 +5,7 @@ import { Transaction } from './models/transaction';
 
 export interface PlasmaState {
     mainPlasmaChain: PlasmaChain;
+    ethBlocks: Array<any>;
     plasmaChildrenChainsMap: Map<string, PlasmaChain>;
     connected: boolean;
     configuration: Configuration;

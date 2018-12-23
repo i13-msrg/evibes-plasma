@@ -40,7 +40,6 @@ export class HomeComponent implements OnInit {
       this.connected = isConnected;
       if(this.connected) {
         this.commonService.openSnackBar('You are connected to the simulator!', 'Close');
-        this.store.dispatch(new PlasmaAction.SubscribeToPlasmaAddresses());
       } else {
         this.commonService.openSnackBar('You are not connected to the simulator!', 'Close');
       }
@@ -98,6 +97,7 @@ export class HomeComponent implements OnInit {
       const data = { mainPlasmaChainAddress: uuid(), plasmaChildrenAddresses: uuids};
 
       this.store.dispatch(new PlasmaAction.SetPlasmaChainAddresses(data));
+      this.store.dispatch(new PlasmaAction.SubscribeToSimulatorTopics());
       this.store.dispatch(new PlasmaAction.StartSimulation(data));
     }
     else console.log("NO START")
@@ -105,6 +105,7 @@ export class HomeComponent implements OnInit {
 
   stopSimulation() {
     if (this.connected && this.started) {
+      this.store.dispatch(new PlasmaAction.UnsubscribeFromSimulatorTopics());
       this.store.dispatch(new PlasmaAction.StopSimulation());
     }
   }
