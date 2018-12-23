@@ -1,12 +1,7 @@
 package io.plasmasimulator.plasma.models
 
-import io.plasmasimulator.ethereum.verticles.ETHNetworkGateway
-import io.plasmasimulator.utils.FileManager
-import io.vertx.core.Vertx
 import io.vertx.core.json.Json
 import org.slf4j.LoggerFactory
-import java.util.ArrayList
-
 
 
 class PlasmaChain (val chainAddress: String,
