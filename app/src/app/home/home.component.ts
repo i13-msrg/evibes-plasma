@@ -6,7 +6,8 @@ import { selectPlasmaConnected,
          selectPlasmaConfiguration,
          selectPlasmaChildrenChains,
          selectMainPlasmaChain,
-         selectPlasmaETHTransactions
+         selectPlasmaETHTransactions,
+         selectEthereumBlocksSize
         } from 'src/plasma/plasma.selectors';
 import * as PlasmaAction from 'src/plasma/plasma.actions';
 import { CommonService } from 'src/plasma/services/common.service';
@@ -30,6 +31,7 @@ export class HomeComponent implements OnInit {
   objectKeys = Object.keys;
   ethBlockTransactions = new Array();
   ethDepositTransactions = new Array();
+  ethBlocksSize = 0;
 
   constructor(private store: Store<AppState>,
               private commonService: CommonService) {
@@ -73,6 +75,11 @@ export class HomeComponent implements OnInit {
         this.commonService.openSnackBar('Simulation stopped!', 'Close');
       }
     });
+    
+    this.store.pipe(select(selectEthereumBlocksSize)).subscribe(blocksSize => {
+      this.ethBlocksSize = blocksSize;
+    });
+
 
   }
 

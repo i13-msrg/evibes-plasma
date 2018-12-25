@@ -31,6 +31,7 @@ class PeersDiscoveryNode: AbstractVerticle() {
       val newAddress: String = msg.body() as String
       if(!nodeAddresses.contains(newAddress)) {
         nodeAddresses.add(newAddress)
+        LOG.info("$newAddress arrived")
         distributeNewPeers()
       }
     }

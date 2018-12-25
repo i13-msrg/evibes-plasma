@@ -4,28 +4,37 @@ import io.plasmasimulator.conf.Address
 import io.plasmasimulator.ethereum.models.ETHBlock
 import io.plasmasimulator.ethereum.models.ETHChain
 import io.plasmasimulator.ethereum.models.ETHTransaction
+import io.plasmasimulator.ethereum.verticles.ETHBaseNode
 import io.plasmasimulator.utils.HashUtils
+import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.core.json.Json
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
 
 // this class gives the opportunity to plasma participants to call methods of plasma (rootchain) contracts
 
-class RootChainService(val vertx: Vertx, val ethAddress: String, val ethChain: ETHChain) {
+open class RootChainService : ETHBaseNode() {
   val plasmaAddress = ""
   private var nonce = 1
-  var peers = mutableListOf<String>()
-
-  init {
-      startConsumers()
-  }
+  private var pendingTransactions = mutableListOf<ETHTransaction>()
 
   private companion object {
       private val LOG = LoggerFactory.getLogger(RootChainService::class.java)
   }
 
+  override fun start(startFuture: Future<Void>?) {
+    super.start(startFuture)
+    LOG.info("ROOT CHAIN ADDRESS $ethAddress")
+  }
+
+  override fun stop(stopFuture: Future<Void>?) {
+    super.stop(stopFuture)
+  }
+
   fun deposit(address: String, amount: Int, chainAddress: String) {
+    LOG.info("[rootchainservice] Deposit $amount for $address")
     var data = mutableMapOf<String, String>()
     data.put("type", "plasma")
     data.put("method", "deposit")
@@ -54,16 +63,13 @@ class RootChainService(val vertx: Vertx, val ethAddress: String, val ethChain: E
   }
 
   private fun sendTransaction(tx: ETHTransaction) {
-    if(vertx == null) {
-      LOG.info("vertx is null")
-      return
-    }
     if(peers.size < 1) {
       LOG.info("NO PEERS")
+      pendingTransactions.add(tx)
+      return
     }
     //vertx!!.eventBus().publish(Address.ETH_SUBMIT_TRANSACTION.name, JsonObject(Json.encode(tx)))
     for(peer in peers) {
-      LOG.info("sending to peer $peer")
       val data = JsonObject()
         .put("type", "propagateTransaction")
         .put("transaction", JsonObject(Json.encode(tx)))
@@ -92,30 +98,36 @@ class RootChainService(val vertx: Vertx, val ethAddress: String, val ethChain: E
                           gasPrice = 20)
   }
 
-  fun startConsumers() {
-    vertx.eventBus().consumer<Any>(ethAddress) { msg ->
-      val jsonObject = msg.body() as JsonObject
-      when(jsonObject.getString("type")) {
-        "propagateBlock" -> { // syncing with ethereum, I am client, not a node
-          val blockJson = jsonObject.getJsonObject("block")
-          val block: ETHBlock = Json.decodeValue(blockJson.toString(), ETHBlock::class.java)
-          if(ethChain.containsBlock(block.number)) {
-            LOG.info("[$ethAddress]: attempted to add block ${block.number}, but it already exists!")
-          } else {
-            ethChain.addBlock(block)
-            LOG.info("[$ethAddress]: added block ${block.number}")
-          }
-        }
-
-        "setNewPeers" -> {
-          LOG.info("[Plasma $ethAddress received setNewPeers]")
-          peers.clear()
-          jsonObject.getJsonArray("peers").forEach { peer ->
-            peers.add(peer.toString())
-          }
-        }
-      }
-
+  override fun handlePropagateBlock(block: ETHBlock) {
+    if(!ethChain.containsBlock(block.number)) {
+      ethChain.addBlock(block)
+      LOG.info("[$ethAddress]: added block ${block.number}")
     }
+//  else {
+//    LOG.info("[$ethAddress]: attempted to add block ${block.number}, but it already exists!")
+//  }
+  }
+
+  override fun handlePropagateTransaction(tx: ETHTransaction) {
+
+  }
+
+  override fun handleSetNewPeers(newPeers: JsonArray) {
+    var peersEmpty = peers.size == 0
+    peers.clear()
+    newPeers.forEach { peer ->
+      peers.add(peer.toString())
+    }
+    if(peersEmpty && peers.size > 0) {
+      LOG.info("HELLLOOOOOOOOOOOOOOOOOOOOOOOOOOOOdaskldakjldjsakldjas")
+      sendPendingTransactions()
+    }
+  }
+
+  private fun sendPendingTransactions() {
+    pendingTransactions.forEach { tx ->
+      sendTransaction(tx)
+    }
+    pendingTransactions.clear()
   }
 }

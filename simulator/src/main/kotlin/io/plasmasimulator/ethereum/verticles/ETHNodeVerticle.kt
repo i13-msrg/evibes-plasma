@@ -10,6 +10,7 @@ import io.plasmasimulator.ethereum.models.ETHTransaction
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.json.Json
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -19,7 +20,6 @@ class ETHNodeVerticle : ETHBaseNode() {
   val plasmaContract = PlasmaContract()
   var accountsMap = mutableMapOf<String, Account>()
   var transactions = mutableListOf<ETHTransaction>()
-  var peers = mutableListOf<String>()
   private var blockGasLimit = 0
   private var txPoolGas = 0
   var tokensPerClient = 0
@@ -31,7 +31,6 @@ class ETHNodeVerticle : ETHBaseNode() {
 
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
-    startConsumers()
     tokensPerClient = config().getInteger("tokensPerClient")
     blockGasLimit = config().getInteger("blockGasLimit")
   }
@@ -45,7 +44,6 @@ class ETHNodeVerticle : ETHBaseNode() {
                                                         tx.data!!.get("amount")!!.toInt(),
                                                         tx.data!!.get("chainAddress")!!)
         // publish deposit block to operator
-        // TODO: consider sending the block to all plasma participants
         vertx.eventBus().send("${tx.data!!.get("chainAddress")!!}/${Address.ETH_ANNOUNCE_DEPOSIT.name}", result)
       }
     }
@@ -93,61 +91,31 @@ class ETHNodeVerticle : ETHBaseNode() {
     return Random().nextInt(amount)
   }
 
-  fun startConsumers() {
-    vertx.eventBus().consumer<Any>(ethAddress) { msg ->
-      val jsonObject = msg.body() as JsonObject
-      when(jsonObject.getString("type")) {
+  override fun handlePropagateTransaction(tx: ETHTransaction) {
+    if(!txPool.contains(tx)) {
+      if(!validateTransaction(tx)) {
+        LOG.info("Transaction $tx is invalid")
+      } else {
+        txPool.push(tx)
+        // propagate transaction to other peers
+        propagateTransaction(tx)
 
-        "propagateTransaction" -> {
-          //LOG.info("[ETH $ethAddress received propagateTransaction]")
-          val txJson = jsonObject.getJsonObject("transaction")
-          val tx: ETHTransaction = Json.decodeValue(txJson.toString(), ETHTransaction::class.java)
-
-          if(!txPool.contains(tx)) {
-            if(!validateTransaction(tx)) {
-              LOG.info("Transaction $tx is invalid")
-            } else {
-              txPool.push(tx)
-              txPoolGas += tx.gasLimit
-              // propagate transaction to other peers
-              propagateTransaction(tx)
-
-              if(gasLimitForBlockReached()) {
-                if(Random().nextInt(18) % 3 == 0) {
-                  requestMining(createBlock())
-                }
-              }
-            }
-          }
-          else {
-            LOG.info("[$ethAddress] Transaction already there")
-          }
-        }
-
-        "propagateBlock" -> {
-          //LOG.info("[ETH $ethAddress received propagateBlock]")
-          val blockJson = jsonObject.getJsonObject("block")
-          val block: ETHBlock = Json.decodeValue(blockJson.toString(), ETHBlock::class.java)
-          if(ethChain.containsBlock(block.number)) {
-            LOG.info("[$ethAddress]: attempted to add block ${block.number}, but it already exists!")
-          } else {
-            processBlock(block)
-            removeTransactionsFor(block)
-            LOG.info("[$ethAddress]: added block ${block.number}")
-            // propagate block to other peers
-            propagateBlock(block)
-          }
-        }
-
-        "setNewPeers" -> {
-          //LOG.info("[ETH $ethAddress received setNewPeers]")
-          peers.clear()
-          jsonObject.getJsonArray("peers").forEach { peer ->
-            peers.add(peer.toString())
+        if(gasLimitForBlockReached()) {
+          if(Random().nextInt(18) % 3 == 0) {
+            requestMining(createBlock())
           }
         }
       }
+    }
+  }
 
+  override fun handlePropagateBlock(block: ETHBlock) {
+    if(!ethChain.containsBlock(block.number)) {
+      processBlock(block)
+      removeTransactionsFor(block)
+      LOG.info("[$ethAddress]: added block ${block.number}")
+      // propagate block to other peers
+      propagateBlock(block)
     }
   }
 
@@ -158,20 +126,30 @@ class ETHNodeVerticle : ETHBaseNode() {
   }
 
   fun gasLimitForBlockReached() : Boolean {
-    LOG.info("[$ethAddress] txPoolGas: $txPoolGas")
-    LOG.info("[$ethAddress] blockGasLimit: $blockGasLimit")
-    return txPoolGas >= blockGasLimit
+    var gas = txPoolGas()
+//    LOG.info("[$ethAddress] txPoolGas: $gas")
+//    LOG.info("[$ethAddress] blockGasLimit: $blockGasLimit")
+
+    return gas >= blockGasLimit
+  }
+
+  fun txPoolGas() : Int{
+    var gas = 0
+    txPool.forEach { tx ->
+      gas += tx.gasLimit
+    }
+    return gas
   }
 
   fun requestMining(block: ETHBlock) {
+    LOG.info("[$ethAddress] is requesting to mine block ${block.number}")
     vertx.eventBus().send<Any>(Address.READY_TO_MINE.name, JsonObject(Json.encode(block))) { response ->
       val result = response.result().body() as String
       LOG.info(result)
       if(result == Message.SUCCESS.name) {
-        LOG.info("[$ethAddress] is mining a block <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>")
+        LOG.info("[$ethAddress] is mining a block ${block.number}")
         mineBlock(block)
         removeTransactionsFor(block)
-        println(Json.encode(block).toString())
         propagateBlock(block)
       }
     }
@@ -183,12 +161,11 @@ class ETHNodeVerticle : ETHBaseNode() {
 
     while (gasLimit < blockGasLimit) {
       val tx: ETHTransaction = txPool.pop()
-      txPoolGas -= tx.gasLimit
       txList.add(tx)
       gasLimit += tx.gasLimit
     }
     val lastBlock = ethChain.getLastBlock()!!
-    return ETHBlock(number = lastBlock.number + 1, prevBlockNum = lastBlock.number, transactions = txList)
+    return ETHBlock(number = lastBlock.number + 1, prevBlockNum = lastBlock.number, transactions = txList, extraData = ethAddress)
   }
 
   fun processBlock(block: ETHBlock) {

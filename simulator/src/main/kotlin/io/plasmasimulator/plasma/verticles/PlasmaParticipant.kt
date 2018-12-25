@@ -17,10 +17,10 @@ import io.vertx.core.parsetools.JsonParser
 import org.slf4j.LoggerFactory
 import java.util.*
 
-open class PlasmaParticipant: ETHBaseNode() {
+open class PlasmaParticipant: RootChainService() {
   var chain: PlasmaChain = PlasmaChain("")
-  var rootChainService : RootChainService? = null
   var plasmaPool: UTXOPool = UTXOPool()
+  val rootChainService = this
 
   val address: String = PlasmaParticipant.addressNum++.toString()//UUID.randomUUID().toString()
   var balance: Int = 0
@@ -36,9 +36,8 @@ open class PlasmaParticipant: ETHBaseNode() {
 
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
-    // TODO: Improve vetx referencing
-    //rootChainService.vertx = vertx
-    rootChainService = RootChainService(vertx, ethAddress, ethChain)
+    // deploying rootChainVerticle
+
     LOG.info("Initialize PlasmaVerticle $address")
     plasmaContractAddress               = config().getString("plasmaContractAddress")
     val chainAddress: String            = config().getString("chainAddress")
@@ -90,5 +89,9 @@ open class PlasmaParticipant: ETHBaseNode() {
         plasmaPool.addUTXO(newUTXO, output)
       }
     }
+  }
+
+  override fun stop(stopFuture: Future<Void>?) {
+    super.stop(stopFuture)
   }
 }
