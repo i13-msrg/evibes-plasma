@@ -45,11 +45,12 @@ open class RootChainService : ETHBaseNode() {
     sendTransaction(tx)
   }
 
-  fun submitBlock(from: String, rootHash: ByteArray) {
+  fun submitBlock(from: String, rootHash: ByteArray, timestamp: Long) {
     val data = mutableMapOf<String, String>()
     data.put("type", "plasma")
     data.put("rootHash", HashUtils.transform(rootHash))
     data.put("method", "submitBlock")
+    data.put("timestamp", timestamp.toString())
     //val data = "rootHash:${HashUtils.transform(rootHash)}"
     //val data = JsonObject().put("type", "plasma").put("rootHash", rootHash).put("method", "submitBlock")
     val tx: ETHTransaction = createTransactionToPlasmaContract(from, data)

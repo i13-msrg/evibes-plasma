@@ -40,7 +40,8 @@ class ETHNodeVerticle : ETHBaseNode() {
   fun processContractTransaction(tx: ETHTransaction) {
     if(tx.data == null) return
     when(tx.data!!.get("method")) {
-      "submitBlock" -> plasmaContract.submitBlock(tx.data!!.get("rootHash")!!)
+      "submitBlock" -> plasmaContract.submitBlock(tx.data!!.get("rootHash")!!,
+                                                  tx.data!!.get("timestamp")!!.toLong())
       "deposit" -> {
         var result: JsonObject = plasmaContract.deposit(tx.data!!.get("address")!!,
                                                         tx.data!!.get("amount")!!.toInt(),

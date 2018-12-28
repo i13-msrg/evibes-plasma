@@ -34,8 +34,8 @@ class PlasmaContract(val plasmaBlockInterval: Int) {
       .put("chainAddress", chainAddress)
   }
 
-  fun submitBlock(rootHash: String) {
-    childBlocks.put(plasmaBlockNumber, PlasmaBlock(rootHash))
+  fun submitBlock(rootHash: String, timestamp: Long) {
+    childBlocks.put(plasmaBlockNumber, PlasmaBlock(rootHash, timestamp))
     updateBlockNumbers()
   }
 
@@ -45,6 +45,5 @@ class PlasmaContract(val plasmaBlockInterval: Int) {
   }
 }
 
-class PlasmaBlock(var rootHash: String = "") {
-  val timestamp = System.currentTimeMillis()
+class PlasmaBlock(var rootHash: String, val timestamp: Long = System.currentTimeMillis()) {
 }

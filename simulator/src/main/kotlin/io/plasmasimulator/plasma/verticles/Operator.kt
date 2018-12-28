@@ -112,7 +112,7 @@ class Operator: PlasmaParticipant() {
       // deposit blocks come from plasma contract when a client deposits tokens
       // into the plasma chain, hence such blocks should not be submitted back
       // to the contract
-      rootChainService.submitBlock(from = address, rootHash = block.merkleRoot)
+      rootChainService.submitBlock(from = address, rootHash = block.merkleRoot, timestamp = block.timestamp)
     }
     //FileManager.writeNewFile(vertx, Json.encode(chain.blocks), "blockchain.json")
 
