@@ -2,7 +2,7 @@ package io.plasmasimulator.plasma.models
 
 import java.security.MessageDigest
 
-class PlasmaBlock(val number: Int, val prevBlockNum: Int, val prevBlockHash: ByteArray, var transactions: List<Transaction> = mutableListOf<Transaction>()) {
+class PlasmaBlock(val number: Int, val prevBlockNum: Int, var transactions: List<Transaction> = mutableListOf<Transaction>()) {
   // TODO: signature
   var hash = ByteArray(0)
   var merkleRoot = ByteArray(0)
@@ -14,7 +14,6 @@ class PlasmaBlock(val number: Int, val prevBlockNum: Int, val prevBlockHash: Byt
     val blockHash = mutableListOf<Byte>()
     blockHash.add(number.toByte())
     blockHash.add(prevBlockNum.toByte())
-    blockHash.addAll(prevBlockHash.toMutableList())
 
     for(tx in transactions) {
       blockHash + tx.txHashCode()

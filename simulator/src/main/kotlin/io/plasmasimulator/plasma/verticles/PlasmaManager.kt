@@ -32,29 +32,22 @@ class PlasmaManager: AbstractVerticle() {
     LOG.info("Plasma Manager deployed!")
 
     val numberOfPlasmaClients: Int              = config().getInteger("numberOfPlasmaClients")
-    val plasmaContractAddress: String           = config().getString("plasmaContractAddress")
-    val amountPerClient: Int                    = config().getInteger("amountPerClient")
-    val transactionsPerBlock: Int               = config().getInteger("transactionsPerBlock")
     val mainPlasmaChainAddress: String          = config().getString("mainPlasmaChainAddress")
     val childrenPlasmaChainAddresses: JsonArray = config().getJsonArray("plasmaChildrenAddresses")
-
-    val config = JsonObject().put("plasmaContractAddress", plasmaContractAddress)
-                                         .put("amount", amountPerClient)
-                                         .put("transactionsPerBlock", transactionsPerBlock)
 
     // deploy children plasma chains
     childrenPlasmaChainAddresses.forEach { obj ->
       val childAddress = obj.toString()
       println("childAddress: $childAddress")
       consumersPerChain(childAddress, numberOfPlasmaClients)
-      deployPlasma(childAddress, numberOfPlasmaClients, config.copy(), mainPlasmaChainAddress)
+      deployPlasma(childAddress, numberOfPlasmaClients, config().copy(), mainPlasmaChainAddress)
       periodicalMap.put(childAddress, NumberOfBlocks)
     }
     if(childrenPlasmaChainAddresses.size() > 0)
-      config.put("childrenPlasmaChainAddresses", childrenPlasmaChainAddresses)
+      config().put("childrenPlasmaChainAddresses", childrenPlasmaChainAddresses)
     // deploy plasma main chain
     consumersPerChain(mainPlasmaChainAddress, numberOfPlasmaClients)
-    deployPlasma(mainPlasmaChainAddress, numberOfPlasmaClients, config.copy(), null)
+    deployPlasma(mainPlasmaChainAddress, numberOfPlasmaClients, config().copy(), null)
     periodicalMap.put(mainPlasmaChainAddress, NumberOfBlocks)
 
   }

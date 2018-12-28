@@ -34,7 +34,6 @@ open class RootChainService : ETHBaseNode() {
   }
 
   fun deposit(address: String, amount: Int, chainAddress: String) {
-    LOG.info("[rootchainservice] Deposit $amount for $address")
     var data = mutableMapOf<String, String>()
     data.put("type", "plasma")
     data.put("method", "deposit")
@@ -101,7 +100,6 @@ open class RootChainService : ETHBaseNode() {
   override fun handlePropagateBlock(block: ETHBlock) {
     if(!ethChain.containsBlock(block.number)) {
       ethChain.addBlock(block)
-      LOG.info("[$ethAddress]: added block ${block.number}")
     }
 //  else {
 //    LOG.info("[$ethAddress]: attempted to add block ${block.number}, but it already exists!")
@@ -119,7 +117,6 @@ open class RootChainService : ETHBaseNode() {
       peers.add(peer.toString())
     }
     if(peersEmpty && peers.size > 0) {
-      LOG.info("HELLLOOOOOOOOOOOOOOOOOOOOOOOOOOOOdaskldakjldjsakldjas")
       sendPendingTransactions()
     }
   }

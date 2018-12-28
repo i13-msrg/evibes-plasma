@@ -62,7 +62,6 @@ abstract class ETHBaseNode : AbstractVerticle() {
   abstract fun handlePropagateTransaction(tx: ETHTransaction)
 
   open fun handleSetNewPeers(newPeers: JsonArray) {
-    LOG.info("[$ethAddress] received new peers of size: ${newPeers.size()}")
     peers.clear()
     newPeers.forEach { peer ->
       peers.add(peer.toString())

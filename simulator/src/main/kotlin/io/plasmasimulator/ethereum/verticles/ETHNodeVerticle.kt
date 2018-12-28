@@ -17,7 +17,7 @@ import java.util.*
 
 
 class ETHNodeVerticle : ETHBaseNode() {
-  val plasmaContract = PlasmaContract()
+  private var plasmaContract = PlasmaContract(10)
   var accountsMap = mutableMapOf<String, Account>()
   var transactions = mutableListOf<ETHTransaction>()
   private var blockGasLimit = 0
@@ -33,6 +33,8 @@ class ETHNodeVerticle : ETHBaseNode() {
     super.start(startFuture)
     tokensPerClient = config().getInteger("tokensPerClient")
     blockGasLimit = config().getInteger("blockGasLimit")
+    val plasmaBlockInterval = config().getInteger("plasmaBlockInterval")
+    plasmaContract = PlasmaContract(plasmaBlockInterval)
   }
 
   fun processContractTransaction(tx: ETHTransaction) {
@@ -59,6 +61,7 @@ class ETHNodeVerticle : ETHBaseNode() {
       account.nonce ++
       return true
     }
+
     return false
   }
 
@@ -97,6 +100,7 @@ class ETHNodeVerticle : ETHBaseNode() {
         LOG.info("Transaction $tx is invalid")
       } else {
         txPool.push(tx)
+
         // propagate transaction to other peers
         propagateTransaction(tx)
 

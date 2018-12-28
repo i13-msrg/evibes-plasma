@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 open class PlasmaParticipant: RootChainService() {
-  var chain: PlasmaChain = PlasmaChain("")
+  var chain: PlasmaChain = PlasmaChain(chainAddress = "", plasmaBlockInterval = 10)
   var plasmaPool: UTXOPool = UTXOPool()
   val rootChainService = this
 
@@ -41,8 +41,9 @@ open class PlasmaParticipant: RootChainService() {
     LOG.info("Initialize PlasmaVerticle $address")
     plasmaContractAddress               = config().getString("plasmaContractAddress")
     val chainAddress: String            = config().getString("chainAddress")
+    val plasmaBlockInterval        = config().getInteger("plasmaBlockInterval")
 
-    chain = PlasmaChain(chainAddress)
+    chain = PlasmaChain(chainAddress = chainAddress, plasmaBlockInterval = plasmaBlockInterval)
 
     if(config().containsKey("parentPlasmaAddress")) {
       chain.parentChainAddress          = config().getString("parentPlasmaAddress")
@@ -59,11 +60,11 @@ open class PlasmaParticipant: RootChainService() {
   }
 
   fun bootstrapBlockchain() {
-    val genesisBlock = PlasmaBlock(number = 0, prevBlockNum = 0, prevBlockHash = mutableListOf<Byte>().toByteArray())
+    val genesisBlock = PlasmaBlock(number = 0, prevBlockNum = -1)
     genesisBlock.merkleRoot = HashUtils.hash("0,0,-1".toByteArray())
     myFlyingUTXOS = myUTXOs.toMutableList()
     createUTXOsForBlock(genesisBlock)
-    chain.addBlock(genesisBlock, UTXOPool())
+    //chain.addBlock(genesisBlock, UTXOPool())
   }
 
   fun removeUTXOsForBlock(block: PlasmaBlock) {

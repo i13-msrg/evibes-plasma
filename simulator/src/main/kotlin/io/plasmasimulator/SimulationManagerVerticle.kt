@@ -145,6 +145,7 @@ class SimulationManagerVerticle : AbstractVerticle() {
         .put("transactionsPerBlock", conf.getInteger("transactionsPerPlasmaBlock"))
         .put("mainPlasmaChainAddress", mainPlasmaChainAddress)
         .put("plasmaChildrenAddresses", plasmaChildrenAddresses)
+        .put("plasmaBlockInterval", conf.getInteger("plasmaBlockInterval"))
 
       vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.PeersDiscoveryNode",
         DeploymentOptions()

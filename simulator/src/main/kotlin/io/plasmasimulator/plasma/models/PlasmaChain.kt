@@ -1,18 +1,30 @@
 package io.plasmasimulator.plasma.models
 
+import io.plasmasimulator.utils.HashUtils
 import io.vertx.core.json.Json
 import org.slf4j.LoggerFactory
+import java.util.*
 
 
 class PlasmaChain (val chainAddress: String,
                    var parentChainAddress: String? = null,
+                   val plasmaBlockInterval: Int,
                    var blocks: MutableMap<Int, PlasmaBlock> = mutableMapOf<Int, PlasmaBlock>(),
                    var parentBlocks: MutableMap<Int, PlasmaBlock> = mutableMapOf<Int, PlasmaBlock>()) {
-  //constructor(chain: PlasmaChain): this(chain.blocks.toMutableList())
+
+  var nextDepositBlockNumber = 1
+  var nextPlasmaBlockNumber = plasmaBlockInterval
+  var prevBlocksQueue = mutableMapOf<Int, LinkedList<PlasmaBlock>>()
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(PlasmaChain::class.java)
 
+  }
+
+  init {
+    val genesisBlock = PlasmaBlock(number = 0, prevBlockNum = -1)
+    genesisBlock.merkleRoot = HashUtils.hash("0,0,-1".toByteArray())
+    blocks.put(0, genesisBlock)
   }
 
   fun addParentBlock(parentBlock: PlasmaBlock) {
@@ -30,10 +42,62 @@ class PlasmaChain (val chainAddress: String,
       println("BLOCK ALREADY THERE")
       return
     }
-    if(validateBlock(block, plasmaPool)) {
-      blocks.put(block.number, block)
-    } else
-      LOG.info("block invalid")
+
+    if(nextDepositBlockNumber == block.number) {
+      // we got the correct block
+      // it could though happen that we previously received
+      // children blocks of this block, which we added to a queue
+      // so we need first to add such children blocks, if they exist
+      if(prevBlocksQueue.containsKey(nextDepositBlockNumber)) {
+        removeFromPrevBlockQueue(plasmaPool)
+      }
+
+      if(validateBlock(block, plasmaPool)) {
+        blocks.put(block.number, block)
+      } else
+        LOG.info("block invalid")
+      nextDepositBlockNumber += 1
+      return
+    }
+
+    if(nextPlasmaBlockNumber == block.number) {
+      if(validateBlock(block, plasmaPool)) {
+        blocks.put(block.number, block)
+      } else
+        LOG.info("block invalid")
+
+      nextPlasmaBlockNumber += plasmaBlockInterval
+      updateNextDepositBlockNumber()
+      return
+    }
+
+    if(block.number > nextDepositBlockNumber) {
+      // we receive deposit block from eth network that has a previous block(parent)
+      // another deposit block that we are still waiting for to appear
+      addToPrevBlockQueue(block)
+      return
+    }
+  }
+
+  fun addToPrevBlockQueue(block: PlasmaBlock) {
+    if(!prevBlocksQueue.containsKey(nextDepositBlockNumber)) {
+      prevBlocksQueue.put(nextDepositBlockNumber, LinkedList())
+    }
+    prevBlocksQueue.get(nextDepositBlockNumber)!!.push(block)
+  }
+
+  fun removeFromPrevBlockQueue(plasmaPool : UTXOPool) {
+    if(!prevBlocksQueue.containsKey(nextDepositBlockNumber)) return
+    val blocks = prevBlocksQueue.get(nextDepositBlockNumber)
+    prevBlocksQueue.remove(nextDepositBlockNumber)
+
+    blocks!!.forEach { block ->
+      addBlock(block, plasmaPool)
+    }
+  }
+
+  fun updateNextDepositBlockNumber() {
+    nextDepositBlockNumber = plasmaBlockInterval + 1
   }
 
   fun validateBlock(block: PlasmaBlock, plasmaPool: UTXOPool) : Boolean {

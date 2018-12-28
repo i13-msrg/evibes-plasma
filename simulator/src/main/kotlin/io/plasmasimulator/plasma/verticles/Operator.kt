@@ -21,7 +21,11 @@ import io.vertx.core.file.OpenOptions
 class Operator: PlasmaParticipant() {
   var transactions = mutableListOf<Transaction>()
   var childChains = mutableListOf<String>()
-  var TRANSACTIONS_PER_BLOCK = 0
+  var transactionsPerBlock = 0
+  var plasmaBlockInterval = 10
+  var nextBlockNumber = 10
+  var receivedDepositBlocks = mutableListOf<Int>()
+
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(Operator::class.java)
@@ -31,7 +35,9 @@ class Operator: PlasmaParticipant() {
     super.start(startFuture)
     LOG.info("Hello from Operator $address")
 
-    TRANSACTIONS_PER_BLOCK = config().getInteger("transactionsPerBlock")
+    transactionsPerBlock = config().getInteger("transactionsPerBlock")
+    plasmaBlockInterval = config().getInteger("plasmaBlockInterval")
+    nextBlockNumber = plasmaBlockInterval
 
     if(config().containsKey("childrenPlasmaChainAddresses")) {
       childChains = config().getJsonArray("childrenPlasmaChainAddresses").list.toMutableList() as MutableList<String>
@@ -39,50 +45,51 @@ class Operator: PlasmaParticipant() {
 
     vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.PUBLISH_TRANSACTION.name}") { msg ->
       val newTransaction = Json.decodeValue(msg.body().toString(), Transaction::class.java)
+
+      // nested transaction
       if(newTransaction.childChainTransaction) {
         LOG.info("[$address] Child Chain Transaction received <<<<<<<<<")
         println(newTransaction.childChainData)
       }
+
       if(chain.validateTransaction(newTransaction, plasmaPool))
         transactions.add(newTransaction)
       else LOG.info("transaction is invalid, my friend")
 
-      if(transactions.size >= TRANSACTIONS_PER_BLOCK) {
-        val newBlock = createBlock(transactions.take(TRANSACTIONS_PER_BLOCK))
+      if(transactions.size >= transactionsPerBlock) {
+        // create new block
+        val newBlock = createBlock(transactions.take(transactionsPerBlock), nextBlockNumber)
+        updateNextBlockNumber()
         if(applyBlock(newBlock))
-          transactions = transactions.drop(TRANSACTIONS_PER_BLOCK).toMutableList()
+          transactions = transactions.drop(transactionsPerBlock).toMutableList()
       }
     }
 
-    vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.DEPOSIT_TRANSACTION.name}") { msg ->
-      val depositTransaction = Json.decodeValue(msg.body().toString(), Transaction::class.java)
-      applyBlock(createBlock(mutableListOf(depositTransaction)))
-    }
-
     vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.ETH_ANNOUNCE_DEPOSIT.name}") { msg ->
-      val jsonObj = msg.body() as JsonObject
+      val data = msg.body() as JsonObject
 
-      if(!chain.containsBlock(jsonObj.getInteger("blockNum"))) {
-        val tx = Transaction()
-        tx.depositTransaction = true
-        tx.addOutput(jsonObj.getString("address"), jsonObj.getInteger("amount"))
-        var blockNumber = jsonObj.getInteger("blockNum")
-        LOG.info("[$address] Operator received deposit ${jsonObj.getInteger("amount")} for ${jsonObj.getString("address")} ")
-        LOG.info("Operator received block $blockNumber")
+      val blockNumber = data.getInteger("blockNum")
+      val address = data.getString("address")
+      val amount = data.getInteger("amount")
+
+      if(!receivedDepositBlocks.contains(blockNumber)) {
+        receivedDepositBlocks.add(blockNumber)
+        val tx = createTxForDepositBlock(address, amount)
+
+        LOG.info("[$address] Operator received deposit $amount for $address ")
+
         val newBlock = createBlock(listOf(tx), blockNumber)
-        //TODO: verify new block root hash is same as the once coming from contract
         applyBlock(newBlock, true)
       }
     }
   }
 
-  fun createBlock(newTransactions: List<Transaction>, num: Int = -1) : PlasmaBlock{
-      val prevBlock = chain.getLastBlock()!!
-      val newBlock = PlasmaBlock(number = prevBlock.number + 1,
-                                 prevBlockNum = if(num > 0)  num else prevBlock.number,
-                                 prevBlockHash = prevBlock.blockHash(),
+  fun createBlock(newTransactions: List<Transaction>, number: Int = -1) : PlasmaBlock {
+      val newBlock = PlasmaBlock(number = number,
+                                 prevBlockNum = number - 1,
                                  transactions = newTransactions)
-      if(newTransactions.size == 1) { // deposit transaction block
+
+      if(newTransactions.size == 1 && !newTransactions[0].childChainTransaction) { // deposit transaction block
         val depositTxOutput = newTransactions[0].outputs[0]
         newBlock.merkleRoot = HashUtils.hash(depositTxOutput.address.toByteArray() + depositTxOutput.amount.toByte())
         return newBlock
@@ -95,21 +102,23 @@ class Operator: PlasmaParticipant() {
   }
 
   fun applyBlock(block: PlasmaBlock, depositBlock: Boolean = false) : Boolean {
-    if(!chain.validateBlock(block, plasmaPool))
+    if(!chain.validateBlock(block, plasmaPool)) {
+      println("invalid block")
       return false
+    }
 
     chain.addBlock(block, plasmaPool)
-    if(!depositBlock) {
+    if(!depositBlock && chain.parentChainAddress == null) {
       // deposit blocks come from plasma contract when a client deposits tokens
       // into the plasma chain, hence such blocks should not be submitted back
       // to the contract
       rootChainService.submitBlock(from = address, rootHash = block.merkleRoot)
     }
-    FileManager.writeNewFile(vertx, Json.encode(chain.blocks), "blockchain.json")
+    //FileManager.writeNewFile(vertx, Json.encode(chain.blocks), "blockchain.json")
 
     removeUTXOsForBlock(block)
     createUTXOsForBlock(block)
-    LOG.info("[$address] BLOCK ADDED TO BLOCKCHAIN. NUMBER OF BLOCKS: ${chain.blocks.size}")
+    LOG.info("[$address] BLOCK ADDED TO BLOCKCHAIN. LOCKS: ${chain.blocks.size}")
     LOG.info("[$address] TOTAL SUM OF UTXOs: ${calculateTotalBalance()}")
     val blockJson  = JsonObject(Json.encode(block))
     send("${chain.chainAddress}/${Address.PUBLISH_BLOCK.name}", blockJson)
@@ -148,6 +157,18 @@ class Operator: PlasmaParticipant() {
         total += output.amount
     }
     return total
+  }
+
+  fun updateNextBlockNumber() {
+    nextBlockNumber += plasmaBlockInterval
+  }
+
+  fun createTxForDepositBlock(address: String, amount: Int) : Transaction {
+    val tx = Transaction()
+    tx.depositTransaction = true
+    tx.addOutput(address, amount)
+
+    return tx
   }
 
 }

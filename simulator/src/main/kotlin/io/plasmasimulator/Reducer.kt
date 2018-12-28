@@ -29,7 +29,7 @@ class Reducer: ETHBaseNode() {
     LOG.info("Reducer deployed")
 
     vertx.eventBus().consumer<Any>("$mainPlasmaChainAddress/${Address.PUBLISH_BLOCK.name}") { msg ->
-      LOG.info("Send block to app")
+      //LOG.info("Send block to app")
       vertx.eventBus().send(Address.ADD_NEW_MAIN_PLASMA_BLOCK.name, msg.body())
     }
     consumers(mainPlasmaChainAddress)
@@ -37,7 +37,7 @@ class Reducer: ETHBaseNode() {
     plasmaChildrenAddresses.forEach { childAddress ->
       vertx.eventBus().consumer<Any>("$childAddress/${Address.PUBLISH_BLOCK.name}") { msg ->
         val block: PlasmaBlock = Json.decodeValue(msg.body().toString(), PlasmaBlock::class.java)
-        LOG.info("Send child block ${block.number} to app [$childAddress]")
+        //LOG.info("Send child block ${block.number} to app [$childAddress]")
         val data: JsonObject = JsonObject().put("chainAddress", childAddress).put("childBlock", msg.body())
         vertx.eventBus().send(Address.ADD_NEW_CHILD_PLASMA_BLOCK.name, data)
       }
@@ -66,7 +66,7 @@ class Reducer: ETHBaseNode() {
       ethChain.addBlock(block)
       // send the new block to web app
       vertx.eventBus().send(Address.ADD_ETH_BLOCK.name, JsonObject(Json.encode(block)))
-      LOG.info("[REDUCER]: added block ${block.number}")
+      //LOG.info("[REDUCER]: added block ${block.number}")
     }
   }
 

@@ -48,6 +48,7 @@ class EthereumManager : AbstractVerticle() {
   }
 
   fun deployVerticles(config: JsonObject) {
+    LOG.info("Config: $config")
 
     var opt = DeploymentOptions()
       .setWorker(true)

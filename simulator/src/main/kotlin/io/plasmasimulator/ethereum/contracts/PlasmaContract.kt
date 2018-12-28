@@ -6,12 +6,15 @@ import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
 
-class PlasmaContract {
+class PlasmaContract(val plasmaBlockInterval: Int) {
   var state: MutableMap<String, Account> = mutableMapOf()
-  var childBlocks = mutableListOf<PlasmaBlock>()
+  var plasmaBlockNumber = 0
+  var depositBlockNumber = 1
+  var childBlocks = mutableMapOf<Int, PlasmaBlock>()
 
   init {
-      childBlocks.add(PlasmaBlock(HashUtils.transform(HashUtils.hash("0,0,-1".toByteArray()))))
+      childBlocks.put(0, PlasmaBlock(HashUtils.transform(HashUtils.hash("0,-1".toByteArray()))))
+      plasmaBlockNumber = plasmaBlockInterval
   }
 
   companion object {
@@ -22,17 +25,23 @@ class PlasmaContract {
     LOG.info("Deposit $amount for $address")
     state.put(address, Account(0, address, amount))
     val rootHash = HashUtils.transform(HashUtils.hash(address.toByteArray() + amount.toByte()))
-    childBlocks.add(PlasmaBlock(rootHash))
+    childBlocks.put(depositBlockNumber, PlasmaBlock(rootHash))
     return JsonObject()
       .put("address", address)
       .put("amount", amount)
-      .put("blockNum", childBlocks.size - 1)
+      .put("blockNum", depositBlockNumber++)
       .put("rootHash", rootHash)
       .put("chainAddress", chainAddress)
   }
 
   fun submitBlock(rootHash: String) {
-    childBlocks.add(PlasmaBlock(rootHash))
+    childBlocks.put(plasmaBlockNumber, PlasmaBlock(rootHash))
+    updateBlockNumbers()
+  }
+
+  fun updateBlockNumbers() {
+    plasmaBlockNumber += plasmaBlockInterval
+    depositBlockNumber = plasmaBlockNumber + 1
   }
 }
 

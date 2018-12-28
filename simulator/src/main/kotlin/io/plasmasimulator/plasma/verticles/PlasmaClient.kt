@@ -31,7 +31,7 @@ class PlasmaClient: PlasmaParticipant() {
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
     LOG.info("Here is my address $address")
-    val amount = config().getInteger("amount")
+    val amount = config().getInteger("amountPerClient")
 
     vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.PUSH_ALL_ADDRESSES.name}") { msg ->
       LOG.info("CLIENT $address GOT ALL ADDRESSES")
