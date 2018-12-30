@@ -16,6 +16,7 @@
   <logger name="com.mchange.v2" level="warn"/>
   <logger name="io.netty" level="warn"/>
   <logger name="io.vertx" level="info"/>
+  <!--<logger name="io.plasmasimulator.ethereum.verticles" level="warn"/>-->
   <logger name="io.plasmasimulator" level="debug"/>
 
   <root level="debug">

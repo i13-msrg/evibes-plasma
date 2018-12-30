@@ -1,6 +1,7 @@
 package io.plasmasimulator.plasma.verticles
 
 import io.plasmasimulator.conf.Address
+import io.plasmasimulator.plasma.models.NestedChain
 import io.plasmasimulator.plasma.models.PlasmaBlock
 import io.plasmasimulator.plasma.models.Transaction
 import io.plasmasimulator.utils.FileManager
@@ -21,6 +22,7 @@ import io.vertx.core.file.OpenOptions
 class Operator: PlasmaParticipant() {
   var transactions = mutableListOf<Transaction>()
   var childChains = mutableListOf<String>()
+  var childChainsMap = mutableMapOf<String, NestedChain>()
   var transactionsPerBlock = 0
   var plasmaBlockInterval = 10
   var nextBlockNumber = 10
@@ -41,6 +43,13 @@ class Operator: PlasmaParticipant() {
 
     if(config().containsKey("childrenPlasmaChainAddresses")) {
       childChains = config().getJsonArray("childrenPlasmaChainAddresses").list.toMutableList() as MutableList<String>
+      childChains.forEach { address ->
+        childChainsMap.put(address, NestedChain(address, plasmaBlockInterval))
+      }
+    }
+    // child chain receives mined block from parent plasma chain
+    vertx.eventBus().consumer<Any>(chain.chainAddress) { msg ->
+
     }
 
     vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.PUBLISH_TRANSACTION.name}") { msg ->
@@ -71,6 +80,13 @@ class Operator: PlasmaParticipant() {
       val blockNumber = data.getInteger("blockNum")
       val address = data.getString("address")
       val amount = data.getInteger("amount")
+      val chainAddress = data.getString("chainAddress")
+
+      if(chainAddress != chain.chainAddress) {
+        // child chain deposit block
+        var childDestAddress = chainAddress + "/" + Address.ETH_ANNOUNCE_DEPOSIT.name
+        send(childDestAddress, data)
+      }
 
       if(!receivedDepositBlocks.contains(blockNumber)) {
         receivedDepositBlocks.add(blockNumber)
@@ -131,6 +147,7 @@ class Operator: PlasmaParticipant() {
       tx.childChainTransaction = true
       tx.childChainData.put("blockNum", block.number.toString())
       tx.childChainData.put("merkleRoot", HashUtils.transform(block.merkleRoot))
+      tx.childChainData.put("timestamp", block.timestamp.toString())
       send("${chain.parentChainAddress}/${Address.PUBLISH_TRANSACTION.name}", JsonObject(Json.encode(tx)))
     }
     // send the block to all child chains since the block could contain a transaction

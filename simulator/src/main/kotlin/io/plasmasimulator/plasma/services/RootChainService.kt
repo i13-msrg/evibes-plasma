@@ -33,13 +33,16 @@ open class RootChainService : ETHBaseNode() {
     super.stop(stopFuture)
   }
 
-  fun deposit(address: String, amount: Int, chainAddress: String) {
+  fun deposit(address: String, amount: Int, chainAddress: String, parentPlasmaAddress: String?) {
     var data = mutableMapOf<String, String>()
     data.put("type", "plasma")
     data.put("method", "deposit")
     data.put("address", address)
     data.put("amount", amount.toString())
     data.put("chainAddress", chainAddress)
+
+    if(parentPlasmaAddress != null)
+      data.put("parentPlasmaAddress", parentPlasmaAddress)
 
     val tx: ETHTransaction = createTransactionToPlasmaContract(address, data)
     sendTransaction(tx)

@@ -42,12 +42,16 @@ class ETHNodeVerticle : ETHBaseNode() {
     when(tx.data!!.get("method")) {
       "submitBlock" -> plasmaContract.submitBlock(tx.data!!.get("rootHash")!!,
                                                   tx.data!!.get("timestamp")!!.toLong())
+
       "deposit" -> {
-        var result: JsonObject = plasmaContract.deposit(tx.data!!.get("address")!!,
+        val parentPlasmaAddress: String? = tx.data!!.get("parentPlasmaAddress")
+        val chainAddress: String = tx.data!!.get("chainAddress")!!
+        val result: JsonObject = plasmaContract.deposit(tx.data!!.get("address")!!,
                                                         tx.data!!.get("amount")!!.toInt(),
-                                                        tx.data!!.get("chainAddress")!!)
+                                                        chainAddress)
         // publish deposit block to operator
-        vertx.eventBus().send("${tx.data!!.get("chainAddress")!!}/${Address.ETH_ANNOUNCE_DEPOSIT.name}", result)
+        val destination = if(parentPlasmaAddress != null) parentPlasmaAddress else chainAddress
+        vertx.eventBus().send("${destination}/${Address.ETH_ANNOUNCE_DEPOSIT.name}", result)
       }
     }
   }
