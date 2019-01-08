@@ -19,6 +19,7 @@ open class RootChainService : ETHBaseNode() {
   val plasmaAddress = ""
   private var nonce = 1
   private var pendingTransactions = mutableListOf<ETHTransaction>()
+  private var transactionGas = 0
 
   private companion object {
       private val LOG = LoggerFactory.getLogger(RootChainService::class.java)
@@ -27,6 +28,7 @@ open class RootChainService : ETHBaseNode() {
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
     LOG.info("ROOT CHAIN ADDRESS $ethAddress")
+    transactionGas = config().getInteger("transactionGas")
   }
 
   override fun stop(stopFuture: Future<Void>?) {
@@ -87,7 +89,7 @@ open class RootChainService : ETHBaseNode() {
                             to = plasmaAddress,
                             amount = null,
                             data = data,
-                            gasLimit = 30,
+                            gasLimit = transactionGas,
                             gasPrice = 20)
   }
 
@@ -97,7 +99,7 @@ open class RootChainService : ETHBaseNode() {
                           to = to,
                           amount = amount,
                           data = null,
-                          gasLimit = 30,
+                          gasLimit = transactionGas,
                           gasPrice = 20)
   }
 

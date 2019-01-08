@@ -20,6 +20,7 @@ class PlasmaManager: AbstractVerticle() {
   var confirmedAddressesMap = mutableMapOf<String, Int>()
   val addressMe = UUID.randomUUID()
   var deployedVerticles = mutableListOf<String>()
+  var transactionGenerationRateInMillis: Long = 10000
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(PlasmaManager::class.java)
@@ -31,24 +32,27 @@ class PlasmaManager: AbstractVerticle() {
     super.start(startFuture)
     LOG.info("Plasma Manager deployed!")
 
-    val numberOfPlasmaClients: Int              = config().getInteger("numberOfPlasmaClients")
-    val mainPlasmaChainAddress: String          = config().getString("mainPlasmaChainAddress")
-    val childrenPlasmaChainAddresses: JsonArray = config().getJsonArray("plasmaChildrenAddresses")
+    val numberOfPlasmaClients: Int                  = config().getInteger("numberOfPlasmaClients")
+    val mainPlasmaChainAddress: String              = config().getString("mainPlasmaChainAddress")
+    val childrenPlasmaChainAddresses: JsonArray     = config().getJsonArray("plasmaChildrenAddresses")
+    val numberOfTransactionGenerationIntervals: Int = config().getInteger("numberOfTransactionGenerationIntervals")
+    val transactionGenerationRate: Int            = config().getInteger("transactionGenerationRate")
 
+    transactionGenerationRateInMillis = (transactionGenerationRate * 1000).toLong()
     // deploy children plasma chains
     childrenPlasmaChainAddresses.forEach { obj ->
       val childAddress = obj.toString()
       println("childAddress: $childAddress")
       consumersPerChain(childAddress, numberOfPlasmaClients)
       deployPlasma(childAddress, numberOfPlasmaClients, config().copy(), mainPlasmaChainAddress)
-      periodicalMap.put(childAddress, NumberOfBlocks)
+      periodicalMap.put(childAddress, numberOfTransactionGenerationIntervals)
     }
     if(childrenPlasmaChainAddresses.size() > 0)
       config().put("childrenPlasmaChainAddresses", childrenPlasmaChainAddresses)
     // deploy plasma main chain
     consumersPerChain(mainPlasmaChainAddress, numberOfPlasmaClients)
     deployPlasma(mainPlasmaChainAddress, numberOfPlasmaClients, config().copy(), null)
-    periodicalMap.put(mainPlasmaChainAddress, NumberOfBlocks)
+    periodicalMap.put(mainPlasmaChainAddress, numberOfTransactionGenerationIntervals)
 
   }
 
@@ -119,7 +123,7 @@ class PlasmaManager: AbstractVerticle() {
   }
 
   fun startPeriodicCall(chainAddress: String) {
-    vertx.setPeriodic(2000) {id ->
+    vertx.setPeriodic(transactionGenerationRateInMillis) {id ->
       if(periodicalMap.contains(chainAddress)) {
         var numberOfBlocks = periodicalMap.get(chainAddress)
         if(numberOfBlocks != null) {

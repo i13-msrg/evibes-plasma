@@ -6,4 +6,7 @@ export interface Configuration {
     plasmaChildren: number;
     numberOfPeers: number;
     blockGasLimit: number;
+    transactionGas: number;
+    transactionGenerationRate: number;
+    numberOfTransactionGenerationIntervals: number;
 }

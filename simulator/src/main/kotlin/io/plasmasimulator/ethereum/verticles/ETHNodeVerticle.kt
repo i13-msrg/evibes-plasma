@@ -102,7 +102,7 @@ class ETHNodeVerticle : ETHBaseNode() {
   override fun handlePropagateTransaction(tx: ETHTransaction) {
     if(!txPool.contains(tx)) {
       if(!validateTransaction(tx)) {
-        LOG.info("Transaction $tx is invalid")
+        //LOG.info("Transaction $tx is invalid")
       } else {
         txPool.push(tx)
 
@@ -122,7 +122,7 @@ class ETHNodeVerticle : ETHBaseNode() {
     if(!ethChain.containsBlock(block.number)) {
       processBlock(block)
       removeTransactionsFor(block)
-      LOG.info("[$ethAddress]: added block ${block.number}")
+      // LOG.info("[$ethAddress]: added block ${block.number}")
       // propagate block to other peers
       propagateBlock(block)
     }
@@ -151,10 +151,9 @@ class ETHNodeVerticle : ETHBaseNode() {
   }
 
   fun requestMining(block: ETHBlock) {
-    LOG.info("[$ethAddress] is requesting to mine block ${block.number}")
+    //LOG.info("[$ethAddress] is requesting to mine block ${block.number}")
     vertx.eventBus().send<Any>(Address.READY_TO_MINE.name, JsonObject(Json.encode(block))) { response ->
       val result = response.result().body() as String
-      LOG.info(result)
       if(result == Message.SUCCESS.name) {
         LOG.info("[$ethAddress] is mining a block ${block.number}")
         mineBlock(block)
