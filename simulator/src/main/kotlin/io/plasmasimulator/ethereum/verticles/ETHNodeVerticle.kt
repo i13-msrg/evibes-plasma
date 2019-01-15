@@ -141,6 +141,7 @@ class ETHNodeVerticle : ETHBaseNode() {
       // LOG.info("[$ethAddress]: added block ${block.number}")
       // propagate block to other peers
       propagateBlock(block)
+      sendReceived(block.number)
     }
   }
 
@@ -148,6 +149,11 @@ class ETHNodeVerticle : ETHBaseNode() {
     block.transactions.forEach { tx ->
       txPool.remove(tx)
     }
+  }
+  // send to ETHManager in order to determine propagation delay of blocks
+  fun sendReceived(blockNumber: Int) {
+    val data = JsonObject().put("blockNumber", blockNumber).put("timestamp", System.currentTimeMillis())
+    vertx.eventBus().send(Address.ETH_BLOCK_RECEIVED.name, data)
   }
 
   fun gasLimitForBlockReached() : Boolean {
@@ -175,6 +181,7 @@ class ETHNodeVerticle : ETHBaseNode() {
         mineBlock(block)
         removeTransactionsFor(block)
         propagateBlock(block)
+        sendReceived(block.number)
       }
     }
   }

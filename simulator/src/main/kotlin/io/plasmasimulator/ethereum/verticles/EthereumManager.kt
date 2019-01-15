@@ -11,12 +11,14 @@ import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
 import kotlin.concurrent.timer
+import kotlin.math.ceil
 
 class EthereumManager : AbstractVerticle() {
 
   val chain = ETHChain()
   var deployedVerticleIds = mutableListOf<String>()
   var timerId: Long = 0
+  var receivedBlocks = mutableMapOf<Int, MutableList<Long>>()
 
   private companion object {
       private val LOG = LoggerFactory.getLogger(EthereumManager::class.java)
@@ -25,7 +27,7 @@ class EthereumManager : AbstractVerticle() {
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
     LOG.info("Ethereum Manager deployed!")
-    startConsumers()
+    startConsumers(config())
     deployVerticles(config())
     val interval: Long  = (config().getInteger("externalTransactionGenerationRate") * 1000).toLong()
     val enableTransactionsGeneration = config().getBoolean("enableExternalTransactions")
@@ -45,7 +47,7 @@ class EthereumManager : AbstractVerticle() {
     deployedVerticleIds.clear()
   }
 
-  fun startConsumers() {
+  fun startConsumers(config: JsonObject) {
     vertx.eventBus().consumer<Any>(Address.READY_TO_MINE.name) { msg ->
       val block = Json.decodeValue(msg.body().toString(), ETHBlock::class.java)
       if(chain.containsBlock(block.number)) {
@@ -54,6 +56,44 @@ class EthereumManager : AbstractVerticle() {
         chain.addBlock(block)
         msg.reply(Message.SUCCESS.name)
       }
+    }
+    val numberOfNodes = config.getInteger("numberOfEthereumNodes")
+
+    vertx.eventBus().consumer<Any>(Address.ETH_BLOCK_RECEIVED.name) { msg ->
+      var dataJson = msg.body() as JsonObject
+      var blockNum = dataJson.getInteger("blockNumber")
+      var timestamp = dataJson.getLong("timestamp")
+
+      if(!receivedBlocks.containsKey(blockNum)){
+        receivedBlocks.put(blockNum, mutableListOf())
+      }
+      var timestampList = receivedBlocks.get(blockNum)!!
+      timestampList.add(timestamp)
+
+      if(timestampList.size.toDouble() == ceil(0.25 * numberOfNodes)) {
+        val sortedList = timestampList.sorted()
+        val propagationDelay = sortedList[timestampList.size - 1] - sortedList[0]
+        LOG.info("propagationDelay of block 25% $blockNum is $propagationDelay")
+        var data = JsonObject().put("blockNum", blockNum).put("delay", propagationDelay)
+      }
+
+      if(timestampList.size.toDouble() == 0.50 * numberOfNodes) {
+        val sortedList = timestampList.sorted()
+        val propagationDelay = sortedList[timestampList.size - 1] - sortedList[0]
+        LOG.info("propagationDelay of block 50% $blockNum is $propagationDelay")
+
+        //var data = JsonObject().put("blockNum", blockNum).put("delay", propagationDelay)
+      }
+
+      if(timestampList.size == numberOfNodes){
+        val sortedList = timestampList.sorted()
+        val propagationDelay = sortedList[timestampList.size - 1] - sortedList[0]
+
+        var data = JsonObject().put("blockNum", blockNum).put("delay", propagationDelay)
+        LOG.info("propagationDelay of block $blockNum is $propagationDelay")
+        vertx.eventBus().send(Address.ETH_BLOCK_DELAY.name, data)
+      }
+
     }
   }
 
@@ -85,7 +125,6 @@ class EthereumManager : AbstractVerticle() {
   }
 
   fun startTXGeneration(interval: Long) {
-    println("<<<<<<<<<><><><><><><><starting periodical")
     vertx.setPeriodic(interval) { id ->
       timerId = id
       vertx.eventBus().send(Address.ETH_ISSUE_TRANSACTIONS.name, "")
