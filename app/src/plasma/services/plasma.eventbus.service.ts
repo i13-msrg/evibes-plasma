@@ -57,11 +57,11 @@ export class PlasmaEventBusService {
       console.log(action.payload);
       this.eventBusService.send(action.type, action.payload ? action.payload : 'no-msg', (error, message) => {
         if (error) {
-          console.log('Error: ${error}');
+          //console.log('Error: ${error}');
           return observer.error(error);
         }
         if (message && message.body) {
-          console.log('Message: ' + JSON.stringify(message));
+          //console.log('Message: ' + JSON.stringify(message));
           observer.next(message.body);
           observer.complete();
         } else {
@@ -86,8 +86,8 @@ export class PlasmaEventBusService {
         console.error('[PlasmaEventBusService] - body is empty', error);
       }
 
-      console.log(actionType);
-      console.log(message.body);
+      //console.log(actionType);
+      //console.log(message.body);
 
       this.store.dispatch({
         type: actionType,

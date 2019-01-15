@@ -7,7 +7,8 @@ import { selectPlasmaConnected,
          selectPlasmaChildrenChains,
          selectMainPlasmaChain,
          selectPlasmaETHTransactions,
-         selectEthereumBlocksSize
+         selectEthereumBlocksSize,
+         selectEthereumBlocks
         } from 'src/plasma/plasma.selectors';
 import * as PlasmaAction from 'src/plasma/plasma.actions';
 import { CommonService } from 'src/plasma/services/common.service';
@@ -24,6 +25,7 @@ export class HomeComponent implements OnInit {
 
   showSettings = false;
   plasmaMainChainBlocks = 0;
+  plasmaMainChainTransactions = 0;
   plasmaChildrenChainsBlocksMap = new Map();
   currentConfiguration: Configuration = null;
   connected = false;
@@ -32,6 +34,14 @@ export class HomeComponent implements OnInit {
   ethBlockTransactions = new Array();
   ethDepositTransactions = new Array();
   ethBlocksSize = 0;
+  depositBlocks = 0;
+  lastETHBlockMinedBy = '';
+  totalNumberOfETHTransactions = 0;
+
+  color = 'primary';
+  mode = 'determinate';
+  value = 0;
+  bufferValue = 0;
 
   constructor(private store: Store<AppState>,
               private commonService: CommonService) {
@@ -48,8 +58,16 @@ export class HomeComponent implements OnInit {
     });
 
     this.store.pipe(select(selectMainPlasmaChain)).subscribe(chain => {
-      console.log(chain)
+      // console.log(chain)
       this.plasmaMainChainBlocks = chain.blocks.length;
+      this.plasmaMainChainTransactions = chain.allTransactions;
+      let numberOfDepositBlocks = 0;
+      chain.blocks.forEach((block) => {
+        if (block.depositBlock) {
+          numberOfDepositBlocks++;
+        }
+      });
+      this.depositBlocks = numberOfDepositBlocks;
     });
 
     this.store.pipe(select(selectPlasmaChildrenChains)).subscribe(chainsMap => {
@@ -60,9 +78,16 @@ export class HomeComponent implements OnInit {
       this.currentConfiguration = configuration;
     });
 
+    this.store.pipe(select(selectEthereumBlocks)).subscribe(blocks => {
+      console.log('eth block');
+      console.log(blocks[blocks.length - 1])
+      this.lastETHBlockMinedBy = blocks[blocks.length - 1].extraData;
+    });
+
     this.store.pipe(select(selectPlasmaETHTransactions)).subscribe(txs => {
       this.ethDepositTransactions = txs.filter(tx => tx.data.method === 'deposit');
       this.ethBlockTransactions = txs.filter(tx => tx.data.method === 'submitBlock');
+      this.totalNumberOfETHTransactions = txs.length;
     });
 
     this.store.pipe(select(selectPlasmaSimulationStarted)).subscribe(isStarted => {
@@ -75,11 +100,10 @@ export class HomeComponent implements OnInit {
         this.commonService.openSnackBar('Simulation stopped!', 'Close');
       }
     });
-    
+
     this.store.pipe(select(selectEthereumBlocksSize)).subscribe(blocksSize => {
       this.ethBlocksSize = blocksSize;
     });
-
 
   }
 
@@ -106,6 +130,7 @@ export class HomeComponent implements OnInit {
       this.store.dispatch(new PlasmaAction.SetPlasmaChainAddresses(data));
       this.store.dispatch(new PlasmaAction.SubscribeToSimulatorTopics());
       this.store.dispatch(new PlasmaAction.StartSimulation(data));
+      this.mode = 'indeterminate';
     }
     else console.log("NO START")
   }
@@ -114,6 +139,7 @@ export class HomeComponent implements OnInit {
     if (this.connected && this.started) {
       this.store.dispatch(new PlasmaAction.UnsubscribeFromSimulatorTopics());
       this.store.dispatch(new PlasmaAction.StopSimulation());
+      this.mode = 'determinate';
     }
   }
 }

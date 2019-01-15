@@ -4,4 +4,5 @@ export interface PlasmaBlock {
     prevBlockHash: string;
     merkleRoot: string;
     timestamp: number;
+    depositBlock: boolean;
 }

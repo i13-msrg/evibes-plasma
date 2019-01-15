@@ -2,10 +2,11 @@ import { PlasmaBlock } from './models/plasmablock';
 import { Configuration } from './models/configuration';
 import { PlasmaChain } from './models/plasmachain';
 import { Transaction } from './models/transaction';
+import { ETHBlock } from './models/ethblock';
 
 export interface PlasmaState {
     mainPlasmaChain: PlasmaChain;
-    ethBlocks: Array<any>;
+    ethBlocks: Array<ETHBlock>;
     plasmaChildrenChainsMap: Map<string, PlasmaChain>;
     connected: boolean;
     configuration: Configuration;

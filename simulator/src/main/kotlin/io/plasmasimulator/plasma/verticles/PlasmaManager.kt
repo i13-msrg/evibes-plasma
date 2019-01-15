@@ -127,14 +127,15 @@ class PlasmaManager: AbstractVerticle() {
       if(periodicalMap.contains(chainAddress)) {
         var numberOfBlocks = periodicalMap.get(chainAddress)
         if(numberOfBlocks != null) {
-          numberOfBlocks--
-          periodicalMap.put(chainAddress, numberOfBlocks)
           if(numberOfBlocks == 0) {
             vertx.eventBus().send("$chainAddress/${Address.PRINT_BALANCE_FOR_EACH_CLIENT.name}", "")
             vertx.cancelTimer(id)
+            vertx.eventBus().send(Address.STOP_SIMULATION.name, "stop")
           }
           else {
             vertx.eventBus().publish("$chainAddress/${Address.ISSUE_TRANSACTION.name}", Message.ISSUE_TRANSACTION.name)
+            numberOfBlocks--
+            periodicalMap.put(chainAddress, numberOfBlocks)
           }
         }
       }

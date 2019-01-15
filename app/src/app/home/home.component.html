@@ -26,7 +26,13 @@
             </mat-card-header>
             <mat-card-content>
                 <mat-list>
-                    <mat-list-item># Blocks: {{ethBlocksSize}} </mat-list-item>
+                    <mat-list-item>Number of blocks: {{ethBlocksSize}} </mat-list-item>
+                    <mat-divider></mat-divider>
+                    <mat-list-item>Number of nodes: {{currentConfiguration? currentConfiguration.numberOfEthereumNodes : ''}} </mat-list-item>
+                    <mat-divider></mat-divider>
+                    <mat-list-item>Total number of transctions: {{totalNumberOfETHTransactions}}</mat-list-item>
+                    <mat-divider></mat-divider>
+                    <mat-list-item>Last block mined by: {{lastETHBlockMinedBy}}</mat-list-item>
                     <mat-divider></mat-divider>
                   </mat-list>
             </mat-card-content>
@@ -73,17 +79,17 @@
             </mat-card-header>
             <mat-card-content>
               <mat-list>
-                <mat-list-item># Blocks: {{plasmaMainChainBlocks}} </mat-list-item>
+                <mat-list-item>Number of blocks: {{plasmaMainChainBlocks}} </mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item># Clients: {{currentConfiguration? currentConfiguration.numberOfPlasmaClients : ''}}</mat-list-item>
+                <mat-list-item>Number of clients: {{currentConfiguration? currentConfiguration.numberOfPlasmaClients : ''}}</mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item># Deposit Blocks: </mat-list-item>
+                <mat-list-item>Number of deposit blocks: {{depositBlocks}}</mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item># Children Root Transactions: </mat-list-item>
+                <mat-list-item>Number of children plasma transactions: </mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item># Total Sum of UTXOs: </mat-list-item>
+                <mat-list-item>Total Sum of UTXOs: </mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item># Total Sum of Transactions: </mat-list-item>
+                <mat-list-item>Total Sum of Transactions: {{plasmaMainChainTransactions}}</mat-list-item>
               </mat-list>
             </mat-card-content>
           </mat-card>
@@ -118,6 +124,21 @@
   </div>
 </ng-container>
 
+<mat-card>
+  <mat-card-content>
+    <h2 class="example-h2">Result</h2>
+
+    <section class="example-section">
+      <mat-progress-bar
+          class="example-margin"
+          [color]="color"
+          [mode]="mode"
+          [value]="value"
+          [bufferValue]="bufferValue">
+      </mat-progress-bar>
+    </section>
+  </mat-card-content>
+</mat-card>
 
 <mat-card class="card">
   <mat-card-content class="content">

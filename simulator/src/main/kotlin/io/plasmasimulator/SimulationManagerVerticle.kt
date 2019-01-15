@@ -21,6 +21,7 @@ import java.util.*
 
 class SimulationManagerVerticle : AbstractVerticle() {
   private var deployedVerticleIds = mutableListOf<String>()
+  private var startTime : Long = 0
   private companion object {
     private val LOG = LoggerFactory.getLogger(SimulationManagerVerticle::class.java)
   }
@@ -119,6 +120,7 @@ class SimulationManagerVerticle : AbstractVerticle() {
 
   fun startSimulation(chainAddresses: JsonObject): Boolean {
     if(deployedVerticleIds.size > 0) return false
+    startTime = System.currentTimeMillis()
     val confOptions = Configuration.getConfigRetrieverOptions()
     var retriever = ConfigRetriever.create(vertx, confOptions)
     retriever.getConfig() { ar ->
@@ -200,7 +202,11 @@ class SimulationManagerVerticle : AbstractVerticle() {
     deployedVerticleIds.forEach { id ->
       vertx.undeploy(id)
     }
-
+    val stopTime = System.currentTimeMillis()
+    val duration = stopTime - startTime
+    val minutes = duration / 1000 / 60
+    val seconds = (duration / 1000) % 60
+    LOG.info("Simulation time: $minutes:$seconds")
     deployedVerticleIds.clear()
     return true
   }

@@ -5,6 +5,7 @@ import { PlasmaActions, PlasmaActionTypes } from './plasma.actions';
 import { PlasmaState } from './plasma.state';
 import { PlasmaChain } from './models/plasmachain';
 import { Transaction } from './models/transaction';
+import { ETHBlock } from './models/ethblock';
 
 export const initialPlasmaChain: PlasmaChain = {
     address: '',
@@ -16,7 +17,7 @@ export const initialPlasmaChain: PlasmaChain = {
 
 export const initialState: PlasmaState = {
     mainPlasmaChain: initialPlasmaChain,
-    ethBlocks: Array(),
+    ethBlocks: new Array<ETHBlock>(),
     plasmaChildrenChainsMap: new Map(),
     // childrenBlocks: new Map(),
     connected: false,
@@ -58,6 +59,8 @@ export function plasmaReducer(state = initialState, action: PlasmaActions) {
         case PlasmaActionTypes.ADD_NEW_MAIN_PLASMA_BLOCK: {
             const plasmaChain = { ...state.mainPlasmaChain };
             plasmaChain.blocks = [... plasmaChain.blocks, action.payload];
+            const updatedTotalTransactions = plasmaChain.allTransactions + action.payload.transactions.length;
+            plasmaChain.allTransactions = updatedTotalTransactions;
             return { ...state, mainPlasmaChain: {... plasmaChain}};
         }
         case PlasmaActionTypes.ADD_NEW_CHILD_PLASMA_BLOCK: {
@@ -85,7 +88,13 @@ export function plasmaReducer(state = initialState, action: PlasmaActions) {
             return { ...state, ethBlocks: [ ...state.ethBlocks, action.payload ]};
         }
         case PlasmaActionTypes.RESET: {
-            return { ... initialState };
+            const resetState = { ...initialState};
+            const currentState = { ...state };
+            resetState.connected = currentState.connected;
+            resetState.simulationStarted = currentState.simulationStarted;
+            resetState.configuration = currentState.configuration;
+
+            return { ... resetState };
         }
 
         default:

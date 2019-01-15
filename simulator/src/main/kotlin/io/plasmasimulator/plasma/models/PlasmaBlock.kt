@@ -2,7 +2,10 @@ package io.plasmasimulator.plasma.models
 
 import java.security.MessageDigest
 
-class PlasmaBlock(val number: Int, val prevBlockNum: Int, var transactions: List<Transaction> = mutableListOf<Transaction>()) {
+class PlasmaBlock(val number: Int,
+                  val prevBlockNum: Int,
+                  var transactions: List<Transaction> = mutableListOf<Transaction>(),
+                  var depositBlock: Boolean = false) {
   // TODO: signature
   var hash = ByteArray(0)
   var merkleRoot = ByteArray(0)

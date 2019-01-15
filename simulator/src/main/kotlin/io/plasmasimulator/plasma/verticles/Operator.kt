@@ -67,7 +67,7 @@ class Operator: PlasmaParticipant() {
 
       if(transactions.size >= transactionsPerBlock) {
         // create new block
-        val newBlock = createBlock(transactions.take(transactionsPerBlock), nextBlockNumber)
+        val newBlock = createBlock(transactions.take(transactionsPerBlock), nextBlockNumber, false)
         updateNextBlockNumber()
         if(applyBlock(newBlock))
           transactions = transactions.drop(transactionsPerBlock).toMutableList()
@@ -88,24 +88,25 @@ class Operator: PlasmaParticipant() {
         send(childDestAddress, data)
       }
 
-      if(!receivedDepositBlocks.contains(blockNumber)) {
+      if(!receivedDepositBlocks.contains(blockNumber) && chainAddress == chain.chainAddress) {
         receivedDepositBlocks.add(blockNumber)
         val tx = createTxForDepositBlock(address, amount)
 
         LOG.info("[$address] Operator received deposit $amount for $address ")
 
-        val newBlock = createBlock(listOf(tx), blockNumber)
+        val newBlock = createBlock(listOf(tx), blockNumber, true)
         applyBlock(newBlock, true)
       }
     }
   }
 
-  fun createBlock(newTransactions: List<Transaction>, number: Int = -1) : PlasmaBlock {
+  fun createBlock(newTransactions: List<Transaction>, number: Int = -1, depositBlock: Boolean) : PlasmaBlock {
       val newBlock = PlasmaBlock(number = number,
                                  prevBlockNum = number - 1,
-                                 transactions = newTransactions)
+                                 transactions = newTransactions,
+                                 depositBlock = depositBlock)
 
-      if(newTransactions.size == 1 && !newTransactions[0].childChainTransaction) { // deposit transaction block
+      if(depositBlock) { // deposit transaction block
         val depositTxOutput = newTransactions[0].outputs[0]
         newBlock.merkleRoot = HashUtils.hash(depositTxOutput.address.toByteArray() + depositTxOutput.amount.toByte())
         return newBlock
@@ -159,8 +160,9 @@ class Operator: PlasmaParticipant() {
     }
     return true
   }
-  // TODO: create UTXOs from outputs
+
   override fun stop(stopFuture: Future<Void>?) {
+    LOG.info("Pending transactions ${transactions.size}")
     super.stop(stopFuture)
   }
 
