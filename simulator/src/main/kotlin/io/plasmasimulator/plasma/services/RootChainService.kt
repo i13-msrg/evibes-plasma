@@ -106,6 +106,7 @@ open class RootChainService : ETHBaseNode() {
   override fun handlePropagateBlock(block: ETHBlock) {
     if(!ethChain.containsBlock(block.number)) {
       ethChain.addBlock(block)
+      propagateBlock(block)
     }
 //  else {
 //    LOG.info("[$ethAddress]: attempted to add block ${block.number}, but it already exists!")
@@ -113,7 +114,10 @@ open class RootChainService : ETHBaseNode() {
   }
 
   override fun handlePropagateTransaction(tx: ETHTransaction) {
-
+    if(!txPool.contains(tx)) {
+      txPool.push(tx)
+      propagateTransaction(tx)
+    }
   }
 
   override fun handlePropagateTransactions(txs: List<ETHTransaction>) {

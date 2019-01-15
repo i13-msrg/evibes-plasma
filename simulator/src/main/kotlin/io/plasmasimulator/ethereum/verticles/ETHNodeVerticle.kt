@@ -210,20 +210,4 @@ class ETHNodeVerticle : ETHBaseNode() {
     }
   }
 
-  fun propagateTransaction(tx: ETHTransaction) {
-    val data = JsonObject()
-      .put("type", "propagateTransaction")
-      .put("transaction", JsonObject(Json.encode(tx)))
-
-    sendToPeers(data)
-  }
-
-  fun propagateBlock(block: ETHBlock) {
-    val data = JsonObject()
-      .put("type", "propagateBlock")
-      .put("block", JsonObject(Json.encode(block)))
-
-    sendToPeers(data)
-  }
-
 }
