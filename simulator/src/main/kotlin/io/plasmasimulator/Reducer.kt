@@ -60,9 +60,9 @@ class Reducer: ETHBaseNode() {
   }
 
   override fun handlePropagateBlock(block: ETHBlock) {
-    LOG.info("Reducer received block")
+    //LOG.info("Reducer received block")
     if (ethChain.containsBlock(block.number)) {
-      LOG.info("[$ethAddress]: attempted to add block ${block.number}, but it already exists!")
+      //LOG.info("[$ethAddress]: attempted to add block ${block.number}, but it already exists!")
     } else {
       ethChain.addBlock(block)
       // send the new block to web app
@@ -76,6 +76,10 @@ class Reducer: ETHBaseNode() {
       txPool.push(tx)
       vertx.eventBus().send(Address.ADD_ETH_TRANSACTION.name, JsonObject(Json.encode(tx)))
     }
+  }
+
+  override fun handlePropagateTransactions(txs: List<ETHTransaction>) {
+    //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
 

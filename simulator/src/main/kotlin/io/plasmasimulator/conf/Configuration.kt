@@ -15,6 +15,15 @@ class Configuration {
       .put("numberOfPeers", 20)
       .put("blockGasLimit", 300)
       .put("transactionGas", 30)
+      .put("transactionGasPrice", 20)
+
+      .put("enableExternalTransactions", true)
+      .put("externalGasLimit", 10)
+      .put("externalGasPrice", 20)
+      .put("externalTransactionGenerationRate",  10)
+      .put("numberOfEthereumExternalAccounts", 20)
+      .put("amountPerEthereumExternalAccount", 100)
+
       .put("transactionGenerationRate", 5)
       .put("numberOfTransactionGenerationIntervals", 50)
       .put("difficulty", 131072)

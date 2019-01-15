@@ -36,7 +36,11 @@
             <mat-form-field >
               <input matInput type="number" placeholder="Gas Limit per Transaction" [(ngModel)]="currentConfiguration.transactionGas">
             </mat-form-field>
-        </div>
+          </div>
+
+          <mat-slide-toggle [color]="primary" [checked]="currentConfiguration.enableExternalTransactions" [(ngModel)]="currentConfiguration.enableExternalTransactions">
+              Enable generation of user transactions in ethereum.
+          </mat-slide-toggle>
 
         <div class="icon-form-field">
           <mat-icon color="primary"><fa-icon icon="gas-pump" color="primary"></fa-icon></mat-icon> 

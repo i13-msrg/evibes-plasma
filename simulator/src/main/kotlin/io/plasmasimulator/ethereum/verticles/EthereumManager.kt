@@ -10,11 +10,13 @@ import io.vertx.core.Future
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
+import kotlin.concurrent.timer
 
 class EthereumManager : AbstractVerticle() {
 
   val chain = ETHChain()
   var deployedVerticleIds = mutableListOf<String>()
+  var timerId: Long = 0
 
   private companion object {
       private val LOG = LoggerFactory.getLogger(EthereumManager::class.java)
@@ -25,10 +27,18 @@ class EthereumManager : AbstractVerticle() {
     LOG.info("Ethereum Manager deployed!")
     startConsumers()
     deployVerticles(config())
+    val interval: Long  = (config().getInteger("externalTransactionGenerationRate") * 1000).toLong()
+    val enableTransactionsGeneration = config().getBoolean("enableExternalTransactions")
+
+    if(enableTransactionsGeneration) {
+      startTXGeneration(interval)
+    }
   }
 
   override fun stop(stopFuture: Future<Void>?) {
     super.stop(stopFuture)
+    vertx.cancelTimer(timerId)
+
     deployedVerticleIds.forEach{ id ->
       vertx.undeploy(id)
     }
@@ -60,6 +70,25 @@ class EthereumManager : AbstractVerticle() {
         LOG.info(ar.cause().toString())
       }
       deployedVerticleIds.add(ar.result())
+    }
+    val enableTransactionsGeneration = config.getBoolean("enableExternalTransactions")
+    if(enableTransactionsGeneration) {
+      vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.TransactionManager",
+        DeploymentOptions().setWorker(true).setConfig(config).setInstances(1)) { ar ->
+        if(ar.failed()) {
+          LOG.info(ar.cause().toString())
+        }
+        deployedVerticleIds.add(ar.result())
+      }
+    }
+
+  }
+
+  fun startTXGeneration(interval: Long) {
+    println("<<<<<<<<<><><><><><><><starting periodical")
+    vertx.setPeriodic(interval) { id ->
+      timerId = id
+      vertx.eventBus().send(Address.ETH_ISSUE_TRANSACTIONS.name, "")
     }
   }
 }

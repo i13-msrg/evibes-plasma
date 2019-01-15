@@ -17,6 +17,7 @@ abstract class ETHBaseNode : AbstractVerticle() {
   var txPool = LinkedList<ETHTransaction>()
   var ethChain = ETHChain()
   var peers = mutableListOf<String>()
+  var batchNumbers = mutableListOf<Int>()
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(ETHBaseNode::class.java)
@@ -44,6 +45,23 @@ abstract class ETHBaseNode : AbstractVerticle() {
           handlePropagateTransaction(tx)
         }
 
+        "propagateTransactions" -> {
+          val batchNumber = jsonObject.getInteger("batchNumber")
+          if(!batchNumbers.contains(batchNumber)) {
+            batchNumbers.add(batchNumber)
+
+            val txJsonArray: JsonArray = jsonObject.getJsonArray("transactions")
+            val transactions: MutableList<ETHTransaction> = mutableListOf()
+
+            txJsonArray.forEach { txJson ->
+              val tx: ETHTransaction = Json.decodeValue(txJson.toString(), ETHTransaction::class.java)
+              transactions.add(tx)
+            }
+            handlePropagateTransactions(transactions)
+            propagateTransactions(jsonObject)
+          }
+        }
+
         "propagateBlock" -> {
           val blockJson = jsonObject.getJsonObject("block")
           val block: ETHBlock = Json.decodeValue(blockJson.toString(), ETHBlock::class.java)
@@ -60,6 +78,17 @@ abstract class ETHBaseNode : AbstractVerticle() {
 
   abstract fun handlePropagateBlock(block: ETHBlock)
   abstract fun handlePropagateTransaction(tx: ETHTransaction)
+  abstract fun handlePropagateTransactions(txs: List<ETHTransaction>)
+
+  fun propagateTransactions(data: JsonObject) {
+    sendToPeers(data)
+  }
+
+  fun sendToPeers(data: JsonObject) {
+    for( peer in peers) {
+      vertx.eventBus().send(peer, data)
+    }
+  }
 
   open fun handleSetNewPeers(newPeers: JsonArray) {
     peers.clear()

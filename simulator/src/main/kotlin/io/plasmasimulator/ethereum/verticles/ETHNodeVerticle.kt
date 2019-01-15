@@ -118,6 +118,22 @@ class ETHNodeVerticle : ETHBaseNode() {
     }
   }
 
+  override fun handlePropagateTransactions(txs: List<ETHTransaction>) {
+    txs.forEach { tx ->
+      if(!txPool.contains(tx)) {
+        if(validateTransaction(tx)) {
+          txPool.push(tx)
+
+          if(gasLimitForBlockReached()) {
+            if(Random().nextInt(18) % 3 == 0) {
+              requestMining(createBlock())
+            }
+          }
+        }
+      }
+    }
+  }
+
   override fun handlePropagateBlock(block: ETHBlock) {
     if(!ethChain.containsBlock(block.number)) {
       processBlock(block)
@@ -210,9 +226,4 @@ class ETHNodeVerticle : ETHBaseNode() {
     sendToPeers(data)
   }
 
-  fun sendToPeers(data: JsonObject) {
-    for( peer in peers) {
-      vertx.eventBus().send(peer, data)
-    }
-  }
 }

@@ -116,6 +116,10 @@ open class RootChainService : ETHBaseNode() {
 
   }
 
+  override fun handlePropagateTransactions(txs: List<ETHTransaction>) {
+
+  }
+
   override fun handleSetNewPeers(newPeers: JsonArray) {
     var peersEmpty = peers.size == 0
     peers.clear()
