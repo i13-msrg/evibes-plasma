@@ -142,7 +142,7 @@ class SimulationManagerVerticle : AbstractVerticle() {
       // Deploy plasma clients
       val plasmaManagerConfig = JsonObject()
         .put("numberOfPlasmaClients", conf.getInteger("numberOfPlasmaClients"))
-        .put("plasmaContractAddress", UUID.randomUUID().toString())
+        .put("plasmaContractAddress", "contract-${UUID.randomUUID().toString()}")
         .put("amountPerClient", conf.getInteger("tokensPerClient"))
         .put("transactionsPerBlock", conf.getInteger("transactionsPerPlasmaBlock"))
         .put("mainPlasmaChainAddress", mainPlasmaChainAddress)

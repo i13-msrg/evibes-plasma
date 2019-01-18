@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
 // this class gives the opportunity to plasma participants to call methods of plasma (rootchain) contracts
 
 open class RootChainService : ETHBaseNode() {
-  val plasmaAddress = ""
+  var plasmaContractAddress = ""
   private var nonce = 1
   private var pendingTransactions = mutableListOf<ETHTransaction>()
   private var transactionGas = 0
@@ -28,6 +28,7 @@ open class RootChainService : ETHBaseNode() {
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
     LOG.info("ROOT CHAIN ADDRESS $ethAddress")
+    plasmaContractAddress = config().getString("plasmaContractAddress")
     transactionGas = config().getInteger("transactionGas")
   }
 
@@ -62,11 +63,6 @@ open class RootChainService : ETHBaseNode() {
     sendTransaction(tx)
   }
 
-  fun sendTokens(from: String, to: String, amount: Int) {
-    val tx = createTransaction(from, to, amount)
-    sendTransaction(tx)
-  }
-
   private fun sendTransaction(tx: ETHTransaction) {
     if(peers.size < 1) {
       LOG.info("NO PEERS")
@@ -86,21 +82,11 @@ open class RootChainService : ETHBaseNode() {
   private fun createTransactionToPlasmaContract(from: String, data: Map<String, String>) : ETHTransaction {
       return ETHTransaction(nonce = nonce++,
                             from = from,
-                            to = plasmaAddress,
+                            to = plasmaContractAddress,
                             amount = null,
                             data = data,
                             gasLimit = transactionGas,
                             gasPrice = 20)
-  }
-
-  private fun createTransaction(from: String, to: String, amount: Int) : ETHTransaction {
-    return ETHTransaction(nonce = nonce++,
-                          from = from,
-                          to = to,
-                          amount = amount,
-                          data = null,
-                          gasLimit = transactionGas,
-                          gasPrice = 20)
   }
 
   override fun handlePropagateBlock(block: ETHBlock) {

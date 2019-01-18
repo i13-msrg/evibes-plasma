@@ -202,6 +202,7 @@ class Operator: PlasmaParticipant() {
 
   fun createTxForDepositBlock(address: String, amount: Int) : Transaction {
     val tx = Transaction()
+    tx.source = plasmaContractAddress
     tx.depositTransaction = true
     tx.addOutput(address, amount)
 

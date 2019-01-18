@@ -24,7 +24,6 @@ open class PlasmaParticipant: RootChainService() {
 
   val address: String = PlasmaParticipant.addressNum++.toString()//UUID.randomUUID().toString()
   var balance: Int = 0
-  var plasmaContractAddress = ""
   var myUTXOs = mutableListOf<UTXO>()
   var spentUTXOs = mutableListOf<UTXO>()
   var myFlyingUTXOS = myUTXOs.toMutableList()
@@ -39,7 +38,6 @@ open class PlasmaParticipant: RootChainService() {
     // deploying rootChainVerticle
 
     LOG.info("Initialize PlasmaVerticle $address")
-    plasmaContractAddress               = config().getString("plasmaContractAddress")
     val chainAddress: String            = config().getString("chainAddress")
     val plasmaBlockInterval        = config().getInteger("plasmaBlockInterval")
 
