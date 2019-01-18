@@ -19,6 +19,7 @@ class EthereumManager : AbstractVerticle() {
   var deployedVerticleIds = mutableListOf<String>()
   var timerId: Long = 0
   var receivedBlocks = mutableMapOf<Int, MutableList<Long>>()
+  var propagationTimes = mutableListOf<Long>()
 
   private companion object {
       private val LOG = LoggerFactory.getLogger(EthereumManager::class.java)
@@ -45,6 +46,7 @@ class EthereumManager : AbstractVerticle() {
       vertx.undeploy(id)
     }
     deployedVerticleIds.clear()
+    LOG.info("Average propagation delay: ${averagePropagationDelay() / 1000}")
   }
 
   fun startConsumers(config: JsonObject) {
@@ -89,6 +91,7 @@ class EthereumManager : AbstractVerticle() {
         val sortedList = timestampList.sorted()
         val propagationDelay = sortedList[timestampList.size - 1] - sortedList[0]
 
+        propagationTimes.add(propagationDelay)
         var data = JsonObject().put("blockNum", blockNum).put("delay", propagationDelay)
         LOG.info("propagationDelay of block $blockNum is $propagationDelay")
         vertx.eventBus().send(Address.ETH_BLOCK_DELAY.name, data)
@@ -129,5 +132,14 @@ class EthereumManager : AbstractVerticle() {
       timerId = id
       vertx.eventBus().send(Address.ETH_ISSUE_TRANSACTIONS.name, "")
     }
+  }
+
+  fun averagePropagationDelay() : Double {
+    var size = propagationTimes.size
+    var sum: Long = 0
+
+    propagationTimes.forEach { propTime -> sum += propTime }
+
+    return sum.toDouble() / size.toDouble()
   }
 }

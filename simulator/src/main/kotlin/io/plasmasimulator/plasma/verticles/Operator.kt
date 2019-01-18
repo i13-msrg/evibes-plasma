@@ -26,7 +26,11 @@ class Operator: PlasmaParticipant() {
   var transactionsPerBlock = 0
   var plasmaBlockInterval = 10
   var nextBlockNumber = 10
+  var startTime = System.currentTimeMillis()
+  var numberOfDepositBlocks = 0
+  var numberOfClients = 0
   var receivedDepositBlocks = mutableListOf<Int>()
+  var totalChildrenDeposits = mutableListOf<String>()
 
 
   private companion object {
@@ -39,6 +43,8 @@ class Operator: PlasmaParticipant() {
 
     transactionsPerBlock = config().getInteger("transactionsPerBlock")
     plasmaBlockInterval = config().getInteger("plasmaBlockInterval")
+    numberOfClients = config().getInteger("numberOfPlasmaClients")
+
     nextBlockNumber = plasmaBlockInterval
 
     if(config().containsKey("childrenPlasmaChainAddresses")) {
@@ -83,6 +89,11 @@ class Operator: PlasmaParticipant() {
       val chainAddress = data.getString("chainAddress")
 
       if(chainAddress != chain.chainAddress) {
+        if(!totalChildrenDeposits.contains(address)) {
+          totalChildrenDeposits.add(address)
+          LOG.info("[$address] TOTAL DEPOSITS: ${totalChildrenDeposits.size} ------------------")
+
+        }
         // child chain deposit block
         var childDestAddress = chainAddress + "/" + Address.ETH_ANNOUNCE_DEPOSIT.name
         send(childDestAddress, data)
@@ -90,6 +101,13 @@ class Operator: PlasmaParticipant() {
 
       if(!receivedDepositBlocks.contains(blockNumber) && chainAddress == chain.chainAddress) {
         receivedDepositBlocks.add(blockNumber)
+        numberOfDepositBlocks ++
+        if(numberOfDepositBlocks == numberOfClients) {
+          val stopTime = System.currentTimeMillis()
+          val elapsedTime = (stopTime - startTime).toDouble() / 1000
+          LOG.info("ALL DEPOSIT BLOCKS ARRIVED")
+          LOG.info("ELAPSED TIME: $elapsedTime")
+        }
         val tx = createTxForDepositBlock(address, amount)
 
         LOG.info("[$address] Operator received deposit $amount for $address ")

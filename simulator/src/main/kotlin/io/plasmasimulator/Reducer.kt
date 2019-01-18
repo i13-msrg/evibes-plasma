@@ -71,9 +71,13 @@ class Reducer: ETHBaseNode() {
     }
   }
 
+  fun processBlock(block: ETHBlock) {
+
+  }
+
   override fun handlePropagateTransaction(tx: ETHTransaction) {
     if(!txPool.contains(tx)) {
-      txPool.push(tx)
+      txPool.add(tx)
       vertx.eventBus().send(Address.ADD_ETH_TRANSACTION.name, JsonObject(Json.encode(tx)))
     }
   }

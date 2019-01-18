@@ -1,6 +1,6 @@
 
 <mat-toolbar color="primary">
-    <span fxFlex="85%">Plasma Simulator</span>
+    <h1 fxFlex="85%">Plasma Simulator</h1>
     <div fxFlex="15%">
       <button mat-icon-button matTooltip="Home" (click)="home()"><mat-icon >home</mat-icon></button>    
       <button mat-icon-button matTooltip="Configuration" (click)="settings()"><mat-icon >settings</mat-icon></button>
@@ -26,13 +26,13 @@
             </mat-card-header>
             <mat-card-content>
                 <mat-list>
-                    <mat-list-item>Number of blocks: {{ethBlocksSize}} </mat-list-item>
+                    <mat-list-item><p mat-line>Number of blocks: <b>{{ethBlocksSize}}</b> </p></mat-list-item>
                     <mat-divider></mat-divider>
-                    <mat-list-item>Number of nodes: {{currentConfiguration? currentConfiguration.numberOfEthereumNodes : ''}} </mat-list-item>
+                    <mat-list-item><p>Number of nodes: <b>{{currentConfiguration? currentConfiguration.numberOfEthereumNodes : ''}} </b></p></mat-list-item>
                     <mat-divider></mat-divider>
-                    <mat-list-item>Total number of transctions: {{totalNumberOfETHTransactions}}</mat-list-item>
+                    <mat-list-item><p>Total number of transactions: <b>{{totalNumberOfETHTransactions}}</b></p></mat-list-item>
                     <mat-divider></mat-divider>
-                    <mat-list-item>Last block mined by: {{lastETHBlockMinedBy}}</mat-list-item>
+                    <mat-list-item><p>Last block mined by: <b>{{lastETHBlockMinedBy}}</b></p></mat-list-item>
                     <mat-divider></mat-divider>
                   </mat-list>
             </mat-card-content>
@@ -47,8 +47,10 @@
               <mat-card-content>
                 <mat-list class="list-tx">
                   <mat-list-item *ngFor="let tx of ethDepositTransactions">
-                      <mat-icon color="primary"><fa-icon icon="exchange-alt" color="primary"></fa-icon></mat-icon>
-                    {{tx.timestamp | date: 'yyyy-MM-dd hh:mm:ss:sss'}}: {{tx.data.method}}
+                    <mat-icon color="primary">swap_horiz</mat-icon>
+                    <!-- {{tx.timestamp | date: 'yyyy-MM-dd hh:mm:ss:sss'}}: {{tx.data.method}} -->
+                    <h4 mat-line>From client: <b>{{tx.from}}</b></h4>
+                    <p mat-line> Amount: <b>{{tx.data.amount}}</b></p>
                     <mat-divider></mat-divider>
                   </mat-list-item>
                 </mat-list>
@@ -58,12 +60,15 @@
         <div>
           <mat-card>
             <mat-card-header>
-              <mat-card-title> Block Transactions</mat-card-title>
+              <mat-card-title> Submit Block Transactions</mat-card-title>
             </mat-card-header>
             <mat-card-content>
               <mat-list class="list-tx">
                 <mat-list-item *ngFor="let tx of ethBlockTransactions">
-                  {{tx.timestamp | date: 'yyyy-MM-dd hh:mm:ss:sss'}}: {{tx.data.method}}
+                  
+                  <h4 mat-line >Block #{{tx.nonce}}</h4>
+                  <p mat-line >Hash: {{ (tx.data.rootHash.length>15)? (tx.data.rootHash | slice:0:15)+'..':(tx.data.rootHash) }}</p>
+                  <mat-icon color="primary">receipt</mat-icon>
                   <mat-divider></mat-divider>
                 </mat-list-item>
               </mat-list>
@@ -75,21 +80,21 @@
         <div class="box box1">
           <mat-card class="plasma-main">
             <mat-card-header>
-              <mat-card-title> Plasma Main</mat-card-title>
+              <mat-card-title>Plasma Main</mat-card-title>
             </mat-card-header>
             <mat-card-content>
               <mat-list>
-                <mat-list-item>Number of blocks: {{plasmaMainChainBlocks}} </mat-list-item>
+                <mat-list-item><p mat-line>Number of blocks: <b>{{plasmaMainChainBlocks}}</b></p></mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item>Number of clients: {{currentConfiguration? currentConfiguration.numberOfPlasmaClients : ''}}</mat-list-item>
+                <mat-list-item><p mat-line>Number of clients: <b>{{currentConfiguration? currentConfiguration.numberOfPlasmaClients : ''}}</b></p></mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item>Number of deposit blocks: {{depositBlocks}}</mat-list-item>
+                <mat-list-item><p mat-line>Number of deposit blocks: <b>{{depositBlocks}}</b></p></mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item>Number of children plasma transactions: </mat-list-item>
+                <mat-list-item><p mat-line>Number of children plasma transactions: </p></mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item>Total Sum of UTXOs: </mat-list-item>
+                <mat-list-item><p mat-line>Total Sum of UTXOs: </p></mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item>Total Sum of Transactions: {{plasmaMainChainTransactions}}</mat-list-item>
+                <mat-list-item><p mat-line>Total Sum of Transactions: {{plasmaMainChainTransactions}}</p></mat-list-item>
               </mat-list>
             </mat-card-content>
           </mat-card>
@@ -102,17 +107,17 @@
               </mat-card-header>
               <mat-card-content>
                 <mat-list>
-                  <mat-list-item># Blocks: {{plasmaChildrenChainsBlocksMap[key].blocks.length}} </mat-list-item>
+                  <mat-list-item><p mat-line>Number of Blocks: <b>{{plasmaChildrenChainsBlocksMap[key].blocks.length}}</b> </p></mat-list-item>
                   <mat-divider></mat-divider>
-                  <mat-list-item># Clients: {{currentConfiguration? currentConfiguration.numberOfPlasmaClients : ''}}</mat-list-item>
+                  <mat-list-item><p mat-line>Number of Clients: <b>{{currentConfiguration? currentConfiguration.numberOfPlasmaClients : ''}}</b></p></mat-list-item>
                   <mat-divider></mat-divider>
-                  <mat-list-item># Deposit Blocks: </mat-list-item>
+                  <mat-list-item><p mat-line>Number of Deposit Blocks: </p></mat-list-item>
                   <mat-divider></mat-divider>
-                  <mat-list-item># Parent Blocks: </mat-list-item>
+                  <mat-list-item><p mat-line>Number of Parent Blocks: </p></mat-list-item>
                   <mat-divider></mat-divider>
-                  <mat-list-item># Total Sum of UTXOs: </mat-list-item>
+                  <mat-list-item><p mat-line>Total Sum of UTXOs: </p></mat-list-item>
                   <mat-divider></mat-divider>
-                  <mat-list-item># Total Sum of Transactions: </mat-list-item>
+                  <mat-list-item><p mat-line>Total Sum of Transactions: </p></mat-list-item>
                 </mat-list>
               </mat-card-content>
             </mat-card>
@@ -124,31 +129,29 @@
   </div>
 </ng-container>
 
-<mat-card>
-  <mat-card-content>
-    <h2 class="example-h2">Result</h2>
-
-    <section class="example-section">
-      <mat-progress-bar
-          class="example-margin"
-          [color]="color"
-          [mode]="mode"
-          [value]="value"
-          [bufferValue]="bufferValue">
-      </mat-progress-bar>
-    </section>
-  </mat-card-content>
-</mat-card>
-
+<ng-container *ngIf="showSettings">
 <mat-card class="card">
-  <mat-card-content class="content">
-    <app-settings *ngIf="showSettings"></app-settings>
-    <ng-container *ngIf="!showSettings">
+    <mat-card-content class="content">
+      <app-settings></app-settings>
+    </mat-card-content>
+  </mat-card>
+</ng-container>
+
+<ng-container *ngIf="!showSettings">
+  <div class="content">
+      <div style="margin-bottom:30px;">
+          <mat-progress-bar
+            class="progress"
+            [color]="color"
+            [mode]="mode"
+            [value]="value"
+            [bufferValue]="bufferValue">
+          </mat-progress-bar>
+      </div>
         <div class="sim-buttons">
             <button mat-flat-button class="sim-button" color="primary" (click)="startSimulation()">Start Simulation</button>
             <button mat-flat-button class="sim-button" color="primary" (click)="stopSimulation()">Stop Simulation</button>
             <button mat-flat-button class="sim-button" color="primary" (click)="reset()">Reset</button>
           </div>
-    </ng-container>
-  </mat-card-content>
-</mat-card>
+  </div>
+</ng-container>

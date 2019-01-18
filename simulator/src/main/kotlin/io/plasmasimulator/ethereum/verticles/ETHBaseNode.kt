@@ -14,7 +14,7 @@ import java.util.*
 
 abstract class ETHBaseNode : AbstractVerticle() {
   val ethAddress = ETHBaseNode.addressNum++.toString()
-  var txPool = LinkedList<ETHTransaction>()
+  var txPool = LinkedList<ETHTransaction>() // Used as FIFO Queue
   var ethChain = ETHChain()
   var peers = mutableListOf<String>()
   var batchNumbers = mutableListOf<Int>()

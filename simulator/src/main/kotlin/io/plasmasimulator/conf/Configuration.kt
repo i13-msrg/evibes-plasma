@@ -21,7 +21,7 @@ class Configuration {
       .put("externalGasLimit", 10)
       .put("externalGasPrice", 20)
       .put("externalTransactionGenerationRate",  10)
-      .put("numberOfEthereumExternalAccounts", 20)
+      .put("numberOfEthereumExternalAccounts", 50)
       .put("amountPerEthereumExternalAccount", 100)
 
       .put("transactionGenerationRate", 5)

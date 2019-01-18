@@ -115,7 +115,7 @@ open class RootChainService : ETHBaseNode() {
 
   override fun handlePropagateTransaction(tx: ETHTransaction) {
     if(!txPool.contains(tx)) {
-      txPool.push(tx)
+      txPool.add(tx)
       propagateTransaction(tx)
     }
   }

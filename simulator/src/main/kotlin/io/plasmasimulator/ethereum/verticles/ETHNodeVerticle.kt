@@ -19,7 +19,6 @@ import java.util.*
 class ETHNodeVerticle : ETHBaseNode() {
   private var plasmaContract = PlasmaContract(10)
   var accountsMap = mutableMapOf<String, Account>()
-  var transactions = mutableListOf<ETHTransaction>()
   private var blockGasLimit = 0
   private var txPoolGas = 0
   var tokensPerClient = 0
@@ -104,7 +103,7 @@ class ETHNodeVerticle : ETHBaseNode() {
       if(!validateTransaction(tx)) {
         //LOG.info("Transaction $tx is invalid")
       } else {
-        txPool.push(tx)
+        txPool.add(tx)
 
         // propagate transaction to other peers
         propagateTransaction(tx)
@@ -122,7 +121,7 @@ class ETHNodeVerticle : ETHBaseNode() {
     txs.forEach { tx ->
       if(!txPool.contains(tx)) {
         if(validateTransaction(tx)) {
-          txPool.push(tx)
+          txPool.add(tx)
 
           if(gasLimitForBlockReached()) {
             if(Random().nextInt(18) % 3 == 0) {
@@ -190,8 +189,14 @@ class ETHNodeVerticle : ETHBaseNode() {
     var gasLimit = 0
     val txList = mutableListOf<ETHTransaction>()
 
+    // copy the txPool and remove elements from the copy
+    // as this block can eventually become an orphan block
+    // if that happens all removed transactions from txPool will be gone
+    // the copy prevents that
+    var currentTxPool = txPool.toMutableList()
+
     while (gasLimit < blockGasLimit) {
-      val tx: ETHTransaction = txPool.pop()
+      val tx: ETHTransaction = currentTxPool.removeAt(0)
       txList.add(tx)
       gasLimit += tx.gasLimit
     }
