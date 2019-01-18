@@ -7,28 +7,23 @@ import java.util.*
 object MerkleTreeBuilder {
   fun getRoot(transactions: MutableList<Transaction>) : MerkleTree {
     val leafs = createLeafs(transactions)
-    val queue = LinkedList<MerkleTree>()
-
-    for(leaf in leafs) {
-      queue.push(leaf)
-    }
-
-    while(queue.isNotEmpty()) {
-      val tree1 = queue.pop()
-      // tree1 could be the last merkletree in the queue which makes it the root
-      if(queue.isEmpty())
-        return tree1
-
-      val tree2 = queue.pop()
-      val joinedMerkleTree = MerkleTree()
-      joinedMerkleTree.add(tree1, tree2)
-      queue.push(joinedMerkleTree)
-    }
-
-    return MerkleTree()
+    return buildTree(leafs)
   }
 
-  private fun createLeafs(transactions: MutableList<Transaction>) : List<MerkleTree> {
+  fun buildTree(trees: MutableList<MerkleTree>): MerkleTree {
+    if(trees.size == 1) return trees[0]
+    var parents = mutableListOf<MerkleTree>()
+
+    for(i in 0 until trees.size step 2) {
+      val parentTree = MerkleTree()
+      val right = if(trees.size > i + 1) trees[i+1] else null
+      parentTree.add(trees[i], right)
+      parents.add(parentTree)
+    }
+    return buildTree(parents)
+  }
+
+  private fun createLeafs(transactions: MutableList<Transaction>) : MutableList<MerkleTree> {
     val leafs = mutableListOf<MerkleTree>()
     for(i in 0 until transactions.size) {
       leafs.add(MerkleTree(transactions[i].txHashCode()))
