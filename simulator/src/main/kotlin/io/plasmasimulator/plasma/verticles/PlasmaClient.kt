@@ -75,7 +75,7 @@ class PlasmaClient: PlasmaParticipant() {
       chain.addBlock(block, plasmaPool)
       removeUTXOsForBlock(block)
       createUTXOsForBlock(block)
-      myFlyingUTXOS = myUTXOs.toMutableList()
+      pendingUTXOs = myUTXOs.toMutableList()
       calculateBalance()
       var jsonObject = JsonObject().put("address", address).put("balance", balance)
       vertx.eventBus().send("${chain.chainAddress}/${Address.PUBLISH_BALANCE.name}", jsonObject)
@@ -88,16 +88,16 @@ class PlasmaClient: PlasmaParticipant() {
   }
 
   fun createTransaction() : Transaction? {
-    if(myFlyingUTXOS.size < 1) {
+    if(pendingUTXOs.size < 1) {
       LOG.debug("$address has not flying utxos")
       return null
     }
-    if(myFlyingUTXOS.size < 1 || allOtherClientsAddresses.size < 1){
+    if(pendingUTXOs.size < 1 || allOtherClientsAddresses.size < 1){
       LOG.debug("no address there")
       return null
     }
-    val randomUTXO = myFlyingUTXOS.get(Random().nextInt(myFlyingUTXOS.size))
-    myFlyingUTXOS.remove(randomUTXO)
+    val randomUTXO = pendingUTXOs.get(Random().nextInt(pendingUTXOs.size))
+    pendingUTXOs.remove(randomUTXO)
 
     val utxoAmount = amountFromUTXO(randomUTXO)
     if(utxoAmount == 0) {

@@ -1,6 +1,7 @@
 package io.plasmasimulator.ethereum.contracts
 
 import io.plasmasimulator.ethereum.models.Account
+import io.plasmasimulator.ethereum.models.ETHTransaction
 import io.plasmasimulator.utils.HashUtils
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
@@ -32,6 +33,14 @@ class PlasmaContract(val plasmaBlockInterval: Int) {
       .put("blockNum", depositBlockNumber++)
       .put("rootHash", rootHash)
       .put("chainAddress", chainAddress)
+  }
+
+  fun withdraw(address: String, amount: Int, chainAddress: String) : JsonObject {
+    var account = state.get(address)
+    if(account != null) {
+      account.balance = amount
+    }
+    return JsonObject()
   }
 
   fun submitBlock(rootHash: String, timestamp: Long) {

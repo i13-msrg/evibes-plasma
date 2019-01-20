@@ -4,7 +4,7 @@ export interface Configuration {
     tokensPerClient: number;
     transactionsPerPlasmaBlock: number;
     plasmaChildren: number;
-    numberOfPeers: number;
+    numberOfNeighbours: number;
     blockGasLimit: number;
     transactionGas: number;
     transactionGasPrice: number;

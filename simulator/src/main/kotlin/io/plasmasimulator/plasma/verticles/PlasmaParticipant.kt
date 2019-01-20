@@ -1,23 +1,13 @@
 package io.plasmasimulator.plasma.verticles
 
-import io.plasmasimulator.SimulationManagerVerticle
-import io.plasmasimulator.conf.Address
-import io.plasmasimulator.ethereum.models.ETHBlock
-import io.plasmasimulator.ethereum.models.ETHChain
-import io.plasmasimulator.ethereum.verticles.ETHBaseNode
 import io.plasmasimulator.plasma.models.*
-import io.plasmasimulator.plasma.services.RootChainService
-import io.plasmasimulator.utils.FileManager
+import io.plasmasimulator.plasma.services.MainChainConnector
 import io.plasmasimulator.utils.HashUtils
-import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.json.Json
-import io.vertx.core.json.JsonObject
-import io.vertx.core.parsetools.JsonParser
 import org.slf4j.LoggerFactory
-import java.util.*
 
-open class PlasmaParticipant: RootChainService() {
+open class PlasmaParticipant: MainChainConnector() {
   var chain: PlasmaChain = PlasmaChain(chainAddress = "", plasmaBlockInterval = 10)
   var plasmaPool: UTXOPool = UTXOPool()
   val rootChainService = this
@@ -26,7 +16,7 @@ open class PlasmaParticipant: RootChainService() {
   var balance: Int = 0
   var myUTXOs = mutableListOf<UTXO>()
   var spentUTXOs = mutableListOf<UTXO>()
-  var myFlyingUTXOS = myUTXOs.toMutableList()
+  var pendingUTXOs = myUTXOs.toMutableList()
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(PlasmaParticipant::class.java)
@@ -60,7 +50,7 @@ open class PlasmaParticipant: RootChainService() {
   fun bootstrapBlockchain() {
     val genesisBlock = PlasmaBlock(number = 0, prevBlockNum = -1)
     genesisBlock.merkleRoot = HashUtils.hash("0,0,-1".toByteArray())
-    myFlyingUTXOS = myUTXOs.toMutableList()
+    pendingUTXOs = myUTXOs.toMutableList()
     createUTXOsForBlock(genesisBlock)
     //chain.addBlock(genesisBlock, UTXOPool())
   }

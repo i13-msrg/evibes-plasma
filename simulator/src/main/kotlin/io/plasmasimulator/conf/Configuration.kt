@@ -12,7 +12,7 @@ class Configuration {
       .put("tokensPerClient", 100)
       .put("transactionsPerPlasmaBlock", 5)
       .put("plasmaChildren", 0)
-      .put("numberOfPeers", 20)
+      .put("numberOfNeighbours", 20)
       .put("blockGasLimit", 300)
       .put("transactionGas", 30)
       .put("transactionGasPrice", 20)

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 class PeersDiscoveryNode: AbstractVerticle() {
 
   var numberOfETHNodes = 0
-  var numberOfPeers = 0
+  var numberOfNeighbours = 0
   var nodeAddresses = mutableListOf<String>()
 
   private companion object {
@@ -22,7 +22,7 @@ class PeersDiscoveryNode: AbstractVerticle() {
     LOG.info("PeersDiscoveryNode is deployed")
 
     numberOfETHNodes = config().getInteger("numberOfEthereumNodes")
-    numberOfPeers = config().getInteger("numberOfPeers")
+    numberOfNeighbours = config().getInteger("numberOfNeighbours")
     startConsumers()
   }
 
@@ -49,7 +49,7 @@ class PeersDiscoveryNode: AbstractVerticle() {
     var allNodes = nodeAddresses.toMutableList()
     allNodes.remove(address)
     var jsonArray = JsonArray()
-    allNodes.shuffled().take(numberOfPeers).forEach { peer ->
+    allNodes.shuffled().take(numberOfNeighbours).forEach { peer ->
       jsonArray.add(peer)
     }
     return jsonArray

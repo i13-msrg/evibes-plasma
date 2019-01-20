@@ -1,13 +1,10 @@
 package io.plasmasimulator.plasma.services
 
-import io.plasmasimulator.conf.Address
 import io.plasmasimulator.ethereum.models.ETHBlock
-import io.plasmasimulator.ethereum.models.ETHChain
 import io.plasmasimulator.ethereum.models.ETHTransaction
 import io.plasmasimulator.ethereum.verticles.ETHBaseNode
 import io.plasmasimulator.utils.HashUtils
 import io.vertx.core.Future
-import io.vertx.core.Vertx
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
@@ -15,14 +12,14 @@ import org.slf4j.LoggerFactory
 
 // this class gives the opportunity to plasma participants to call methods of plasma (rootchain) contracts
 
-open class RootChainService : ETHBaseNode() {
+open class MainChainConnector : ETHBaseNode() {
   var plasmaContractAddress = ""
   private var nonce = 1
   private var pendingTransactions = mutableListOf<ETHTransaction>()
   private var transactionGas = 0
 
   private companion object {
-      private val LOG = LoggerFactory.getLogger(RootChainService::class.java)
+      private val LOG = LoggerFactory.getLogger(MainChainConnector::class.java)
   }
 
   override fun start(startFuture: Future<Void>?) {
@@ -51,14 +48,24 @@ open class RootChainService : ETHBaseNode() {
     sendTransaction(tx)
   }
 
+  fun withdraw(address: String, amount: Int, chainAddress: String) {
+    var data = mutableMapOf<String, String>()
+    data.put("type", "plasma")
+    data.put("method", "withdraw")
+    data.put("address", address)
+    data.put("amount", amount.toString())
+    data.put("chainAddress", chainAddress)
+
+    val tx: ETHTransaction = createTransactionToPlasmaContract(address, data)
+    sendTransaction(tx)
+  }
+
   fun submitBlock(from: String, rootHash: ByteArray, timestamp: Long) {
     val data = mutableMapOf<String, String>()
     data.put("type", "plasma")
     data.put("rootHash", HashUtils.transform(rootHash))
     data.put("method", "submitBlock")
     data.put("timestamp", timestamp.toString())
-    //val data = "rootHash:${HashUtils.transform(rootHash)}"
-    //val data = JsonObject().put("type", "plasma").put("rootHash", rootHash).put("method", "submitBlock")
     val tx: ETHTransaction = createTransactionToPlasmaContract(from, data)
     sendTransaction(tx)
   }
