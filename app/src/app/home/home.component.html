@@ -34,6 +34,11 @@
                     <mat-divider></mat-divider>
                     <mat-list-item><p>Last block mined by: <b>{{lastETHBlockMinedBy}}</b></p></mat-list-item>
                     <mat-divider></mat-divider>
+                    <mat-list-item><p>Propagation delay (25%): <b>{{propagationInfo ? propagationInfo.delay25 : 0}}</b></p></mat-list-item>
+                    <mat-divider></mat-divider>
+                    <mat-list-item><p>Propagation delay (50%): <b>{{propagationInfo ? propagationInfo.delay50 : 0}}</b></p></mat-list-item>
+                    <mat-divider></mat-divider>
+                    <mat-list-item><p>Propagation delay (100%): <b>{{propagationInfo ? propagationInfo.delay100 : 0}}</b></p></mat-list-item>
                   </mat-list>
             </mat-card-content>
           </mat-card>
@@ -88,13 +93,13 @@
                 <mat-divider></mat-divider>
                 <mat-list-item><p mat-line>Number of clients: <b>{{currentConfiguration? currentConfiguration.numberOfPlasmaClients : ''}}</b></p></mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item><p mat-line>Number of deposit blocks: <b>{{depositBlocks}}</b></p></mat-list-item>
+                <mat-list-item><p mat-line>Number of deposit blocks: <b>{{firstPlasmaChain ? firstPlasmaChain.depositBlocks.length : 0 }}</b></p></mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item><p mat-line>Number of children plasma transactions: </p></mat-list-item>
+                <mat-list-item><p mat-line>Number of children transactions: <b>{{firstPlasmaChain ? firstPlasmaChain.childrenTotalTransactions: 0 }}</b></p></mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item><p mat-line>Total Sum of UTXOs: {{firstPlasmaChain ? firstPlasmaChain.numberOfUTXOs : 0 }} </p></mat-list-item>
+                <mat-list-item><p mat-line>Total Sum of UTXOs: <b>{{firstPlasmaChain ? firstPlasmaChain.numberOfUTXOs : 0 }}</b> </p></mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item><p mat-line>Total Sum of Transactions: {{plasmaMainChainTransactions}}</p></mat-list-item>
+                <mat-list-item><p mat-line>Total Sum of Transactions: <b>{{plasmaMainChainTransactions}}</b></p></mat-list-item>
               </mat-list>
             </mat-card-content>
           </mat-card>
@@ -103,7 +108,7 @@
           <div>
             <mat-card>
               <mat-card-header>
-                <mat-card-title>Plasma Child {{plasmaChildrenChainsBlocksMap[key]}}</mat-card-title>
+                <mat-card-title>Plasma Child {{(plasmaChildrenChainsBlocksMap[key].address | slice:0:15)}}</mat-card-title>
               </mat-card-header>
               <mat-card-content>
                 <mat-list>
@@ -111,13 +116,13 @@
                   <mat-divider></mat-divider>
                   <mat-list-item><p mat-line>Number of Clients: <b>{{currentConfiguration? currentConfiguration.numberOfPlasmaClients : ''}}</b></p></mat-list-item>
                   <mat-divider></mat-divider>
-                  <mat-list-item><p mat-line>Number of Deposit Blocks: </p></mat-list-item>
+                  <mat-list-item><p mat-line>Number of Deposit Blocks: <b>{{plasmaChildrenChainsBlocksMap[key].depositBlocks.length}}</b></p></mat-list-item>
                   <mat-divider></mat-divider>
-                  <mat-list-item><p mat-line>Number of Parent Blocks: </p></mat-list-item>
+                  <mat-list-item><p mat-line>Number of Parent Blocks: <b>{{plasmaChildrenChainsBlocksMap[key].parentBlocks}}</b></p></mat-list-item>
                   <mat-divider></mat-divider>
-                  <mat-list-item><p mat-line>Total Sum of UTXOs: </p></mat-list-item>
+                  <mat-list-item><p mat-line>Total Sum of UTXOs: <b>{{plasmaChildrenChainsBlocksMap[key].numberOfUTXOs}}</b> </p></mat-list-item>
                   <mat-divider></mat-divider>
-                  <mat-list-item><p mat-line>Total Sum of Transactions: </p></mat-list-item>
+                  <mat-list-item><p mat-line>Total Sum of Transactions: <b>{{plasmaChildrenChainsBlocksMap[key].allTransactions}}</b></p></mat-list-item>
                 </mat-list>
               </mat-card-content>
             </mat-card>

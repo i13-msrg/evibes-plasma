@@ -3,6 +3,7 @@ import { Configuration } from './models/configuration';
 import { PlasmaChain } from './models/plasmachain';
 import { Transaction } from './models/transaction';
 import { ETHBlock } from './models/ethblock';
+import { PropagationInfo } from './models/propagationinfo';
 
 export interface PlasmaState {
     mainPlasmaChain: PlasmaChain;
@@ -13,4 +14,5 @@ export interface PlasmaState {
     simulationStarted: boolean;
     mainPlasmaChainAddress: string;
     ethTransactions: Array<Transaction>;
+    propagationInfo: PropagationInfo;
 }

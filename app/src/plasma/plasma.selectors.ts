@@ -48,3 +48,8 @@ export const selectEthereumBlocksSize = createSelector(
     selectPlasma,
     (state: PlasmaState) => state.ethBlocks.length
 );
+
+export const selectPropagationInfo = createSelector(
+    selectPlasma,
+    (state: PlasmaState) => state.propagationInfo
+);

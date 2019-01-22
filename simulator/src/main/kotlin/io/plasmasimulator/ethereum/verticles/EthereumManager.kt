@@ -10,7 +10,6 @@ import io.vertx.core.Future
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
-import kotlin.concurrent.timer
 import kotlin.math.ceil
 
 class EthereumManager : AbstractVerticle() {
@@ -20,6 +19,7 @@ class EthereumManager : AbstractVerticle() {
   var timerId: Long = 0
   var receivedBlocks = mutableMapOf<Int, MutableList<Long>>()
   var propagationTimes = mutableListOf<Long>()
+  var propagationInfo = JsonObject()
 
   private companion object {
       private val LOG = LoggerFactory.getLogger(EthereumManager::class.java)
@@ -76,14 +76,14 @@ class EthereumManager : AbstractVerticle() {
         val sortedList = timestampList.sorted()
         val propagationDelay = sortedList[timestampList.size - 1] - sortedList[0]
         LOG.info("propagationDelay of block 25% $blockNum is $propagationDelay")
-        var data = JsonObject().put("blockNum", blockNum).put("delay", propagationDelay)
+        propagationInfo.put("delay25", "%.2f".format(propagationDelay.toDouble() / 1000) )
       }
 
       if(timestampList.size.toDouble() == 0.50 * numberOfNodes) {
         val sortedList = timestampList.sorted()
         val propagationDelay = sortedList[timestampList.size - 1] - sortedList[0]
         LOG.info("propagationDelay of block 50% $blockNum is $propagationDelay")
-
+        propagationInfo.put("delay50", "%.2f".format(propagationDelay.toDouble() / 1000) )
         //var data = JsonObject().put("blockNum", blockNum).put("delay", propagationDelay)
       }
 
@@ -92,9 +92,9 @@ class EthereumManager : AbstractVerticle() {
         val propagationDelay = sortedList[timestampList.size - 1] - sortedList[0]
 
         propagationTimes.add(propagationDelay)
-        var data = JsonObject().put("blockNum", blockNum).put("delay", propagationDelay)
         LOG.info("propagationDelay of block $blockNum is $propagationDelay")
-        vertx.eventBus().send(Address.ETH_BLOCK_DELAY.name, data)
+        propagationInfo.put("delay100", "%.2f".format(propagationDelay.toDouble() / 1000) )
+        vertx.eventBus().send(Address.PROPAGATION_INFO.name, propagationInfo)
       }
 
     }

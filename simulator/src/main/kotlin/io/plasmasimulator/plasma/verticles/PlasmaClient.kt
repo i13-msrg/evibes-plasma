@@ -30,25 +30,25 @@ class PlasmaClient: PlasmaParticipant() {
 
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
-    LOG.info("Here is my address $address")
+    LOG.info("Plasma Client $address deployed!")
     val amount = config().getInteger("amountPerClient")
 
     vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.PUSH_ALL_ADDRESSES.name}") { msg ->
-      LOG.info("CLIENT $address GOT ALL ADDRESSES")
+      //LOG.info("CLIENT $address GOT ALL ADDRESSES")
       val allClientsAddresses = (msg.body() as JsonArray).toMutableList()
 
       allOtherClientsAddresses.addAll(allClientsAddresses
         .filter { clientAddress -> clientAddress != this.address  }
         .map { address -> address.toString() })
 
-      LOG.info("[$address] sending confirmation for ${chain.chainAddress}")
+      //LOG.info("[$address] sending confirmation for ${chain.chainAddress}")
       vertx.eventBus().send("${chain.chainAddress}/${Address.RECEIVED_ALL_ADDRESSES.name}", address)
 
       rootChainService.deposit(address, amount, chain.chainAddress, chain.parentChainAddress)
     }
 
     vertx.eventBus().send<Any>("${chain.chainAddress}/${Address.PUBLISH_ADDRESS.name}", address) { response ->
-      LOG.info("CLIENT $address PUBLISHED ITS ADDRESS [${chain.chainAddress}]")
+      //LOG.info("CLIENT $address PUBLISHED ITS ADDRESS [${chain.chainAddress}]")
     }
 
     vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.ISSUE_TRANSACTION.name}") {

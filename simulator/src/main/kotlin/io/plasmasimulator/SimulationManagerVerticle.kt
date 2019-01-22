@@ -177,20 +177,17 @@ class SimulationManagerVerticle : AbstractVerticle() {
           }
           deployedVerticleIds.add(ar.result())
         }
-      }
-
-      // Deploy reducer
-      vertx.deployVerticle("io.plasmasimulator.Reducer",
-        DeploymentOptions().setWorker(true).setInstances(1).setConfig(plasmaManagerConfig)) { ar ->
-        if(ar.failed()){
-          LOG.info("Reducer deployment failed")
-          println(ar.cause())
+        // Deploy reducer
+        vertx.deployVerticle("io.plasmasimulator.Reducer",
+          DeploymentOptions().setWorker(true).setInstances(1).setConfig(plasmaManagerConfig)) { ar ->
+          if(ar.failed()){
+            LOG.info("Reducer deployment failed")
+            println(ar.cause())
+          }
+          deployedVerticleIds.add(ar.result())
         }
-        deployedVerticleIds.add(ar.result())
       }
 
-      vertx.eventBus().publish(Address.ETH_NODES_BROADCAST.name,
-        JsonObject().put("type", Message.ISSUE_TRANSACTION.name))
 
     }
     return true

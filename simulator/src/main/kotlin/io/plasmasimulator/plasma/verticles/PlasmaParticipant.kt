@@ -5,7 +5,9 @@ import io.plasmasimulator.plasma.services.MainChainConnector
 import io.plasmasimulator.utils.HashUtils
 import io.vertx.core.Future
 import io.vertx.core.json.Json
+import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
+import io.plasmasimulator.conf.Address
 
 open class PlasmaParticipant: MainChainConnector() {
   var chain: PlasmaChain = PlasmaChain(chainAddress = "", plasmaBlockInterval = 10)
@@ -43,6 +45,9 @@ open class PlasmaParticipant: MainChainConnector() {
       vertx.eventBus().consumer<Any>(chain.chainAddress) { msg ->
         val parentBlock: PlasmaBlock = Json.decodeValue(msg.body().toString(), PlasmaBlock::class.java)
         chain.addParentBlock(parentBlock)
+        if(this is Operator) {
+          vertx.eventBus().send(Address.PARENT_BLOCK_RECEIVED.name, JsonObject().put("chainAddress", chainAddress))
+        }
       }
     }
   }

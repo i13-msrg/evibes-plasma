@@ -8,7 +8,8 @@ import { selectPlasmaConnected,
          selectMainPlasmaChain,
          selectPlasmaETHTransactions,
          selectEthereumBlocksSize,
-         selectEthereumBlocks
+         selectEthereumBlocks,
+         selectPropagationInfo
         } from 'src/plasma/plasma.selectors';
 import * as PlasmaAction from 'src/plasma/plasma.actions';
 import { CommonService } from 'src/plasma/services/common.service';
@@ -34,11 +35,11 @@ export class HomeComponent implements OnInit {
   ethBlockTransactions = new Array();
   ethDepositTransactions = new Array();
   ethBlocksSize = 0;
-  depositBlocks = 0;
   lastETHBlockMinedBy = '';
   totalNumberOfETHTransactions = 0;
 
   firstPlasmaChain = null;
+  propagationInfo = null;
 
   color = 'primary';
   mode = 'determinate';
@@ -64,13 +65,6 @@ export class HomeComponent implements OnInit {
       this.plasmaMainChainBlocks = chain.blocks.length;
       this.firstPlasmaChain = chain;
       this.plasmaMainChainTransactions = chain.allTransactions;
-      let numberOfDepositBlocks = 0;
-      chain.blocks.forEach((block) => {
-        if (block.depositBlock) {
-          numberOfDepositBlocks++;
-        }
-      });
-      this.depositBlocks = numberOfDepositBlocks;
     });
 
     this.store.pipe(select(selectPlasmaChildrenChains)).subscribe(chainsMap => {
@@ -106,6 +100,10 @@ export class HomeComponent implements OnInit {
 
     this.store.pipe(select(selectEthereumBlocksSize)).subscribe(blocksSize => {
       this.ethBlocksSize = blocksSize;
+    });
+
+    this.store.pipe(select(selectPropagationInfo)).subscribe(propInfo => {
+      this.propagationInfo = propInfo;
     });
 
   }

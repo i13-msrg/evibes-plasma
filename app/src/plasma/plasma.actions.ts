@@ -22,6 +22,8 @@ export enum PlasmaActionTypes {
     SUBSCRIBE_SIMULATOR_TOPICS          = 'SUBSCRIBE_SIMULATOR_TOPICS',
     UNSUBSCRIBE_SIMULATOR_TOPICS        = 'UNSUBSCRIBE_SIMULATOR_TOPICS',
     NUMBER_OF_UTXOS                     = 'NUMBER_OF_UTXOS',
+    PARENT_BLOCK_RECEIVED               = 'PARENT_BLOCK_RECEIVED',
+    PROPAGATION_INFO                   = 'PROPAGATION_INFO',
     RESET                               = 'RESET'
 }
 
@@ -135,6 +137,18 @@ export class NumberOfUTXOs implements Action {
     constructor(public payload: any ) {}
 }
 
+export class ParentBlockReceived implements Action {
+    readonly type: string = PlasmaActionTypes.PARENT_BLOCK_RECEIVED;
+
+    constructor(public payload: any ) {}
+}
+
+export class PropagationInfo implements Action {
+    readonly type: string = PlasmaActionTypes.PROPAGATION_INFO;
+
+    constructor(public payload: any ) {}
+}
+
 export type PlasmaActions = Connect                     |
                             ConnectionOpened            |
                             ConnectionClosed            |
@@ -147,5 +161,7 @@ export type PlasmaActions = Connect                     |
                             AddNewMainPlasmaBlock       |
                             AddNewChildPlasmaBlock      |
                             NumberOfUTXOs               |
+                            ParentBlockReceived         |
+                            PropagationInfo            |
                             Reset                       |
                             SimulationStarted;
