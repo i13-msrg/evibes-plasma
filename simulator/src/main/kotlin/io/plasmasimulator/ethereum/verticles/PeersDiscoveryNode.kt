@@ -11,6 +11,7 @@ class PeersDiscoveryNode: AbstractVerticle() {
 
   var numberOfETHNodes = 0
   var numberOfNeighbours = 0
+  var neighboursUpdateInterval = 0
   var nodeAddresses = mutableListOf<String>()
 
   private companion object {
@@ -23,7 +24,16 @@ class PeersDiscoveryNode: AbstractVerticle() {
 
     numberOfETHNodes = config().getInteger("numberOfEthereumNodes")
     numberOfNeighbours = config().getInteger("numberOfNeighbours")
+    neighboursUpdateInterval = config().getInteger("neighboursUpdateInterval")
     startConsumers()
+    startPeriodicUpdateOfNeighbours((neighboursUpdateInterval * 1000).toLong())
+  }
+
+  fun startPeriodicUpdateOfNeighbours(interval: Long) {
+    vertx.setPeriodic(interval) { id ->
+      LOG.info("Updating neighbours ...")
+      distributeNewPeers()
+    }
   }
 
   fun startConsumers() {
