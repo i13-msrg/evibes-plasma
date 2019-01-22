@@ -39,7 +39,7 @@ class Operator: PlasmaParticipant() {
 
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
-    LOG.info("Hello from Operator $address")
+    LOG.info("Operator with $address deployed!")
 
     transactionsPerBlock = config().getInteger("transactionsPerBlock")
     plasmaBlockInterval = config().getInteger("plasmaBlockInterval")
@@ -150,13 +150,13 @@ class Operator: PlasmaParticipant() {
       rootChainService.submitBlock(from = address, rootHash = block.merkleRoot, timestamp = block.timestamp)
     }
     //FileManager.writeNewFile(vertx, Json.encode(chain.blocks), "blockchain.json")
-
     removeUTXOsForBlock(block)
     createUTXOsForBlock(block)
-    LOG.info("[$address] BLOCK ADDED TO BLOCKCHAIN. LOCKS: ${chain.blocks.size}")
+    LOG.info("[$address] BLOCK ADDED TO BLOCKCHAIN. BLOCKS: ${chain.blocks.size}")
     LOG.info("[$address] TOTAL SUM OF UTXOs: ${calculateTotalBalance()}")
     val blockJson  = JsonObject(Json.encode(block))
     send("${chain.chainAddress}/${Address.PUBLISH_BLOCK.name}", blockJson)
+    send(Address.NUMBER_OF_UTXOS.name, JsonObject().put("chainAddress", chain.chainAddress).put("numberOfUTXOs", plasmaPool.poolSize()))
 
     if(chain.parentChainAddress != null) {
       LOG.info("[$address] Create transaction to parent")

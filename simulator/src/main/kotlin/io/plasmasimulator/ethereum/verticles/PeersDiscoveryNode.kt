@@ -48,11 +48,11 @@ class PeersDiscoveryNode: AbstractVerticle() {
   fun selectNewPeersFor(address: String): JsonArray {
     var allNodes = nodeAddresses.toMutableList()
     allNodes.remove(address)
-    var jsonArray = JsonArray()
+    var neighbours = JsonArray()
     allNodes.shuffled().take(numberOfNeighbours).forEach { peer ->
-      jsonArray.add(peer)
+      neighbours.add(peer)
     }
-    return jsonArray
+    return neighbours
   }
 
   fun sendNewPeers(address: String, peers: JsonArray) {

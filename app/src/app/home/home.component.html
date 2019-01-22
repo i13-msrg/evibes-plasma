@@ -92,7 +92,7 @@
                 <mat-divider></mat-divider>
                 <mat-list-item><p mat-line>Number of children plasma transactions: </p></mat-list-item>
                 <mat-divider></mat-divider>
-                <mat-list-item><p mat-line>Total Sum of UTXOs: </p></mat-list-item>
+                <mat-list-item><p mat-line>Total Sum of UTXOs: {{firstPlasmaChain ? firstPlasmaChain.numberOfUTXOs : 0 }} </p></mat-list-item>
                 <mat-divider></mat-divider>
                 <mat-list-item><p mat-line>Total Sum of Transactions: {{plasmaMainChainTransactions}}</p></mat-list-item>
               </mat-list>

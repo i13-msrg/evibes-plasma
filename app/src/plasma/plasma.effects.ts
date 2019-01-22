@@ -79,6 +79,7 @@ export class PlasmaEffects {
             this.plasmaEventBusService.subscribeToAction(PlasmaAction.PlasmaActionTypes.ADD_NEW_CHILD_PLASMA_BLOCK);
             this.plasmaEventBusService.subscribeToAction(PlasmaAction.PlasmaActionTypes.ADD_ETH_TRANSACTION);
             this.plasmaEventBusService.subscribeToAction(PlasmaAction.PlasmaActionTypes.ADD_ETH_BLOCK);
+            this.plasmaEventBusService.subscribeToAction(PlasmaAction.PlasmaActionTypes.NUMBER_OF_UTXOS);
         })
     );
 
@@ -89,6 +90,7 @@ export class PlasmaEffects {
             this.plasmaEventBusService.unsubscribeFromAction(PlasmaAction.PlasmaActionTypes.ADD_NEW_CHILD_PLASMA_BLOCK);
             this.plasmaEventBusService.unsubscribeFromAction(PlasmaAction.PlasmaActionTypes.ADD_ETH_TRANSACTION);
             this.plasmaEventBusService.unsubscribeFromAction(PlasmaAction.PlasmaActionTypes.ADD_ETH_BLOCK);
+            this.plasmaEventBusService.unsubscribeFromAction(PlasmaAction.PlasmaActionTypes.NUMBER_OF_UTXOS);
 
         })
     );

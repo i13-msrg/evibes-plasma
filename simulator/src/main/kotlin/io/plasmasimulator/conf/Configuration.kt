@@ -16,6 +16,7 @@ class Configuration {
       .put("blockGasLimit", 300)
       .put("transactionGas", 30)
       .put("transactionGasPrice", 20)
+      .put("neighboursUpdateInterval", 30)
 
       .put("enableExternalTransactions", true)
       .put("externalGasLimit", 10)

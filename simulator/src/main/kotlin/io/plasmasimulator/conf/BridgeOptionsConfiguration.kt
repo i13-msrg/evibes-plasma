@@ -28,5 +28,7 @@ object BridgeOptionsConfig {
       .addOutboundPermitted(PermittedOptions().setAddress(Address.ADD_ETH_TRANSACTION.name))
       .addInboundPermitted(PermittedOptions().setAddress(Address.ADD_ETH_BLOCK.name))
       .addOutboundPermitted(PermittedOptions().setAddress(Address.ADD_ETH_BLOCK.name))
+      .addInboundPermitted(PermittedOptions().setAddress(Address.NUMBER_OF_UTXOS.name))
+      .addOutboundPermitted(PermittedOptions().setAddress(Address.NUMBER_OF_UTXOS.name))
   }
 }

@@ -21,6 +21,10 @@ class UTXOPool(var poolMap: MutableMap<UTXO, Transaction.Output> = mutableMapOf(
     return poolMap.containsKey(utxo)
   }
 
+  fun poolSize() : Int {
+    return poolMap.size
+  }
+
   fun getTxOutput(utxo: UTXO) : Transaction.Output? {
     return poolMap.get(utxo)
   }

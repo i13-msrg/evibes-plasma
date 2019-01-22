@@ -93,7 +93,7 @@ class PlasmaClient: PlasmaParticipant() {
       return null
     }
     if(pendingUTXOs.size < 1 || allOtherClientsAddresses.size < 1){
-      LOG.debug("no address there")
+      LOG.debug("Addresses of other plasma clients are missing")
       return null
     }
     val randomUTXO = pendingUTXOs.get(Random().nextInt(pendingUTXOs.size))

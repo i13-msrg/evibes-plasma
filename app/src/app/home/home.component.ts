@@ -38,6 +38,8 @@ export class HomeComponent implements OnInit {
   lastETHBlockMinedBy = '';
   totalNumberOfETHTransactions = 0;
 
+  firstPlasmaChain = null;
+
   color = 'primary';
   mode = 'determinate';
   value = 0;
@@ -60,6 +62,7 @@ export class HomeComponent implements OnInit {
     this.store.pipe(select(selectMainPlasmaChain)).subscribe(chain => {
       // console.log(chain)
       this.plasmaMainChainBlocks = chain.blocks.length;
+      this.firstPlasmaChain = chain;
       this.plasmaMainChainTransactions = chain.allTransactions;
       let numberOfDepositBlocks = 0;
       chain.blocks.forEach((block) => {

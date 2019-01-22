@@ -87,6 +87,16 @@ export function plasmaReducer(state = initialState, action: PlasmaActions) {
         case PlasmaActionTypes.ADD_ETH_BLOCK: {
             return { ...state, ethBlocks: [ ...state.ethBlocks, action.payload ]};
         }
+        case PlasmaActionTypes.NUMBER_OF_UTXOS: {
+            const address = action.payload['chainAddress'];
+            console.log(action.payload['numberOfUTXOs'])
+            if (address === state.mainPlasmaChain.address) {
+                const plasmaChain = { ...state.mainPlasmaChain };
+                plasmaChain.numberOfUTXOs = action.payload['numberOfUTXOs'];
+                return { ... state, mainPlasmaChain: {... plasmaChain}};
+            }
+            return state;
+        }
         case PlasmaActionTypes.RESET: {
             const resetState = { ...initialState};
             const currentState = { ...state };

@@ -6,4 +6,5 @@ export interface PlasmaChain {
     depositBlocks: Array<PlasmaBlock>;
     allTransactions: number;
     childrenRootTransactions: number;
+    numberOfUTXOs: number;
 }

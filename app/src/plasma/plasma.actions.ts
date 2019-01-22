@@ -21,6 +21,7 @@ export enum PlasmaActionTypes {
     ADD_ETH_BLOCK                       = 'ADD_ETH_BLOCK',
     SUBSCRIBE_SIMULATOR_TOPICS          = 'SUBSCRIBE_SIMULATOR_TOPICS',
     UNSUBSCRIBE_SIMULATOR_TOPICS        = 'UNSUBSCRIBE_SIMULATOR_TOPICS',
+    NUMBER_OF_UTXOS                     = 'NUMBER_OF_UTXOS',
     RESET                               = 'RESET'
 }
 
@@ -128,6 +129,12 @@ export class Reset implements Action {
     constructor(public payload: any = null) {}
 }
 
+export class NumberOfUTXOs implements Action {
+    readonly type: string = PlasmaActionTypes.NUMBER_OF_UTXOS;
+
+    constructor(public payload: any ) {}
+}
+
 export type PlasmaActions = Connect                     |
                             ConnectionOpened            |
                             ConnectionClosed            |
@@ -139,5 +146,6 @@ export type PlasmaActions = Connect                     |
                             SetPlasmaChainAddresses     |
                             AddNewMainPlasmaBlock       |
                             AddNewChildPlasmaBlock      |
+                            NumberOfUTXOs               |
                             Reset                       |
                             SimulationStarted;
