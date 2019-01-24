@@ -17,7 +17,13 @@ width: 100%;
 }
   
 .container {
-    margin-top: 20px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 5em;
+}
+
+.container > div {
+    padding: 3em;
 }
 
 h1 {
@@ -30,9 +36,7 @@ margin: 0 0 10px 0;
 text-transform: uppercase;
 }
 
-.group {
-margin: 0 0 40px 0;
-}
+
 
 .icon-form-field {
 position: relative;

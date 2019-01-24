@@ -69,7 +69,13 @@ import {
     faCircle,
     faExchangeAlt,
     faHome,
-    faChild
+    faChild,
+    faHeartbeat,
+    faClock,
+    faHourglassEnd,
+    faMoneyBill,
+    faSortNumericDown,
+    faSortNumericUp
   } from '@fortawesome/free-solid-svg-icons';
  
   import {
@@ -110,6 +116,12 @@ import {
     faExchangeAlt,
     faEthereum,
     faYoutube,
+    faHeartbeat,
+    faClock,
+    faHourglassEnd,
+    faMoneyBill,
+    faSortNumericDown,
+    faSortNumericUp
   );
 
 @NgModule({

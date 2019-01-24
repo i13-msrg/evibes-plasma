@@ -52,6 +52,13 @@ class ETHNodeVerticle : ETHBaseNode() {
         val destination = if(parentPlasmaAddress != null) parentPlasmaAddress else chainAddress
         vertx.eventBus().send("${destination}/${Address.ETH_ANNOUNCE_DEPOSIT.name}", result)
       }
+      "withdraw" -> {
+        val chainAddress: String = tx.data!!.get("chainAddress")!!
+        val address = tx.data!!.get("address")!!
+        val amount = tx.data!!.get("amount")!!.toInt()
+
+        val result = plasmaContract.withdraw(address, amount, chainAddress)
+      }
     }
   }
 

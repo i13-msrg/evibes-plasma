@@ -93,8 +93,10 @@ export class HomeComponent implements OnInit {
 
       if(isStarted) {
         this.commonService.openSnackBar('Simulation started!', 'Close');
+        this.mode = 'indeterminate';
       } else {
         this.commonService.openSnackBar('Simulation stopped!', 'Close');
+        this.mode = 'determinate';
       }
     });
 
@@ -131,7 +133,6 @@ export class HomeComponent implements OnInit {
       this.store.dispatch(new PlasmaAction.SetPlasmaChainAddresses(data));
       this.store.dispatch(new PlasmaAction.SubscribeToSimulatorTopics());
       this.store.dispatch(new PlasmaAction.StartSimulation(data));
-      this.mode = 'indeterminate';
     }
     else console.log("NO START")
   }
@@ -140,7 +141,6 @@ export class HomeComponent implements OnInit {
     if (this.connected && this.started) {
       this.store.dispatch(new PlasmaAction.UnsubscribeFromSimulatorTopics());
       this.store.dispatch(new PlasmaAction.StopSimulation());
-      this.mode = 'determinate';
     }
   }
 }

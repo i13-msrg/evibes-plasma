@@ -34,5 +34,7 @@ object BridgeOptionsConfig {
       .addOutboundPermitted(PermittedOptions().setAddress(Address.PARENT_BLOCK_RECEIVED.name))
       .addInboundPermitted(PermittedOptions().setAddress(Address.PROPAGATION_INFO.name))
       .addOutboundPermitted(PermittedOptions().setAddress(Address.PROPAGATION_INFO.name))
+      .addInboundPermitted(PermittedOptions().setAddress(Address.SIMULATION_STOPPED.name))
+      .addOutboundPermitted(PermittedOptions().setAddress(Address.SIMULATION_STOPPED.name))
   }
 }

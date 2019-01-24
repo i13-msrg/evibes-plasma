@@ -16,4 +16,6 @@ export interface Configuration {
     externalTransactionGenerationRate: number;
     numberOfEthereumExternalAccounts: number;
     amountPerEthereumExternalAccount: number;
+    plasmaBlockInterval: number;
+    neighboursUpdateInterval: number;
 }

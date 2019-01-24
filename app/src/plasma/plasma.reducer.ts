@@ -132,7 +132,6 @@ export function plasmaReducer(state = initialState, action: PlasmaActions) {
             return  { ...state, plasmaChildrenChainsMap : { ... childrenPlasmaChainMap1} };
         }
         case PlasmaActionTypes.PROPAGATION_INFO: {
-            console.log(action.payload)
             return { ... state, propagationInfo: action.payload };
         }
         case PlasmaActionTypes.RESET: {

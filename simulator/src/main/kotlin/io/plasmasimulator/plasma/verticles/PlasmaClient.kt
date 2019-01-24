@@ -81,6 +81,10 @@ class PlasmaClient: PlasmaParticipant() {
       vertx.eventBus().send("${chain.chainAddress}/${Address.PUBLISH_BALANCE.name}", jsonObject)
       //LOG.info("$address : my balance is ${balance}")
     }
+
+    vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.WITHDRAW_TOKENS.name}") { msg ->
+      rootChainService.withdraw(address, balance, this.chain.chainAddress)
+    }
   }
 
   override fun stop(stopFuture: Future<Void>?) {

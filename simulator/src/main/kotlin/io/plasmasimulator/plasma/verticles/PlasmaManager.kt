@@ -129,6 +129,8 @@ class PlasmaManager: AbstractVerticle() {
         if(numberOfBlocks != null) {
           if(numberOfBlocks == 0) {
             vertx.eventBus().send("$chainAddress/${Address.PRINT_BALANCE_FOR_EACH_CLIENT.name}", "")
+            LOG.info("Withdrawing funds for all clients ...")
+            vertx.eventBus().publish("$chainAddress/${Address.WITHDRAW_TOKENS.name}", "")
             vertx.cancelTimer(id)
             vertx.eventBus().send(Address.STOP_SIMULATION.name, "stop")
           }

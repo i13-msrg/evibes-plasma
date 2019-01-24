@@ -36,6 +36,7 @@ class PlasmaContract(val plasmaBlockInterval: Int) {
   }
 
   fun withdraw(address: String, amount: Int, chainAddress: String) : JsonObject {
+    LOG.info("Start withdrawing for $address")
     var account = state.get(address)
     if(account != null) {
       account.balance = amount

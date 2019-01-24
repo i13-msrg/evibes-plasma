@@ -205,6 +205,7 @@ class SimulationManagerVerticle : AbstractVerticle() {
     val seconds = (duration / 1000) % 60
     LOG.info("Simulation time: $minutes:$seconds")
     deployedVerticleIds.clear()
+    vertx.eventBus().send(Address.SIMULATION_STOPPED.name, "")
     return true
   }
 
