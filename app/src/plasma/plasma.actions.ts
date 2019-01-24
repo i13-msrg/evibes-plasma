@@ -23,7 +23,7 @@ export enum PlasmaActionTypes {
     UNSUBSCRIBE_SIMULATOR_TOPICS        = 'UNSUBSCRIBE_SIMULATOR_TOPICS',
     NUMBER_OF_UTXOS                     = 'NUMBER_OF_UTXOS',
     PARENT_BLOCK_RECEIVED               = 'PARENT_BLOCK_RECEIVED',
-    PROPAGATION_INFO                   = 'PROPAGATION_INFO',
+    PROPAGATION_INFO                    = 'PROPAGATION_INFO',
     RESET                               = 'RESET'
 }
 
