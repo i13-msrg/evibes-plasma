@@ -63,8 +63,8 @@ class PlasmaManager: AbstractVerticle() {
       config.put("parentPlasmaAddress", parentPlasmaAddress)
     }
 
-    // Deploy DiscoveryVerticle
-    vertx.deployVerticle("io.plasmasimulator.plasma.verticles.DiscoveryVerticle",
+    // Deploy ClientsDiscoveryNode
+    vertx.deployVerticle("io.plasmasimulator.plasma.verticles.ClientsDiscoveryNode",
       DeploymentOptions().setWorker(true).setConfig(
         JsonObject()
           .put("numberOfClients", numberOfPlasmaClients)

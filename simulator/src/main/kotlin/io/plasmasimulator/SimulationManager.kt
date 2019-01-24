@@ -12,18 +12,16 @@ import io.vertx.core.Future
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
-import io.vertx.ext.bridge.PermittedOptions
 import io.vertx.ext.web.Router
-import io.vertx.ext.web.handler.sockjs.BridgeOptions
 import io.vertx.ext.web.handler.sockjs.SockJSHandler
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class SimulationManagerVerticle : AbstractVerticle() {
+class SimulationManager : AbstractVerticle() {
   private var deployedVerticleIds = mutableListOf<String>()
   private var startTime : Long = 0
   private companion object {
-    private val LOG = LoggerFactory.getLogger(SimulationManagerVerticle::class.java)
+    private val LOG = LoggerFactory.getLogger(SimulationManager::class.java)
   }
 
   override fun start(startFuture: Future<Void>) {
@@ -152,7 +150,7 @@ class SimulationManagerVerticle : AbstractVerticle() {
         .put("transactionGenerationRate", conf.getInteger("transactionGenerationRate"))
         .put("numberOfTransactionGenerationIntervals", conf.getInteger("numberOfTransactionGenerationIntervals"))
 
-      vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.PeersDiscoveryNode",
+      vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.PeerDiscoveryNode",
         DeploymentOptions()
           .setWorker(true)
           .setConfig(conf)

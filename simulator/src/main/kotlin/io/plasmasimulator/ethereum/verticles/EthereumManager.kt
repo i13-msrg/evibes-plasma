@@ -108,7 +108,7 @@ class EthereumManager : AbstractVerticle() {
       .setConfig(config)
       .setInstances(config.getInteger("numberOfEthereumNodes", 1))
 
-    vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.ETHNodeVerticle", opt) { ar ->
+    vertx.deployVerticle("io.plasmasimulator.ethereum.verticles.ETHNode", opt) { ar ->
       if(ar.failed()) {
         LOG.info(ar.cause().toString())
       }

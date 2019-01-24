@@ -7,7 +7,7 @@ import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
 
-class PeersDiscoveryNode: AbstractVerticle() {
+class PeerDiscoveryNode: AbstractVerticle() {
 
   var numberOfETHNodes = 0
   var numberOfNeighbours = 0
@@ -15,12 +15,12 @@ class PeersDiscoveryNode: AbstractVerticle() {
   var nodeAddresses = mutableListOf<String>()
 
   private companion object {
-      private val LOG = LoggerFactory.getLogger(PeersDiscoveryNode::class.java)
+      private val LOG = LoggerFactory.getLogger(PeerDiscoveryNode::class.java)
   }
 
   override fun start(startFuture: Future<Void>?) {
     super.start(startFuture)
-    LOG.info("PeersDiscoveryNode is deployed")
+    LOG.info("PeerDiscoveryNode is deployed")
 
     numberOfETHNodes = config().getInteger("numberOfEthereumNodes")
     numberOfNeighbours = config().getInteger("numberOfNeighbours")

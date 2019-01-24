@@ -40,7 +40,7 @@ version = '1.0.0-SNAPSHOT'
 sourceCompatibility = '1.8'
 mainClassName = 'io.vertx.core.Launcher'
 
-def mainVerticleName = 'io.plasmasimulator.SimulationManagerVerticle'
+def mainVerticleName = 'io.plasmasimulator.SimulationManager'
 def watchForChange = 'src/**/*'
 def doOnChange = './gradlew classes'
 

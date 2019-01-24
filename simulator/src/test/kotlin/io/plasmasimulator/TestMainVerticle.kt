@@ -16,7 +16,7 @@ class TestMainVerticle {
 
   @BeforeEach
   fun deploy_verticle(vertx: Vertx, testContext: VertxTestContext) {
-    vertx.deployVerticle(SimulationManagerVerticle(), testContext.succeeding<String> { _ -> testContext.completeNow() })
+    vertx.deployVerticle(SimulationManager(), testContext.succeeding<String> { _ -> testContext.completeNow() })
   }
 
   @Test

@@ -2,21 +2,18 @@ package io.plasmasimulator.plasma.verticles
 
 import io.plasmasimulator.conf.Address
 import io.plasmasimulator.conf.Message
-import io.plasmasimulator.plasma.models.UTXO
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
-import io.vertx.core.json.Json
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
-import java.util.*
 
-class DiscoveryVerticle: AbstractVerticle() {
+class ClientsDiscoveryNode: AbstractVerticle() {
   var clientsAddresses = JsonArray()
   var balanceMap = mutableMapOf<String, Int>()
 
   companion object {
-      private val LOG = LoggerFactory.getLogger(DiscoveryVerticle::class.java)
+      private val LOG = LoggerFactory.getLogger(ClientsDiscoveryNode::class.java)
   }
 
   override fun start(startFuture: Future<Void>?) {
@@ -24,7 +21,7 @@ class DiscoveryVerticle: AbstractVerticle() {
     val numberOfClients = config().getInteger("numberOfClients")
     val chainAddress = config().getString("chainAddress")
 
-    LOG.info("DiscoveryVerticle for $chainAddress deployed")
+    LOG.info("ClientsDiscoveryNode for $chainAddress deployed")
 
     vertx.eventBus().consumer<Any>("$chainAddress/${Address.PUBLISH_ADDRESS.name}") { msg ->
       val newAddress = msg.body() as String

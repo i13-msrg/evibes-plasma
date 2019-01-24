@@ -1,18 +1,10 @@
 package io.plasmasimulator.plasma.verticles
 
-import io.plasmasimulator.SimulationManagerVerticle
 import io.plasmasimulator.conf.Address
-import io.plasmasimulator.conf.Message
 import io.plasmasimulator.plasma.models.PlasmaBlock
-import io.plasmasimulator.plasma.models.PlasmaChain
 import io.plasmasimulator.plasma.models.Transaction
 import io.plasmasimulator.plasma.models.UTXO
-import io.plasmasimulator.utils.FileManager
-import io.plasmasimulator.utils.HashUtils
-import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
-import io.vertx.core.buffer.Buffer
-import io.vertx.core.file.OpenOptions
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject

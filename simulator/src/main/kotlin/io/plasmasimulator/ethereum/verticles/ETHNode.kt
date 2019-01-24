@@ -5,18 +5,15 @@ import io.plasmasimulator.conf.Message
 import io.plasmasimulator.ethereum.contracts.PlasmaContract
 import io.plasmasimulator.ethereum.models.Account
 import io.plasmasimulator.ethereum.models.ETHBlock
-import io.plasmasimulator.ethereum.models.ETHChain
 import io.plasmasimulator.ethereum.models.ETHTransaction
-import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.json.Json
-import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
 import java.util.*
 
 
-class ETHNodeVerticle : ETHBaseNode() {
+class ETHNode : ETHBaseNode() {
   private var plasmaContract = PlasmaContract(10)
   var accountsMap = mutableMapOf<String, Account>()
   private var blockGasLimit = 0
@@ -25,7 +22,7 @@ class ETHNodeVerticle : ETHBaseNode() {
 
 
   private companion object {
-    private val LOG = LoggerFactory.getLogger(ETHNodeVerticle::class.java)
+    private val LOG = LoggerFactory.getLogger(ETHNode::class.java)
   }
 
   override fun start(startFuture: Future<Void>?) {

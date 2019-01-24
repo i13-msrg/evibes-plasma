@@ -14,13 +14,13 @@ class Configuration {
       .put("plasmaChildren", 0)
       .put("numberOfNeighbours", 20)
       .put("blockGasLimit", 300)
-      .put("transactionGas", 30)
-      .put("transactionGasPrice", 20)
+      .put("transactionGas", 30) // plasmaTXGasLimit
+      .put("transactionGasPrice", 20) // plasmaTXGasPrice
       .put("neighboursUpdateInterval", 30)
 
       .put("enableExternalTransactions", true)
-      .put("externalGasLimit", 10)
-      .put("externalGasPrice", 20)
+      .put("externalGasLimit", 10) // externalTxGasLimit
+      .put("externalGasPrice", 20) // externalTxGasPrice
       .put("externalTransactionGenerationRate",  10)
       .put("numberOfEthereumExternalAccounts", 50)
       .put("amountPerEthereumExternalAccount", 100)
