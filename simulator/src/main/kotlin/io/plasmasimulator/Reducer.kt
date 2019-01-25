@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 class Reducer: ETHBaseNode() {
-  var balanceMap = mutableMapOf<String, Int>()
 
   private companion object {
     private val LOG = LoggerFactory.getLogger(Reducer::class.java)
@@ -29,7 +28,6 @@ class Reducer: ETHBaseNode() {
     LOG.info("Reducer deployed")
 
     vertx.eventBus().consumer<Any>("$mainPlasmaChainAddress/${Address.PUBLISH_BLOCK.name}") { msg ->
-      //LOG.info("Send block to app")
       vertx.eventBus().send(Address.ADD_NEW_MAIN_PLASMA_BLOCK.name, msg.body())
     }
     consumers(mainPlasmaChainAddress)
@@ -43,8 +41,6 @@ class Reducer: ETHBaseNode() {
       }
       consumers(childAddress as String)
     }
-
-
   }
 
   fun consumers(chainAddress: String) {
@@ -60,19 +56,12 @@ class Reducer: ETHBaseNode() {
   }
 
   override fun handlePropagateBlock(block: ETHBlock) {
-    //LOG.info("Reducer received block")
     if (ethChain.containsBlock(block.number)) {
-      //LOG.info("[$ethAddress]: attempted to add block ${block.number}, but it already exists!")
     } else {
       ethChain.addBlock(block)
       // send the new block to web app
       vertx.eventBus().send(Address.ADD_ETH_BLOCK.name, JsonObject(Json.encode(block)))
-      //LOG.info("[REDUCER]: added block ${block.number}")
     }
-  }
-
-  fun processBlock(block: ETHBlock) {
-
   }
 
   override fun handlePropagateTransaction(tx: ETHTransaction) {
@@ -83,8 +72,5 @@ class Reducer: ETHBaseNode() {
   }
 
   override fun handlePropagateTransactions(txs: List<ETHTransaction>) {
-    //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
-
-
-  }
+}

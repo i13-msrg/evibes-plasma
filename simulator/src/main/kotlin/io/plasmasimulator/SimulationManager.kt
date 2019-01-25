@@ -37,17 +37,6 @@ class SimulationManager : AbstractVerticle() {
     sockJSHandler.bridge(options)
 
     router.route("/eventbus/*").handler(sockJSHandler)
-//    router.route("/start").handler { req ->
-//      LOG.info("Starting simulation from API")
-//      val responseMsg = if(startSimulation())
-//        "Simulation started!"
-//      else
-//        "Simulation is running! Please stop id first in order to restart it."
-//
-//      req.response()
-//        .putHeader("content-type", "text/plain")
-//        .end(responseMsg)
-//    }
     router.route("/stop").handler { req ->
       LOG.info("Stopping simulation from API")
       val responseMsg = if(stopSimulation())
@@ -60,9 +49,6 @@ class SimulationManager : AbstractVerticle() {
     }
 
     router.route("/configure").handler { req ->
-
-      val updateConfig = req.body as JsonObject
-
       req.response()
         .putHeader("content-type", "text/plain")
         .end("CONFIGURE")
@@ -132,11 +118,6 @@ class SimulationManager : AbstractVerticle() {
           plasmaChildrenAddresses.add(address)
         }
       }
-
-//      vertx.eventBus().send(Address.SET_PLASMA_CHAIN_ADDRESSES.name, JsonObject()
-//        .put("mainPlasmaChainAddress", mainPlasmaChainAddress)
-//        .put("plasmaChildrenAddresses", plasmaChildrenAddresses))
-
       // Deploy plasma clients
       val plasmaManagerConfig = JsonObject()
         .put("numberOfPlasmaClients", conf.getInteger("numberOfPlasmaClients"))
@@ -185,8 +166,6 @@ class SimulationManager : AbstractVerticle() {
           deployedVerticleIds.add(ar.result())
         }
       }
-
-
     }
     return true
   }
