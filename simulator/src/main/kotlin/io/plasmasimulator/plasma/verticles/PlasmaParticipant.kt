@@ -38,7 +38,6 @@ open class PlasmaParticipant: MainChainConnector() {
     if(config().containsKey("parentPlasmaAddress")) {
       chain.parentChainAddress          = config().getString("parentPlasmaAddress")
     }
-    bootstrapBlockchain()
 
     if(chain.parentChainAddress != null) {
       // I have a parent plasma chain, so I am expecting to see some blocks
@@ -50,14 +49,6 @@ open class PlasmaParticipant: MainChainConnector() {
         }
       }
     }
-  }
-
-  fun bootstrapBlockchain() {
-    val genesisBlock = PlasmaBlock(number = 0, prevBlockNum = -1)
-    genesisBlock.merkleRoot = HashUtils.hash("0,0,-1".toByteArray())
-    pendingUTXOs = myUTXOs.toMutableList()
-    createUTXOsForBlock(genesisBlock)
-    //chain.addBlock(genesisBlock, UTXOPool())
   }
 
   fun removeUTXOsForBlock(block: PlasmaBlock) {

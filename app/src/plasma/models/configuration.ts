@@ -6,13 +6,13 @@ export interface Configuration {
     plasmaChildren: number;
     numberOfNeighbours: number;
     blockGasLimit: number;
-    transactionGas: number;
-    transactionGasPrice: number;
+    plasmaTXGasLimit: number;
+    plasmaTXGasPrice: number;
     transactionGenerationRate: number;
     numberOfTransactionGenerationIntervals: number;
     enableExternalTransactions: boolean;
-    externalGasLimit: number;
-    externalGasPrice: number;
+    externalTxGasLimit: number;
+    externalTxGasPrice: number;
     externalTransactionGenerationRate: number;
     numberOfEthereumExternalAccounts: number;
     amountPerEthereumExternalAccount: number;

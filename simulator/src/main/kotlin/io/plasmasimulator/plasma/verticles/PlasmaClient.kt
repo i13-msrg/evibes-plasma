@@ -51,8 +51,6 @@ class PlasmaClient: PlasmaParticipant() {
 
         vertx.eventBus().publish("${chain.chainAddress}/${Address.PUBLISH_TRANSACTION.name}", txJson)
       }
-//      else
-//        LOG.info("Transaction is null")
     }
 
     vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.PUBLISH_TRANSACTION.name}") { msg ->
@@ -71,7 +69,6 @@ class PlasmaClient: PlasmaParticipant() {
       calculateBalance()
       var jsonObject = JsonObject().put("address", address).put("balance", balance)
       vertx.eventBus().send("${chain.chainAddress}/${Address.PUBLISH_BALANCE.name}", jsonObject)
-      //LOG.info("$address : my balance is ${balance}")
     }
 
     vertx.eventBus().consumer<Any>("${chain.chainAddress}/${Address.WITHDRAW_TOKENS.name}") { msg ->

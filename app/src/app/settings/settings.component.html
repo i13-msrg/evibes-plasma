@@ -49,13 +49,13 @@
         <div class="icon-form-field">
             <mat-icon color="primary"><fa-icon icon="hourglass-end" color="primary"></fa-icon></mat-icon> 
             <mat-form-field >
-              <input matInput type="number" placeholder="Gas Limit of external transactions" [(ngModel)]="currentConfiguration.externalGasLimit">
+              <input matInput type="number" placeholder="Gas Limit of external transactions" [(ngModel)]="currentConfiguration.externalTxGasLimit">
             </mat-form-field>
           </div>
           <div class="icon-form-field">
               <mat-icon color="primary"><fa-icon icon="money-bill" color="primary"></fa-icon></mat-icon> 
               <mat-form-field >
-                <input matInput type="number" placeholder="Gas Price of external transactions" [(ngModel)]="currentConfiguration.externalGasPrice">
+                <input matInput type="number" placeholder="Gas Price of external transactions" [(ngModel)]="currentConfiguration.externalTxGasPrice">
               </mat-form-field>
             </div>
         
@@ -116,7 +116,7 @@
       <div class="icon-form-field">
           <mat-icon color="primary"><fa-icon icon="hourglass-end" color="primary"></fa-icon></mat-icon> 
           <mat-form-field >
-            <input matInput type="number" placeholder="Gas Limit per Transaction" [(ngModel)]="currentConfiguration.transactionGas">
+            <input matInput type="number" placeholder="Gas Limit per Transaction" [(ngModel)]="currentConfiguration.plasmaTXGasLimit">
           </mat-form-field>
         </div>
       <div class="icon-form-field">

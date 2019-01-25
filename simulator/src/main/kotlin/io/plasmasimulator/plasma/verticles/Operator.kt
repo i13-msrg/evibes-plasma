@@ -4,18 +4,12 @@ import io.plasmasimulator.conf.Address
 import io.plasmasimulator.plasma.models.NestedChain
 import io.plasmasimulator.plasma.models.PlasmaBlock
 import io.plasmasimulator.plasma.models.Transaction
-import io.plasmasimulator.utils.FileManager
 import io.plasmasimulator.utils.HashUtils
 import io.plasmasimulator.utils.MerkleTreeBuilder
 import io.vertx.core.Future
-import io.vertx.core.buffer.Buffer
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
 import org.slf4j.LoggerFactory
-import java.io.File
-import jdk.nashorn.internal.objects.NativeArray.forEach
-import io.vertx.core.file.AsyncFile
-import io.vertx.core.file.OpenOptions
 
 
 

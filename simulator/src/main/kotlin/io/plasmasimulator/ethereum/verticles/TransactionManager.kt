@@ -29,22 +29,14 @@ class TransactionManager : ETHBaseNode() {
 
     val numberOfAccounts = config().getInteger("numberOfEthereumExternalAccounts")
     val amountPerAccount = config().getInteger("amountPerEthereumExternalAccount")
-    gasLimit = config().getInteger("externalGasLimit")
-    gasPrice = config().getInteger("externalGasPrice")
+    gasLimit = config().getInteger("externalTxGasLimit")
+    gasPrice = config().getInteger("externalTxGasPrice")
 
     generateAccounts(numberOfAccounts, amountPerAccount)
 
     vertx.eventBus().consumer<Any>(Address.ETH_ISSUE_TRANSACTIONS.name) { msg ->
       LOG.info("CREATING TRANSACTIONS .... ")
       val transactions = createTransactions()
-//      peers.forEach { peer ->
-//        transactions.forEach { tx ->
-//          val data = JsonObject().put("type", "propagateTransaction")
-//                                             .put("transaction", JsonObject(Json.encode(tx)))
-//          vertx.eventBus().send(peer, data)
-//        }
-//
-//      }
       val jsonTXs = JsonArray()
       transactions.forEach { tx ->
         jsonTXs.add(JsonObject(Json.encode(tx)))
@@ -101,6 +93,6 @@ class TransactionManager : ETHBaseNode() {
   }
 
   override fun handlePropagateTransactions(txs: List<ETHTransaction>) {
-//    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
   }
 }

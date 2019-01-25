@@ -17,7 +17,6 @@ class ETHNode : ETHBaseNode() {
   private var plasmaContract = PlasmaContract(10)
   var accountsMap = mutableMapOf<String, Account>()
   private var blockGasLimit = 0
-  private var txPoolGas = 0
   var tokensPerClient = 0
 
 
@@ -36,6 +35,7 @@ class ETHNode : ETHBaseNode() {
   fun processContractTransaction(tx: ETHTransaction) {
     if(tx.data == null) return
     when(tx.data!!.get("method")) {
+
       "submitBlock" -> plasmaContract.submitBlock(tx.data!!.get("rootHash")!!,
                                                   tx.data!!.get("timestamp")!!.toLong())
 
@@ -54,7 +54,7 @@ class ETHNode : ETHBaseNode() {
         val address = tx.data!!.get("address")!!
         val amount = tx.data!!.get("amount")!!.toInt()
 
-        val result = plasmaContract.withdraw(address, amount, chainAddress)
+        plasmaContract.withdraw(address, amount, chainAddress)
       }
     }
   }
@@ -73,42 +73,10 @@ class ETHNode : ETHBaseNode() {
     return false
   }
 
-  fun issue_transaction() {
-    var accountsList = accountsMap.values.shuffled()
-    val sourceIndex = Random().nextInt(accountsList.size)
-    var sourceAccount = accountsList.get(sourceIndex)
-    var destAccount = getDestinationAccount(sourceIndex, accountsList)
-    val amountToTransfer = getRandomAmount(sourceAccount.balance)
-
-    val newTransaction = ETHTransaction(nonce = 1,
-                                        from = sourceAccount.address,
-                                        to = destAccount.address,
-                                        amount = amountToTransfer,
-                                        gasLimit = 30,
-                                        gasPrice = 20,
-                                        data = null)
-
-  }
-
-  fun getDestinationAccount(sourceIndex: Int, accountsList: List<Account>) : Account {
-    var destIndex: Int
-    do {
-      destIndex = Random().nextInt(accountsList.size)
-    } while (destIndex == sourceIndex)
-    return accountsList.get(destIndex)
-  }
-
-  fun getRandomAmount(amount: Int): Int {
-    return Random().nextInt(amount)
-  }
-
   override fun handlePropagateTransaction(tx: ETHTransaction) {
     if(!txPool.contains(tx)) {
-      if(!validateTransaction(tx)) {
-        //LOG.info("Transaction $tx is invalid")
-      } else {
+      if(validateTransaction(tx)) {
         txPool.add(tx)
-
         // propagate transaction to other peers
         propagateTransaction(tx)
 
@@ -161,8 +129,6 @@ class ETHNode : ETHBaseNode() {
 
   fun gasLimitForBlockReached() : Boolean {
     var gas = txPoolGas()
-//    LOG.info("[$ethAddress] txPoolGas: $gas")
-//    LOG.info("[$ethAddress] blockGasLimit: $blockGasLimit")
 
     return gas >= blockGasLimit
   }

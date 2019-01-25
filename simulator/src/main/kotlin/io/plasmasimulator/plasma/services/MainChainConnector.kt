@@ -26,7 +26,7 @@ open class MainChainConnector : ETHBaseNode() {
     super.start(startFuture)
     LOG.info("ROOT CHAIN ADDRESS $ethAddress")
     plasmaContractAddress = config().getString("plasmaContractAddress")
-    transactionGas = config().getInteger("transactionGas")
+    transactionGas = config().getInteger("plasmaTXGasLimit")
   }
 
   override fun stop(stopFuture: Future<Void>?) {
@@ -101,9 +101,6 @@ open class MainChainConnector : ETHBaseNode() {
       ethChain.addBlock(block)
       propagateBlock(block)
     }
-//  else {
-//    LOG.info("[$ethAddress]: attempted to add block ${block.number}, but it already exists!")
-//  }
   }
 
   override fun handlePropagateTransaction(tx: ETHTransaction) {

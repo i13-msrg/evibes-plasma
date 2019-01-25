@@ -146,7 +146,7 @@ class SimulationManager : AbstractVerticle() {
         .put("mainPlasmaChainAddress", mainPlasmaChainAddress)
         .put("plasmaChildrenAddresses", plasmaChildrenAddresses)
         .put("plasmaBlockInterval", conf.getInteger("plasmaBlockInterval"))
-        .put("transactionGas", conf.getInteger("transactionGas"))
+        .put("plasmaTXGasLimit", conf.getInteger("plasmaTXGasLimit"))
         .put("transactionGenerationRate", conf.getInteger("transactionGenerationRate"))
         .put("numberOfTransactionGenerationIntervals", conf.getInteger("numberOfTransactionGenerationIntervals"))
 

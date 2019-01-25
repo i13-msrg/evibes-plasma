@@ -10,11 +10,10 @@ class MerkleTree(var digest: ByteArray = mutableListOf<Byte>().toByteArray()) {
   fun add(leftChild: MerkleTree, rightChild: MerkleTree?) {
     this.leftChild = leftChild
     this.rightChild = rightChild
-    if(rightChild != null) {
-      digest = HashUtils.hash(arrayOf(leftChild.digest, rightChild.digest))
-    }
-    else {
-      digest = leftChild.digest
+    digest = if(rightChild != null) {
+      HashUtils.hash(arrayOf(leftChild.digest, rightChild.digest))
+    } else {
+      leftChild.digest
     }
   }
 

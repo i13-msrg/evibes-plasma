@@ -13,19 +13,19 @@ class Configuration {
       .put("transactionsPerPlasmaBlock", 5)
       .put("plasmaChildren", 0)
       .put("numberOfNeighbours", 20)
-      .put("blockGasLimit", 300)
-      .put("transactionGas", 30) // plasmaTXGasLimit
-      .put("transactionGasPrice", 20) // plasmaTXGasPrice
+      .put("blockGasLimit", 100)
+      .put("plasmaTXGasLimit", 30)
+      .put("plasmaTXGasPrice", 20)
       .put("neighboursUpdateInterval", 30)
 
       .put("enableExternalTransactions", true)
-      .put("externalGasLimit", 10) // externalTxGasLimit
-      .put("externalGasPrice", 20) // externalTxGasPrice
+      .put("externalTxGasLimit", 10)
+      .put("externalTxGasPrice", 20)
       .put("externalTransactionGenerationRate",  10)
       .put("numberOfEthereumExternalAccounts", 50)
       .put("amountPerEthereumExternalAccount", 100)
 
-      .put("transactionGenerationRate", 5)
+      .put("transactionGenerationRate", 2)
       .put("numberOfTransactionGenerationIntervals", 50)
       .put("difficulty", 131072)
       .put("plasmaBlockInterval", 100)
