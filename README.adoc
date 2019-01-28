@@ -1,0 +1,25 @@
+= Plasma Simulator
+
+Plasma Simulator is a tool for simulating scalable autonomous smart contract - Plasma on an Ethereum-like Blockchain.
+
+== Prerequisites
+- You have Java JDK or JRE version 7+ installed. To check, run `java -version`
+- You have node and npm installed. To check, run `npm -v`. Installation instructions
+can be found on https://nodejs.org/en/download/
+
+== Building and installation
+
+To run Plasma simulator:
+```
+cd simulator
+./gradlew clean run
+```
+
+To run the web application:
+```
+cd app
+npm install
+ng serve
+```
+
+The web application will be available at http://localhost:4200/
