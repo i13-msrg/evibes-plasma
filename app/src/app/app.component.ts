@@ -10,7 +10,7 @@ import { AppState } from './app.state';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'ui';
+  title = 'Plasma Simulator';
 
   constructor(private store: Store<AppState>,
               private plasmaEventBusService: PlasmaEventBusService) {
