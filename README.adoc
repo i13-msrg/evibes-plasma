@@ -2,6 +2,10 @@
 
 Plasma Simulator is a tool for simulating scalable autonomous smart contract - Plasma on an Ethereum-like Blockchain.
 
+# Documentation
+
+[For detailed documentation, please review this Master Thesis](https://github.com/i13-msrg/evibes-plasma/blob/master/docs/MasterThesis_GA.pdf)
+
 == Prerequisites
 - You have Java JDK or JRE version 7+ installed. To check, run `java -version`
 - You have node and npm installed. To check, run `npm -v`. Installation instructions
